@@ -600,6 +600,7 @@ async function handleVerifyFollow() {
 
   // Registrar confirmación de seguimiento para el usuario
   localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+  localStorage.setItem('kick_following_caoz', 'true');
   state.user.is_following = true;
 
   try {
@@ -620,8 +621,21 @@ async function handleVerifyFollow() {
       confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
     }
     renderUI();
-  }, 500);
+  }, 400);
 }
+
+function handleFollowLinkClick() {
+  showToast('⚡ Abriendo canal de @Caoz en Kick... Al regresar pulsa "Verificar Follow".');
+  // Auto-verificar tras volver de la pestaña de Kick
+  setTimeout(() => {
+    if (state && state.user && state.user.is_logged_in && !state.user.is_following) {
+      handleVerifyFollow();
+    }
+  }, 4000);
+}
+
+window.handleVerifyFollow = handleVerifyFollow;
+window.handleFollowLinkClick = handleFollowLinkClick;
 
 // -------------------------------------------------------------------
 // 8. Autenticación Kick Manual de Respaldo
@@ -785,4 +799,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
+  // Detección automática de follow al volver de la pestaña de Kick
+  window.addEventListener('focus', () => {
+    if (state && state.user && state.user.is_logged_in && !state.user.is_following) {
+      handleVerifyFollow();
+    }
+  });
 });
