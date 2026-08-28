@@ -30,10 +30,14 @@
         </a>
 
         <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
-        <button class="nav-btn kick-login-btn" id="navLoginBtn">
-          <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-btn-icon">
-          <span>Iniciar Sesión con Kick</span>
-        </button>
+        <div class="kick-login-group" id="navLoginBtn" title="Iniciar Sesión Oficial con Kick">
+          <div class="kick-logo-badge">
+            <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-standalone-logo">
+          </div>
+          <button class="kick-text-btn">
+            Iniciar Sesión con Kick
+          </button>
+        </div>
 
         <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
         <div class="user-pill" id="userPillBox" style="display: none; align-items: center; gap: 10px;">
@@ -119,10 +123,14 @@
           <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
             Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus números.
           </p>
-          <button class="btn btn-primary kick-login-btn kick-main-login-btn" id="walletLoginBtn" style="width: 100%; justify-content: center; padding: 14px 20px; font-size: 1rem;">
-            <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-btn-icon">
-            <span>Iniciar Sesión con Kick</span>
-          </button>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+            <div class="kick-logo-badge-lg">
+              <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-standalone-logo-lg">
+            </div>
+            <button class="btn btn-primary" id="walletLoginBtn" style="flex: 1; padding: 14px 20px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+              Iniciar Sesión con Kick
+            </button>
+          </div>
         </div>
 
         <!-- Estado: Usuario SÍ logueado -->
@@ -221,10 +229,14 @@
           <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
             Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
           </p>
-          <button class="btn btn-primary kick-login-btn kick-main-login-btn" id="lockedLoginBtn" style="padding: 14px 32px; font-size: 1.05rem; display: inline-flex; align-items: center; justify-content: center; margin: 0 auto;">
-            <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-btn-icon">
-            <span>Iniciar Sesión con Kick para Elegir Números</span>
-          </button>
+          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto;">
+            <div class="kick-logo-badge-lg">
+              <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-standalone-logo-lg">
+            </div>
+            <button class="btn btn-primary" id="lockedLoginBtn" style="padding: 14px 28px; font-size: 1.05rem; font-weight: 800; border-radius: 12px;">
+              Iniciar Sesión con Kick para Elegir Números
+            </button>
+          </div>
         </div>
 
         <!-- Área de Selección de Números (Visible solo si ESTÁ logueado con Kick) -->
@@ -282,7 +294,9 @@
     <div style="background: var(--bg-card); border: 2px solid var(--kick-green); box-shadow: 0 0 40px var(--kick-green-glow), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; position: relative; text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
       <button id="closeLoginModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
       
-      <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" style="width: 52px; height: 52px; margin-bottom: 14px; filter: drop-shadow(0 0 15px rgba(83, 252, 24, 0.7));">
+      <div style="display: inline-block; background: #080c14; border: 2px solid rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(83, 252, 24, 0.25);">
+        <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" style="width: 48px; height: 48px; display: block; filter: drop-shadow(0 0 12px rgba(83, 252, 24, 0.9));">
+      </div>
       <h3 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 6px;">Iniciar Sesión con Kick</h3>
       <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 24px;">
         Ingresa tu nombre de usuario oficial de <strong>Kick</strong> para sincronizar tus tickets y elegir tus números.
@@ -294,9 +308,8 @@
           <input type="text" id="kickUsernameInput" placeholder="TuUsuarioDeKick" style="width: 100%; padding: 14px 16px 14px 38px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 700; outline: none;" required autocomplete="off">
         </div>
 
-        <button type="submit" class="btn btn-primary kick-login-btn" id="submitLoginBtn" style="width: 100%; padding: 14px; font-size: 1rem; justify-content: center;">
-          <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-btn-icon">
-          <span>🚀 Entrar a la Sala del Sorteo</span>
+        <button type="submit" class="btn btn-primary" id="submitLoginBtn" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+          🚀 Entrar a la Sala del Sorteo
         </button>
       </form>
     </div>
