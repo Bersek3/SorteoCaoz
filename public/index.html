@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
+
 <body>
 
   <!-- Navigation Bar -->
@@ -15,8 +17,6 @@
       <a href="index.html" class="brand">
         <div class="brand-logo">K</div>
         <div class="brand-title">
-          KICK RAFFLE
-          <span class="kick-badge">PS5 EDITION</span>
         </div>
       </a>
 
@@ -25,14 +25,17 @@
         <a href="draw.html" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
           🎰 OBS Live Draw
         </a>
-        <a href="admin.html" class="nav-btn streamer-btn" id="navAdminBtn" style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
+        <a href="admin.html" class="nav-btn streamer-btn" id="navAdminBtn"
+          style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
           👑 Panel Streamer
         </a>
 
         <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
         <div class="kick-login-group" id="navLoginBtn" title="Iniciar Sesión Oficial con Kick">
           <div class="kick-logo-badge">
-            <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-standalone-logo">
+            <img
+              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+              alt="Kick Logo" class="kick-standalone-logo">
           </div>
           <button class="kick-text-btn">
             Iniciar Sesión con Kick
@@ -46,7 +49,9 @@
             <span class="user-name" id="navUserName">@Usuario</span>
             <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
           </div>
-          <button id="logoutBtn" class="nav-btn" style="padding: 6px 12px; font-size: 0.78rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Cerrar Sesión de Kick">
+          <button id="logoutBtn" class="nav-btn"
+            style="padding: 6px 12px; font-size: 0.78rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+            title="Cerrar Sesión de Kick">
             🚪 Cerrar Sesión
           </button>
         </div>
@@ -65,7 +70,9 @@
           </div>
           <h1 class="hero-title" id="giveawayTitle">Sorteo PlayStation 5 Slim 🎮</h1>
           <p class="hero-desc">
-            ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte automáticamente en <strong>1 Ticket</strong> para elegir tu número de la suerte.
+            ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el
+            canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte
+            automáticamente en <strong>1 Ticket</strong> para elegir tu número de la suerte.
           </p>
         </div>
 
@@ -115,26 +122,31 @@
 
       <!-- User Wallet / Ticket HUD Card -->
       <div class="wallet-card" id="walletCard">
-        
+
         <!-- Estado: Usuario NO logueado -->
         <div id="walletLoggedOut" style="text-align: center; padding: 20px 0;">
           <div style="font-size: 3rem; margin-bottom: 10px;">🎟️</div>
           <h3 style="font-size: 1.2rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
           <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
-            Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus números.
+            Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus
+            números.
           </p>
           <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
             <div class="kick-logo-badge-lg">
-              <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-standalone-logo-lg">
+              <img
+                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+                alt="Kick Logo" class="kick-standalone-logo-lg">
             </div>
-            <button class="btn btn-primary" id="walletLoginBtn" style="flex: 1; padding: 14px 20px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+            <button class="btn btn-primary" id="walletLoginBtn"
+              style="flex: 1; padding: 14px 20px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
               Iniciar Sesión con Kick
             </button>
           </div>
         </div>
 
         <!-- Estado: Usuario SÍ logueado -->
-        <div id="walletLoggedIn" style="display: none; flex-direction: column; height: 100%; justify-content: space-between;">
+        <div id="walletLoggedIn"
+          style="display: none; flex-direction: column; height: 100%; justify-content: space-between;">
           <div class="wallet-header">
             <div class="wallet-user-info">
               <img src="" alt="Kick Avatar" class="wallet-avatar-big" id="walletAvatar">
@@ -143,7 +155,8 @@
                   <span id="walletUsername">@Usuario</span>
                   <span class="verified-icon" title="Cuenta de Kick Verificada">✓</span>
                 </div>
-                <span style="font-size: 0.78rem; color: var(--kick-green);" id="walletSubStatus">Usuario Conectado</span>
+                <span style="font-size: 0.78rem; color: var(--kick-green);" id="walletSubStatus">Usuario
+                  Conectado</span>
               </div>
             </div>
             <span class="tag-badge tag-green" id="userRoleBadge">Espectador</span>
@@ -168,7 +181,9 @@
             <button class="btn btn-primary" style="flex: 1;" id="autoPickBtn">
               🎲 Auto-Elegir Mis Números
             </button>
-            <button class="btn btn-secondary" id="walletLogoutBtn" style="padding: 10px 16px; border-color: rgba(255, 51, 102, 0.4); color: var(--danger-red);" title="Cerrar Sesión">
+            <button class="btn btn-secondary" id="walletLogoutBtn"
+              style="padding: 10px 16px; border-color: rgba(255, 51, 102, 0.4); color: var(--danger-red);"
+              title="Cerrar Sesión">
               🚪 Salir
             </button>
           </div>
@@ -182,7 +197,7 @@
   <section class="cinema-section">
     <div class="container">
       <div class="cinema-container">
-        
+
         <!-- Live Stream Header -->
         <div class="screen-wrapper">
           <div class="cinema-screen-container">
@@ -200,7 +215,8 @@
                 <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.75rem;" id="toggleStreamBtn">
                   📺 Ocultar / Ver Stream
                 </button>
-                <a href="https://kick.com/caoz" target="_blank" class="nav-btn streamer-btn" style="padding: 4px 12px; font-size: 0.75rem;">
+                <a href="https://kick.com/caoz" target="_blank" class="nav-btn streamer-btn"
+                  style="padding: 4px 12px; font-size: 0.75rem;">
                   Ir a Kick.com/Caoz ↗
                 </a>
               </div>
@@ -208,12 +224,8 @@
 
             <!-- Kick Player Embed -->
             <div class="kick-stream-iframe-wrapper" id="streamPlayerBox">
-              <iframe 
-                src="https://player.kick.com/caoz?autoplay=true&muted=true" 
-                frameborder="0" 
-                scrolling="no" 
-                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                allowfullscreen="true">
+              <iframe src="https://player.kick.com/caoz?autoplay=true&muted=true" frameborder="0" scrolling="no"
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen="true">
               </iframe>
             </div>
           </div>
@@ -221,19 +233,25 @@
         </div>
 
         <!-- Bloque de Selección Bloqueada (Visible solo si NO está logueado) -->
-        <div id="seatsLockedBox" style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
+        <div id="seatsLockedBox"
+          style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
           <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
           <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
             SELECCIÓN DE NÚMEROS BLOQUEADA
           </h2>
-          <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
-            Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
+          <p
+            style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
+            Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar
+            sesión con tu cuenta de Kick.
           </p>
           <div style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto;">
             <div class="kick-logo-badge-lg">
-              <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" class="kick-standalone-logo-lg">
+              <img
+                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+                alt="Kick Logo" class="kick-standalone-logo-lg">
             </div>
-            <button class="btn btn-primary" id="lockedLoginBtn" style="padding: 14px 28px; font-size: 1.05rem; font-weight: 800; border-radius: 12px;">
+            <button class="btn btn-primary" id="lockedLoginBtn"
+              style="padding: 14px 28px; font-size: 1.05rem; font-weight: 800; border-radius: 12px;">
               Iniciar Sesión con Kick para Elegir Números
             </button>
           </div>
@@ -290,12 +308,19 @@
   </div>
 
   <!-- Kick Login Modal -->
-  <div id="loginModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: var(--bg-card); border: 2px solid var(--kick-green); box-shadow: 0 0 40px var(--kick-green-glow), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; position: relative; text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-      <button id="closeLoginModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
-      
-      <div style="display: inline-block; background: #080c14; border: 2px solid rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(83, 252, 24, 0.25);">
-        <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png" alt="Kick Logo" style="width: 48px; height: 48px; display: block; filter: drop-shadow(0 0 12px rgba(83, 252, 24, 0.9));">
+  <div id="loginModal"
+    style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div
+      style="background: var(--bg-card); border: 2px solid var(--kick-green); box-shadow: 0 0 40px var(--kick-green-glow), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; position: relative; text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+      <button id="closeLoginModal"
+        style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
+
+      <div
+        style="display: inline-block; background: #080c14; border: 2px solid rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(83, 252, 24, 0.25);">
+        <img
+          src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+          alt="Kick Logo"
+          style="width: 48px; height: 48px; display: block; filter: drop-shadow(0 0 12px rgba(83, 252, 24, 0.9));">
       </div>
       <h3 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 6px;">Iniciar Sesión con Kick</h3>
       <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 24px;">
@@ -304,11 +329,15 @@
 
       <form id="loginForm" onsubmit="return false;">
         <div style="position: relative; margin-bottom: 20px;">
-          <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--kick-green); font-weight: 800; font-size: 1.1rem;">@</span>
-          <input type="text" id="kickUsernameInput" placeholder="TuUsuarioDeKick" style="width: 100%; padding: 14px 16px 14px 38px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 700; outline: none;" required autocomplete="off">
+          <span
+            style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--kick-green); font-weight: 800; font-size: 1.1rem;">@</span>
+          <input type="text" id="kickUsernameInput" placeholder="TuUsuarioDeKick"
+            style="width: 100%; padding: 14px 16px 14px 38px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 700; outline: none;"
+            required autocomplete="off">
         </div>
 
-        <button type="submit" class="btn btn-primary" id="submitLoginBtn" style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+        <button type="submit" class="btn btn-primary" id="submitLoginBtn"
+          style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
           🚀 Entrar a la Sala del Sorteo
         </button>
       </form>
@@ -324,4 +353,5 @@
   <script src="js/kick_oauth.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>
