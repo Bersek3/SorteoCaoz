@@ -180,36 +180,53 @@
           <div class="screen-light-rays"></div>
         </div>
 
-        <!-- Cinema Toolbar & Legend -->
-        <div class="cinema-toolbar">
-          <div class="seat-legend">
-            <div class="legend-item">
-              <div class="legend-sample sample-free"></div>
-              <span>Disponible</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-sample sample-mine"></div>
-              <span>Mis Números</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-sample sample-taken"></div>
-              <span>Ocupado por otro viewer</span>
-            </div>
-          </div>
-
-          <div class="toolbar-filters">
-            <button class="filter-btn active" data-filter="all">Todos (<span id="countTotalSeats">200</span>)</button>
-            <button class="filter-btn" data-filter="free">🟢 Libres (<span id="countFreeSeats">0</span>)</button>
-            <button class="filter-btn" data-filter="mine">⚡ Míos (<span id="countMySeats">0</span>)</button>
-            <button class="filter-btn" data-filter="taken">🔒 Ocupados (<span id="countTakenSeats">0</span>)</button>
-            <input type="text" class="search-input" id="searchSeatInput" placeholder="Buscar # o @user...">
-          </div>
+        <!-- Bloque de Sala Bloqueada (Visible solo si NO está logueado) -->
+        <div id="seatsLockedBox" style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
+          <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
+          <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
+            SALA DE SELECCIÓN DE ASIENTOS BLOQUEADA
+          </h2>
+          <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
+            Para ver el mapa interactivo de números de la sala de cine y reservar tus asientos para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
+          </p>
+          <a href="/api/auth/kick/login" class="btn btn-primary" style="padding: 14px 32px; font-size: 1.05rem; text-decoration: none; display: inline-flex;">
+            🟢 Iniciar Sesión con Kick para Elegir Números
+          </a>
         </div>
 
-        <!-- Interactive Cinema Seats Grid -->
-        <div class="seats-grid-wrapper">
-          <div class="seats-grid" id="seatsGrid">
-            <!-- Asientos generados dinámicamente con JS -->
+        <!-- Área de Selección de Asientos (Visible solo si ESTÁ logueado con Kick) -->
+        <div id="seatsSelectionArea" style="display: none;">
+          <!-- Cinema Toolbar & Legend -->
+          <div class="cinema-toolbar">
+            <div class="seat-legend">
+              <div class="legend-item">
+                <div class="legend-sample sample-free"></div>
+                <span>Disponible</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-sample sample-mine"></div>
+                <span>Mis Números</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-sample sample-taken"></div>
+                <span>Ocupado por otro viewer</span>
+              </div>
+            </div>
+
+            <div class="toolbar-filters">
+              <button class="filter-btn active" data-filter="all">Todos (<span id="countTotalSeats">200</span>)</button>
+              <button class="filter-btn" data-filter="free">🟢 Libres (<span id="countFreeSeats">0</span>)</button>
+              <button class="filter-btn" data-filter="mine">⚡ Míos (<span id="countMySeats">0</span>)</button>
+              <button class="filter-btn" data-filter="taken">🔒 Ocupados (<span id="countTakenSeats">0</span>)</button>
+              <input type="text" class="search-input" id="searchSeatInput" placeholder="Buscar # o @user...">
+            </div>
+          </div>
+
+          <!-- Interactive Cinema Seats Grid -->
+          <div class="seats-grid-wrapper">
+            <div class="seats-grid" id="seatsGrid">
+              <!-- Asientos generados dinámicamente con JS -->
+            </div>
           </div>
         </div>
 

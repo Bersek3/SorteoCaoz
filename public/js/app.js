@@ -160,6 +160,9 @@ function renderUI() {
   const isLoggedIn = user.is_logged_in;
   const isAdmin = user.is_admin;
 
+  const seatsSelectionArea = document.getElementById('seatsSelectionArea');
+  const seatsLockedBox = document.getElementById('seatsLockedBox');
+
   if (isLoggedIn && user.username) {
     // Usuario Logueado
     navLoginBtn.style.display = 'none';
@@ -175,6 +178,10 @@ function renderUI() {
     statOwnSubs.textContent = user.own_subs || 0;
     statGiftedSubs.textContent = user.gifted_subs || 0;
     statAvailableTickets.textContent = user.available_tickets || 0;
+
+    // Mostrar mapa de selección de asientos
+    if (seatsSelectionArea) seatsSelectionArea.style.display = 'block';
+    if (seatsLockedBox) seatsLockedBox.style.display = 'none';
 
     // Solo mostrar botones de Streamer si es Admin / Dueño
     if (isAdmin) {
@@ -201,6 +208,20 @@ function renderUI() {
       floatingBar.style.display = 'none';
     }
 
+    // Contadores & Render de Asientos
+    const total = config.total_seats || 200;
+    const occupied = Object.keys(seats).length;
+    const free = Math.max(0, total - occupied);
+    const mySeatsCount = user.my_seats?.length || 0;
+    const otherOccupied = Math.max(0, occupied - mySeatsCount);
+
+    if (countTotalSeats) countTotalSeats.textContent = total;
+    if (countFreeSeats) countFreeSeats.textContent = free;
+    if (countMySeats) countMySeats.textContent = mySeatsCount;
+    if (countTakenSeats) countTakenSeats.textContent = otherOccupied;
+
+    renderSeatsGrid(total, seats, user, winner);
+
   } else {
     // Usuario Invitado / NO Logueado
     navLoginBtn.style.display = 'inline-flex';
@@ -211,21 +232,11 @@ function renderUI() {
     walletLoggedOut.style.display = 'block';
     walletLoggedIn.style.display = 'none';
     floatingBar.style.display = 'none';
+
+    // Ocultar mapa de asientos y mostrar caja de bloqueo
+    if (seatsSelectionArea) seatsSelectionArea.style.display = 'none';
+    if (seatsLockedBox) seatsLockedBox.style.display = 'block';
   }
-
-  // Contadores
-  const total = config.total_seats || 200;
-  const occupied = Object.keys(seats).length;
-  const free = Math.max(0, total - occupied);
-  const mySeatsCount = user.my_seats?.length || 0;
-  const otherOccupied = Math.max(0, occupied - mySeatsCount);
-
-  countTotalSeats.textContent = total;
-  countFreeSeats.textContent = free;
-  countMySeats.textContent = mySeatsCount;
-  countTakenSeats.textContent = otherOccupied;
-
-  renderSeatsGrid(total, seats, user, winner);
 }
 
 // -------------------------------------------------------------------

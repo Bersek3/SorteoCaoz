@@ -532,7 +532,15 @@ async def botrix_webhook_receiver(request: Request):
 # ---------------------------------------------------------------------
 # Vistas Web & Widgets OBS
 # ---------------------------------------------------------------------
+if os.path.exists(os.path.join(PUBLIC_DIR, "css")):
+    app.mount("/css", StaticFiles(directory=os.path.join(PUBLIC_DIR, "css")), name="css")
+if os.path.exists(os.path.join(PUBLIC_DIR, "js")):
+    app.mount("/js", StaticFiles(directory=os.path.join(PUBLIC_DIR, "js")), name="js")
 app.mount("/static", StaticFiles(directory=PUBLIC_DIR), name="static")
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
 
 @app.get("/")
 async def serve_index():
