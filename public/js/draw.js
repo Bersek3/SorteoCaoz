@@ -1,202 +1,180 @@
-// Controlador de la Ruleta y Animación Cinemática para OBS
-let drawState = null;
-let isSpinning = false;
-let ws = null;
+// Lógica de Sorteo en Ruleta 3D para OBS - Modo Supabase Cloud
+let occupiedSeats = [];
+let isDrawing = false;
+let config = null;
 
-const drawPrizeTitle = document.getElementById('drawPrizeTitle');
-const drawSubtitle = document.getElementById('drawSubtitle');
-
-const tumblerBox = document.getElementById('tumblerBox');
-const rollingNumberDisplay = document.getElementById('rollingNumberDisplay');
-const rollingUserBox = document.getElementById('rollingUserBox');
-const rollingAvatar = document.getElementById('rollingAvatar');
-const rollingUsername = document.getElementById('rollingUsername');
-
-const winnerCard = document.getElementById('winnerCard');
-const winnerAvatar = document.getElementById('winnerAvatar');
-const winnerName = document.getElementById('winnerName');
-const winnerSeatNum = document.getElementById('winnerSeatNum');
-const winnerTotalTickets = document.getElementById('winnerTotalTickets');
-const winnerOdds = document.getElementById('winnerOdds');
-
+// Elementos DOM
 const startDrawBtn = document.getElementById('startDrawBtn');
 const resetDrawViewBtn = document.getElementById('resetDrawViewBtn');
+const slotTrack = document.getElementById('slotTrack');
+const winnerCard = document.getElementById('winnerCard');
+const winnerAvatar = document.getElementById('winnerAvatar');
+const winnerUsername = document.getElementById('winnerUsername');
+const winnerSeatNumber = document.getElementById('winnerSeatNumber');
+const winnerTickets = document.getElementById('winnerTickets');
+const winnerOdds = document.getElementById('winnerOdds');
+const totalParticipantsCount = document.getElementById('totalParticipantsCount');
+const prizeTitleText = document.getElementById('prizeTitleText');
 
 async function loadDrawData() {
-  try {
-    const res = await fetch('/api/state?username=CaozLive');
-    if (!res.ok) throw new Error('Error cargando estado');
-    drawState = await res.json();
-    
-    if (drawState.config) {
-      drawPrizeTitle.textContent = `GRAN SORTEO ${drawState.config.prize.toUpperCase()}`;
-      drawSubtitle.textContent = `Canal Oficial de Kick: @${drawState.config.channel || 'CaozLive'}`;
-    }
+  if (!supabase) return;
 
-    if (drawState.winner && !isSpinning) {
-      displayWinnerDirect(drawState.winner);
-    }
+  try {
+    const [configRes, seatsRes, profilesRes] = await Promise.all([
+      supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
+      supabase.from('seats').select('*'),
+      supabase.from('profiles').select('*')
+    ]);
+
+    config = configRes.data || { prize: 'PlayStation 5 Slim' };
+    occupiedSeats = seatsRes.data || [];
+
+    prizeTitleText.textContent = config.prize || 'PlayStation 5 Slim';
+    totalParticipantsCount.textContent = occupiedSeats.length;
+
+    renderInitialSlots();
   } catch (err) {
-    console.error('Error in loadDrawData:', err);
+    console.error('Error cargando datos para sorteo:', err);
   }
 }
 
-function displayWinnerDirect(winner) {
-  tumblerBox.style.display = 'none';
-  winnerCard.style.display = 'block';
-
-  winnerAvatar.src = winner.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${winner.username}`;
-  winnerName.textContent = `@${winner.username}`;
-  winnerSeatNum.textContent = `#${winner.seat_number}`;
-  winnerTotalTickets.textContent = winner.user_total_tickets || 1;
-  winnerOdds.textContent = `${winner.win_probability || 0}%`;
-}
-
-// -------------------------------------------------------------------
-// Animación Cinemática del Sorteo
-// -------------------------------------------------------------------
-async function startLiveDraw() {
-  if (isSpinning) return;
-
-  // Verificar si hay asientos ocupados
-  const occupiedKeys = Object.keys(drawState?.seats || {});
-  if (occupiedKeys.length === 0) {
-    alert('¡No hay ningún asiento ocupado en la sala para sortear! Los espectadores deben elegir sus números primero.');
+function renderInitialSlots() {
+  slotTrack.innerHTML = '';
+  if (occupiedSeats.length === 0) {
+    slotTrack.innerHTML = `
+      <div class="slot-item">
+        <span class="slot-number">#--</span>
+        <span class="slot-user">Sin participantes</span>
+      </div>
+    `;
+    startDrawBtn.disabled = true;
     return;
   }
 
-  try {
-    isSpinning = true;
-    startDrawBtn.disabled = true;
-    winnerCard.style.display = 'none';
-    tumblerBox.style.display = 'block';
-    rollingUserBox.style.visibility = 'visible';
+  startDrawBtn.disabled = false;
 
-    // 1. Obtener ganador desde el backend
-    const res = await fetch('/api/giveaway/draw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ method: 'random' })
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error al ejecutar sorteo');
-
-    const winner = data.winner;
-    const candidates = Object.values(drawState.seats);
-
-    // 2. Secuencia de Ruleta con Desaceleración Gradual (Easing)
-    const totalDuration = 7000; // 7 segundos de emoción en vivo
-    const startTime = performance.now();
-
-    function step(now) {
-      const elapsed = now - startTime;
-      const progress = Math.min(1, elapsed / totalDuration);
-
-      // Curva de desaceleración cúbica
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-
-      // Elegir un candidato aleatorio durante el giro
-      const randomCandidate = candidates[Math.floor(Math.random() * candidates.length)];
-      rollingNumberDisplay.textContent = `#${randomCandidate.seat_number}`;
-      rollingAvatar.src = randomCandidate.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${randomCandidate.username}`;
-      rollingUsername.textContent = `@${randomCandidate.username}`;
-
-      // Efecto de sonido de tick
-      window.soundFX.playRouletteTick(1 - easeOut);
-
-      if (progress < 1) {
-        // Velocidad variable según el avance
-        const delay = 30 + easeOut * 350; // De 30ms (súper rápido) a 380ms (lento y tenso)
-        setTimeout(() => requestAnimationFrame(step), delay);
-      } else {
-        // 3. FRENADO FINAL Y REVELACIÓN DEL GANADOR
-        finishDraw(winner);
-      }
-    }
-
-    requestAnimationFrame(step);
-
-  } catch (err) {
-    console.error('Error starting draw:', err);
-    alert(err.message);
-    isSpinning = false;
-    startDrawBtn.disabled = false;
+  // Llenar vista previa
+  for (let i = 0; i < 20; i++) {
+    const seat = occupiedSeats[i % occupiedSeats.length];
+    const el = document.createElement('div');
+    el.className = 'slot-item';
+    el.innerHTML = `
+      <span class="slot-number">#${seat.seat_number}</span>
+      <span class="slot-user">@${seat.username}</span>
+    `;
+    slotTrack.appendChild(el);
   }
 }
 
-function finishDraw(winner) {
-  rollingNumberDisplay.textContent = `#${winner.seat_number}`;
-  rollingAvatar.src = winner.avatar;
-  rollingUsername.textContent = `@${winner.username}`;
+async function startDraw() {
+  if (isDrawing || occupiedSeats.length === 0) return;
 
-  setTimeout(() => {
-    tumblerBox.style.display = 'none';
-    winnerCard.style.display = 'block';
+  isDrawing = true;
+  startDrawBtn.disabled = true;
+  winnerCard.style.display = 'none';
 
-    winnerAvatar.src = winner.avatar;
-    winnerName.textContent = `@${winner.username}`;
-    winnerSeatNum.textContent = `#${winner.seat_number}`;
-    winnerTotalTickets.textContent = winner.user_total_tickets;
-    winnerOdds.textContent = `${winner.win_probability}%`;
+  // Seleccionar ganador al azar
+  const winnerIndex = Math.floor(Math.random() * occupiedSeats.length);
+  const winningSeat = occupiedSeats[winnerIndex];
 
-    // Efectos de sonido triunfales
-    window.soundFX.playWinnerFanfare();
+  // Construir tira larga de la ruleta (80 elementos)
+  slotTrack.innerHTML = '';
+  const totalSlots = 80;
+  const targetIndex = 65; // El ganador se detendrá aquí
 
-    // Ráfaga masiva de confeti para el directo
-    if (typeof confetti === 'function') {
-      const count = 200;
-      const defaults = { origin: { y: 0.6 } };
+  for (let i = 0; i < totalSlots; i++) {
+    const seat = (i === targetIndex) ? winningSeat : occupiedSeats[Math.floor(Math.random() * occupiedSeats.length)];
+    const el = document.createElement('div');
+    el.className = 'slot-item';
+    if (i === targetIndex) el.classList.add('winner-target');
+    el.innerHTML = `
+      <span class="slot-number">#${seat.seat_number}</span>
+      <span class="slot-user">@${seat.username}</span>
+    `;
+    slotTrack.appendChild(el);
+  }
 
-      function fire(particleRatio, opts) {
-        confetti(Object.assign({}, defaults, opts, {
-          particleCount: Math.floor(count * particleRatio)
-        }));
-      }
+  // Reproducir sonido de ruleta
+  window.soundFX.playRouletteTick();
+  const itemWidth = 140;
+  const containerWidth = document.querySelector('.slot-window').offsetWidth;
+  const targetOffset = (targetIndex * itemWidth) - (containerWidth / 2) + (itemWidth / 2);
 
-      fire(0.25, { spread: 26, startVelocity: 55 });
-      fire(0.2, { spread: 60 });
-      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-      fire(0.1, { spread: 120, startVelocity: 45 });
+  // Animación suave con cubic-bezier
+  slotTrack.style.transition = 'transform 7s cubic-bezier(0.12, 0.8, 0.15, 1)';
+  slotTrack.style.transform = `translateX(-${targetOffset}px)`;
+
+  // Intervalo de sonido 'tick'
+  let tickCount = 0;
+  const tickInterval = setInterval(() => {
+    tickCount++;
+    window.soundFX.playRouletteTick();
+    if (tickCount > 35) clearInterval(tickInterval);
+  }, 180);
+
+  // Al finalizar el giro
+  setTimeout(async () => {
+    clearInterval(tickInterval);
+    isDrawing = false;
+
+    // Calcular estadísticas del ganador
+    const userSeatsCount = occupiedSeats.filter((s) => s.username.toLowerCase() === winningSeat.username.toLowerCase()).length;
+    const odds = ((userSeatsCount / occupiedSeats.length) * 100).toFixed(2);
+
+    // Guardar ganador en Supabase
+    try {
+      await supabase.from('giveaway_config').update({
+        winner_seat: winningSeat.seat_number,
+        winner_username: winningSeat.username,
+        winner_avatar: winningSeat.avatar_url,
+        winner_total_tickets: userSeatsCount,
+        winner_odds: odds,
+        is_locked: true,
+        updated_at: new Date().toISOString()
+      }).eq('id', 'current');
+
+      await supabase.from('draw_history').insert({
+        winner_username: winningSeat.username,
+        seat_number: winningSeat.seat_number,
+        prize: config.prize,
+        total_seats: occupiedSeats.length,
+        odds: odds,
+        drawn_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('Error guardando ganador en Supabase:', e);
     }
 
-    isSpinning = false;
-    startDrawBtn.disabled = false;
-  }, 900);
+    // Mostrar Carta de Ganador
+    winnerAvatar.src = winningSeat.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${winningSeat.username}`;
+    winnerUsername.textContent = `@${winningSeat.username}`;
+    winnerSeatNumber.textContent = `#${winningSeat.seat_number}`;
+    winnerTickets.textContent = `${userSeatsCount} Tickets`;
+    winnerOdds.textContent = `${odds}%`;
+
+    winnerCard.style.display = 'block';
+
+    // Fanfarria y Confeti
+    window.soundFX.playWinnerFanfare();
+    if (typeof confetti === 'function') {
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+      setTimeout(() => confetti({ particleCount: 150, spread: 120, origin: { y: 0.4 } }), 500);
+      setTimeout(() => confetti({ particleCount: 250, spread: 140, origin: { y: 0.5 } }), 1000);
+    }
+
+  }, 7200);
 }
 
-function resetDrawView() {
-  tumblerBox.style.display = 'block';
+function resetDraw() {
+  slotTrack.style.transition = 'none';
+  slotTrack.style.transform = 'translateX(0)';
   winnerCard.style.display = 'none';
-  rollingNumberDisplay.textContent = '#--';
-  rollingUserBox.style.visibility = 'hidden';
-}
-
-// WebSocket para disparar sorteo si se hace desde el Admin
-function initWebSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
-
-  ws = new WebSocket(wsUrl);
-  ws.onmessage = (event) => {
-    try {
-      const msg = JSON.parse(event.data);
-      if (msg.type === 'DRAW_COMPLETED' && !isSpinning) {
-        displayWinnerDirect(msg.winner);
-      } else if (msg.type === 'GIVEAWAY_RESET') {
-        resetDrawView();
-      }
-      loadDrawData();
-    } catch (e) {}
-  };
-  ws.onclose = () => setTimeout(initWebSocket, 3000);
+  startDrawBtn.disabled = false;
+  renderInitialSlots();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   loadDrawData();
-  initWebSocket();
-
-  startDrawBtn.addEventListener('click', startLiveDraw);
-  resetDrawViewBtn.addEventListener('click', resetDrawView);
+  startDrawBtn.addEventListener('click', startDraw);
+  resetDrawViewBtn.addEventListener('click', resetDraw);
 });

@@ -6,6 +6,7 @@
   <title>Widget de Alertas Kick - OBS</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
       background: transparent;
@@ -24,22 +25,19 @@
       border: 2px solid var(--kick-green);
       border-radius: 24px;
       padding: 20px 30px;
+      box-shadow: 0 0 40px var(--kick-green-glow), 0 20px 60px rgba(0, 0, 0, 0.9);
       display: flex;
       align-items: center;
       gap: 20px;
-      box-shadow: 0 0 35px var(--kick-green-glow), 0 20px 50px rgba(0, 0, 0, 0.8);
-      transform: translateY(-100px) scale(0.8);
+      transform: translateY(100px) scale(0.8);
       opacity: 0;
-      visibility: hidden;
       transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       max-width: 550px;
-      width: 100%;
     }
 
-    .alert-box.active {
+    .alert-box.show {
       transform: translateY(0) scale(1);
       opacity: 1;
-      visibility: visible;
     }
 
     .alert-avatar {
@@ -47,113 +45,95 @@
       height: 70px;
       border-radius: 50%;
       border: 3px solid var(--kick-green);
-      background: #141c2b;
       box-shadow: 0 0 20px var(--kick-green-glow);
     }
 
-    .alert-content {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .alert-tag {
-      font-size: 0.8rem;
+    .alert-title {
+      font-size: 1.1rem;
       font-weight: 800;
-      color: var(--kick-green);
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      color: #ffffff;
       margin-bottom: 4px;
     }
 
-    .alert-username {
-      font-size: 1.6rem;
+    .alert-user {
+      color: var(--kick-green);
       font-weight: 900;
-      color: #ffffff;
-      line-height: 1.1;
-      margin-bottom: 6px;
     }
 
-    .alert-message {
-      font-size: 1.05rem;
-      color: var(--cyan-accent);
-      font-weight: 700;
+    .alert-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .alert-badge {
+      background: rgba(83, 252, 24, 0.15);
+      color: var(--kick-green);
+      border: 1px solid var(--kick-green);
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-family: var(--font-mono);
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
 
   <div class="alert-box" id="alertBox">
-    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=KickUser" alt="Avatar" class="alert-avatar" id="alertAvatar">
-    <div class="alert-content">
-      <div class="alert-tag" id="alertTag">⭐ NUEVA SUSCRIPCIÓN EN KICK</div>
-      <div class="alert-username" id="alertUser">@GamerPro99</div>
-      <div class="alert-message" id="alertMessage">+5 Tickets añadidos al Sorteo PS5 🎟️</div>
+    <img src="" alt="User Avatar" class="alert-avatar" id="alertAvatar">
+    <div style="flex: 1;">
+      <div class="alert-title">
+        <span class="alert-user" id="alertUsername">@Usuario</span>
+      </div>
+      <div class="alert-desc" id="alertLabel">¡Se ha suscrito al canal de Kick!</div>
     </div>
+    <div class="alert-badge" id="alertBadge">+1 TICKET</div>
   </div>
 
   <script src="js/audio.js"></script>
+  <script src="js/config.js"></script>
   <script>
     const alertBox = document.getElementById('alertBox');
     const alertAvatar = document.getElementById('alertAvatar');
-    const alertTag = document.getElementById('alertTag');
-    const alertUser = document.getElementById('alertUser');
-    const alertMessage = document.getElementById('alertMessage');
+    const alertUsername = document.getElementById('alertUsername');
+    const alertLabel = document.getElementById('alertLabel');
+    const alertBadge = document.getElementById('alertBadge');
 
-    let alertQueue = [];
-    let isShowing = false;
+    function triggerAlert(username, avatar, label, tickets) {
+      alertAvatar.src = avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
+      alertUsername.textContent = `@${username}`;
+      alertLabel.textContent = label;
+      alertBadge.textContent = `+${tickets} TICKET${tickets > 1 ? 'S' : ''}`;
 
-    function showAlert(evt) {
-      alertQueue.push(evt);
-      if (!isShowing) processQueue();
-    }
-
-    function processQueue() {
-      if (alertQueue.length === 0) {
-        isShowing = false;
-        return;
-      }
-
-      isShowing = true;
-      const evt = alertQueue.shift();
-
-      alertAvatar.src = evt.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${evt.username}`;
-      alertUser.textContent = `@${evt.username}`;
-      alertMessage.textContent = `+${evt.tickets_added} Tickets añadidos al Sorteo PS5 🎟️`;
-      alertTag.textContent = evt.tickets_added > 1 ? `🎁 REGALÓ ${evt.tickets_added} SUBS EN KICK` : '⭐ NUEVA SUSCRIPCIÓN EN KICK';
-
-      alertBox.classList.add('active');
+      alertBox.classList.add('show');
       window.soundFX.playSuccessChime();
 
       if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 70,
-          spread: 60,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
       }
 
       setTimeout(() => {
-        alertBox.classList.remove('active');
-        setTimeout(processQueue, 600);
+        alertBox.classList.remove('show');
       }, 5000);
     }
 
-    // WebSocket Listener
-    function initWS() {
-      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const ws = new WebSocket(`${proto}//${location.host}/ws`);
-      ws.onmessage = (e) => {
-        try {
-          const msg = JSON.parse(e.data);
-          if (msg.type === 'KICK_EVENT') {
-            showAlert(msg.event);
+    function initRealtime() {
+      if (!supabase) return;
+      supabase
+        .channel('widget_alert_realtime')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kick_events' }, (payload) => {
+          const ev = payload.new;
+          if (ev) {
+            const count = ev.count || 1;
+            const label = count > 1 ? `¡Regaló ${count} suscripciones en Kick!` : '¡Se ha suscrito en Kick!';
+            triggerAlert(ev.username, null, label, count);
           }
-        } catch (err) {}
-      };
-      ws.onclose = () => setTimeout(initWS, 3000);
+        })
+        .subscribe();
     }
 
-    initWS();
+    initRealtime();
   </script>
 </body>
 </html>

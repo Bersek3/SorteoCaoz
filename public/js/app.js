@@ -1,8 +1,7 @@
-// Lógica de Producción de la Aplicación del Sorteo PS5
+// Lógica de Producción del Sorteo PS5 - Modo GitHub Pages + Supabase Directo
 let state = null;
 let currentFilter = 'all';
 let searchQuery = '';
-let ws = null;
 
 // Elementos DOM
 const navLoginBtn = document.getElementById('navLoginBtn');
@@ -37,134 +36,147 @@ const countMySeats = document.getElementById('countMySeats');
 const countTakenSeats = document.getElementById('countTakenSeats');
 const searchSeatInput = document.getElementById('searchSeatInput');
 
-const SUPABASE_URL = window.SUPABASE_URL || "https://genlkmueekefyxmiyhjv.supabase.co";
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
-let supabaseClient = null;
-
-if (window.supabase && typeof window.supabase.createClient === 'function' && SUPABASE_ANON_KEY) {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
+const seatsSelectionArea = document.getElementById('seatsSelectionArea');
+const seatsLockedBox = document.getElementById('seatsLockedBox');
 
 // -------------------------------------------------------------------
-// 1. Cargar Estado (API Local o Supabase Directo en GitHub Pages)
+// 1. Cargar Estado Directamente desde Supabase Cloud
 // -------------------------------------------------------------------
 async function loadState() {
-  // Modo 1: API de Servidor (Local o Cloud)
-  try {
-    const res = await fetch('/api/state');
-    if (res.ok) {
-      state = await res.json();
-      renderUI();
-      return;
-    }
-  } catch (err) {
-    // Si falla, entrar al Modo 2 (Supabase Directo para GitHub Pages)
+  if (!supabase) {
+    console.error('Supabase no está disponible');
+    return;
   }
 
-  // Modo 2: Supabase Directo (GitHub Pages)
-  if (supabaseClient) {
-    try {
-      const [configRes, seatsRes, profilesRes] = await Promise.all([
-        supabaseClient.table('giveaway_config').select('*').eq('id', 'current').single(),
-        supabaseClient.table('seats').select('*'),
-        supabaseClient.table('profiles').select('*')
-      ]);
+  try {
+    const savedUser = localStorage.getItem('kick_user');
+    const roleInfo = checkUserRole(savedUser);
 
-      const configData = configRes.data || {
-        title: 'Sorteo Oficial PlayStation 5 🎮',
-        prize: 'PlayStation 5 Slim (Edición Disco)',
-        channel: 'Caoz',
-        total_seats: 200,
-        is_locked: false
-      };
+    // Consultas paralelas a Supabase
+    const [configRes, seatsRes, profilesRes] = await Promise.all([
+      supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
+      supabase.from('seats').select('*'),
+      supabase.from('profiles').select('*')
+    ]);
 
-      const seatsMap = {};
-      if (seatsRes.data) {
-        seatsRes.data.forEach(s => {
-          seatsMap[String(s.seat_number)] = {
-            seat_number: s.seat_number,
-            username: s.username,
-            avatar: s.avatar_url,
-            claimed_at: s.claimed_at
-          };
-        });
+    const configData = configRes.data || {
+      title: 'Sorteo Oficial PlayStation 5 🎮',
+      prize: 'PlayStation 5 Slim (Edición Disco)',
+      channel_slug: 'Caoz',
+      total_seats: 200,
+      is_locked: false
+    };
+
+    // Mapeo de Asientos
+    const seatsMap = {};
+    if (seatsRes.data) {
+      seatsRes.data.forEach((s) => {
+        seatsMap[String(s.seat_number)] = {
+          seat_number: s.seat_number,
+          username: s.username,
+          avatar: s.avatar_url,
+          claimed_at: s.claimed_at
+        };
+      });
+    }
+
+    let currentUserProfile = null;
+    let userSeats = [];
+
+    if (savedUser) {
+      currentUserProfile = (profilesRes.data || []).find(
+        (p) => p.username.toLowerCase() === savedUser.toLowerCase()
+      );
+
+      // Si el usuario no existe en Supabase, crearlo automáticamente
+      if (!currentUserProfile) {
+        const isOwner = savedUser.toLowerCase() === 'caoz';
+        const newProfile = {
+          kick_user_id: String(Math.abs(hashString(savedUser)) % 10000000),
+          username: savedUser,
+          display_name: savedUser,
+          avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser}`,
+          is_streamer: isOwner,
+          own_subs: isOwner ? 0 : 1,
+          gifted_subs: 0,
+          bonus_tickets: 0
+        };
+
+        const insertRes = await supabase.from('profiles').insert(newProfile).select().single();
+        currentUserProfile = insertRes.data || newProfile;
       }
 
-      // Leer usuario en localStorage / Cookie
-      const savedUser = localStorage.getItem('kick_user') || 'Bersek';
-      const currentUserProfile = (profilesRes.data || []).find(p => p.username.toLowerCase() === savedUser.toLowerCase()) || {
-        username: savedUser,
-        display_name: savedUser,
-        avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser}`,
-        own_subs: 1,
-        gifted_subs: 0,
-        bonus_tickets: 0,
-        total_tickets: 1
-      };
-
-      const isOwner = savedUser.toLowerCase() === 'caoz';
-      const isMod = savedUser.toLowerCase() === 'bersek';
-      const userSeats = Object.values(seatsMap).filter(s => s.username.toLowerCase() === savedUser.toLowerCase()).map(s => s.seat_number);
-
-      state = {
-        config: configData,
-        has_supabase: true,
-        has_kick_oauth: true,
-        stats: {
-          total_seats: configData.total_seats || 200,
-          occupied_seats: Object.keys(seatsMap).length,
-          available_seats: Math.max(0, (configData.total_seats || 200) - Object.keys(seatsMap).length),
-          occupancy_percent: Math.round((Object.keys(seatsMap).length / (configData.total_seats || 200)) * 100),
-          total_participants: new Set(Object.values(seatsMap).map(s => s.username)).size
-        },
-        user: {
-          username: currentUserProfile.username,
-          display_name: currentUserProfile.display_name || currentUserProfile.username,
-          avatar: currentUserProfile.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUserProfile.username}`,
-          own_subs: currentUserProfile.own_subs || 0,
-          gifted_subs: currentUserProfile.gifted_subs || 0,
-          total_tickets: currentUserProfile.total_tickets || 1,
-          used_tickets: userSeats.length,
-          available_tickets: Math.max(0, (currentUserProfile.total_tickets || 1) - userSeats.length),
-          my_seats: userSeats,
-          is_logged_in: true,
-          is_admin: isOwner || isMod,
-          is_streamer: isOwner,
-          is_moderator: isMod,
-          role: isOwner ? 'streamer' : (isMod ? 'moderator' : 'viewer')
-        },
-        seats: seatsMap,
-        winner: null,
-        all_users_list: profilesRes.data || []
-      };
-
-      renderUI();
-    } catch (e) {
-      console.error('Error fetching Supabase direct:', e);
+      userSeats = Object.values(seatsMap)
+        .filter((s) => s.username.toLowerCase() === savedUser.toLowerCase())
+        .map((s) => s.seat_number);
     }
+
+    const totalSeats = configData.total_seats || 200;
+    const occupiedCount = Object.keys(seatsMap).length;
+    const totalTickets = currentUserProfile ? (currentUserProfile.total_tickets ?? ((currentUserProfile.own_subs || 0) + (currentUserProfile.gifted_subs || 0) + (currentUserProfile.bonus_tickets || 0))) : 0;
+    const availableTickets = Math.max(0, totalTickets - userSeats.length);
+
+    state = {
+      config: {
+        title: configData.title || 'Sorteo Oficial PlayStation 5 🎮',
+        prize: configData.prize || 'PlayStation 5 Slim',
+        channel: configData.channel_slug || 'Caoz',
+        total_seats: totalSeats,
+        is_locked: configData.is_locked || false
+      },
+      stats: {
+        total_seats: totalSeats,
+        occupied_seats: occupiedCount,
+        available_seats: Math.max(0, totalSeats - occupiedCount),
+        occupancy_percent: Math.round((occupiedCount / totalSeats) * 100),
+        total_participants: new Set(Object.values(seatsMap).map((s) => s.username)).size
+      },
+      user: {
+        ...(currentUserProfile || {}),
+        username: savedUser,
+        display_name: currentUserProfile?.display_name || savedUser,
+        avatar: currentUserProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser || 'Guest'}`,
+        own_subs: currentUserProfile?.own_subs || 0,
+        gifted_subs: currentUserProfile?.gifted_subs || 0,
+        total_tickets: totalTickets,
+        used_tickets: userSeats.length,
+        available_tickets: availableTickets,
+        my_seats: userSeats,
+        ...roleInfo
+      },
+      seats: seatsMap,
+      winner: configData.winner_seat ? {
+        seat_number: configData.winner_seat,
+        username: configData.winner_username,
+        avatar: configData.winner_avatar,
+        user_total_tickets: configData.winner_total_tickets,
+        win_probability: configData.winner_odds,
+        prize: configData.prize
+      } : null,
+      all_users_list: profilesRes.data || []
+    };
+
+    renderUI();
+  } catch (err) {
+    console.error('Error cargando datos de Supabase:', err);
   }
 }
 
 // -------------------------------------------------------------------
-// 2. Renderizado Condicional de Roles y UI
+// 2. Renderizado de Interfaz
 // -------------------------------------------------------------------
 function renderUI() {
   if (!state) return;
 
   const { config, stats, user, seats, winner } = state;
 
-  giveawayTitle.textContent = config.title || 'Sorteo Oficial PlayStation 5 🎮';
-  if (channelNameText) channelNameText.textContent = config.channel || 'Caoz';
+  giveawayTitle.textContent = config.title;
+  if (channelNameText) channelNameText.textContent = config.channel;
 
-  // Control de Acceso por Roles (Seguridad)
-  const isLoggedIn = user.is_logged_in;
+  const isLoggedIn = user.is_logged_in && user.username;
   const isAdmin = user.is_admin;
 
-  const seatsSelectionArea = document.getElementById('seatsSelectionArea');
-  const seatsLockedBox = document.getElementById('seatsLockedBox');
-
-  if (isLoggedIn && user.username) {
-    // Usuario Logueado
+  if (isLoggedIn) {
     navLoginBtn.style.display = 'none';
     userPillBox.style.display = 'flex';
     navUserAvatar.src = user.avatar;
@@ -175,15 +187,15 @@ function renderUI() {
     walletLoggedIn.style.display = 'flex';
     walletAvatar.src = user.avatar;
     walletUsername.textContent = `@${user.username}`;
-    statOwnSubs.textContent = user.own_subs || 0;
-    statGiftedSubs.textContent = user.gifted_subs || 0;
-    statAvailableTickets.textContent = user.available_tickets || 0;
+    statOwnSubs.textContent = user.own_subs;
+    statGiftedSubs.textContent = user.gifted_subs;
+    statAvailableTickets.textContent = user.available_tickets;
 
-    // Mostrar mapa de selección de asientos
+    // Mostrar mapa de selección
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'block';
     if (seatsLockedBox) seatsLockedBox.style.display = 'none';
 
-    // Solo mostrar botones de Streamer si es Admin / Dueño
+    // Botones de Admin
     if (isAdmin) {
       navAdminBtn.style.display = 'inline-flex';
       navDrawBtn.style.display = 'inline-flex';
@@ -196,7 +208,6 @@ function renderUI() {
       userRoleBadge.className = 'tag-badge tag-cyan';
     }
 
-    // Botón Auto-Pick
     if (user.available_tickets > 0) {
       autoPickBtn.disabled = false;
       autoPickBtn.textContent = `🎲 Auto-Asignar (${user.available_tickets} Libres)`;
@@ -204,26 +215,19 @@ function renderUI() {
       floatingAvailableCount.textContent = user.available_tickets;
     } else {
       autoPickBtn.disabled = true;
-      autoPickBtn.textContent = `🎲 Todos tus tickets asignados (${user.my_seats?.length || 0}/${user.total_tickets || 0})`;
+      autoPickBtn.textContent = `🎲 Todos tus tickets asignados (${user.my_seats.length}/${user.total_tickets})`;
       floatingBar.style.display = 'none';
     }
 
-    // Contadores & Render de Asientos
-    const total = config.total_seats || 200;
-    const occupied = Object.keys(seats).length;
-    const free = Math.max(0, total - occupied);
-    const mySeatsCount = user.my_seats?.length || 0;
-    const otherOccupied = Math.max(0, occupied - mySeatsCount);
+    // Contadores & Grid
+    countTotalSeats.textContent = stats.total_seats;
+    countFreeSeats.textContent = stats.available_seats;
+    countMySeats.textContent = user.my_seats.length;
+    countTakenSeats.textContent = Math.max(0, stats.occupied_seats - user.my_seats.length);
 
-    if (countTotalSeats) countTotalSeats.textContent = total;
-    if (countFreeSeats) countFreeSeats.textContent = free;
-    if (countMySeats) countMySeats.textContent = mySeatsCount;
-    if (countTakenSeats) countTakenSeats.textContent = otherOccupied;
-
-    renderSeatsGrid(total, seats, user, winner);
+    renderSeatsGrid(stats.total_seats, seats, user, winner);
 
   } else {
-    // Usuario Invitado / NO Logueado
     navLoginBtn.style.display = 'inline-flex';
     userPillBox.style.display = 'none';
     navAdminBtn.style.display = 'none';
@@ -233,14 +237,13 @@ function renderUI() {
     walletLoggedIn.style.display = 'none';
     floatingBar.style.display = 'none';
 
-    // Ocultar mapa de asientos y mostrar caja de bloqueo
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'none';
     if (seatsLockedBox) seatsLockedBox.style.display = 'block';
   }
 }
 
 // -------------------------------------------------------------------
-// 3. Renderizado de la Sala de Cine
+// 3. Renderizado de Asientos
 // -------------------------------------------------------------------
 function renderSeatsGrid(totalSeats, seats, user, winner) {
   seatsGrid.innerHTML = '';
@@ -253,13 +256,11 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
     const isMine = isOccupied && (seatData.username || '').toLowerCase() === currentUsername;
     const isWinner = winner && winner.seat_number === i;
 
-    // Filtros
     let matchesFilter = true;
     if (currentFilter === 'free' && isOccupied) matchesFilter = false;
     if (currentFilter === 'mine' && !isMine) matchesFilter = false;
     if (currentFilter === 'taken' && (!isOccupied || isMine)) matchesFilter = false;
 
-    // Búsqueda
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const numMatch = String(i).includes(q);
@@ -285,7 +286,6 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 
     seatEl.textContent = i;
 
-    // Tooltip
     const tooltip = document.createElement('div');
     tooltip.className = 'seat-tooltip';
 
@@ -314,18 +314,18 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 }
 
 // -------------------------------------------------------------------
-// 4. Selección de Asientos
+// 4. Selección Directa en Supabase
 // -------------------------------------------------------------------
 async function handleSeatClick(seatNumber, isMine, isOccupied) {
   if (!state.user.is_logged_in) {
     window.soundFX.playError();
-    showToast('Debes iniciar sesión con Kick para reservar un asiento', true);
+    promptLogin();
     return;
   }
 
   if (isOccupied && !isMine) {
     window.soundFX.playError();
-    const owner = state.seats[String(seatNumber)]?.username || 'otro usuario';
+    const owner = state.seats[String(seatNumber)]?.username || 'otro viewer';
     showToast(`El asiento #${seatNumber} ya pertenece a @${owner}`, true);
     return;
   }
@@ -337,38 +337,33 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
   }
 
   try {
-    const res = await fetch('/api/seats/toggle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ seat_numbers: [seatNumber] })
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      window.soundFX.playError();
-      showToast(data.detail || 'Error al seleccionar asiento', true);
-      return;
-    }
-
     if (isMine) {
+      // Liberar asiento en Supabase
+      await supabase.from('seats').delete().eq('seat_number', seatNumber);
       window.soundFX.playSeatRelease();
       showToast(`Asiento #${seatNumber} liberado.`);
     } else {
+      // Reservar asiento en Supabase
+      await supabase.from('seats').insert({
+        seat_number: seatNumber,
+        username: state.user.username,
+        avatar_url: state.user.avatar,
+        claimed_at: new Date().toISOString()
+      });
       window.soundFX.playSeatClick();
       showToast(`¡Asiento #${seatNumber} reservado con éxito! 🎟️`);
     }
 
     await loadState();
-
   } catch (err) {
-    console.error('Error toggling seat:', err);
+    console.error('Error modificando asiento en Supabase:', err);
     window.soundFX.playError();
-    showToast('Error de conexión con el servidor', true);
+    showToast('Error al actualizar asiento en la base de datos', true);
   }
 }
 
 // -------------------------------------------------------------------
-// 5. Auto-Asignación de Números al Azar
+// 5. Auto-Pick Directo en Supabase
 // -------------------------------------------------------------------
 async function handleAutoPick() {
   if (!state || !state.user.is_logged_in || state.user.available_tickets <= 0) {
@@ -377,71 +372,84 @@ async function handleAutoPick() {
   }
 
   try {
-    const res = await fetch('/api/seats/auto-pick', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
+    const totalSeats = state.config.total_seats;
+    const occupiedKeys = new Set(Object.keys(state.seats));
+    const freeSeats = [];
 
-    const data = await res.json();
-    if (!res.ok) {
-      window.soundFX.playError();
-      showToast(data.detail || 'Error al auto-asignar', true);
+    for (let i = 1; i <= totalSeats; i++) {
+      if (!occupiedKeys.has(String(i))) freeSeats.push(i);
+    }
+
+    if (freeSeats.length === 0) {
+      showToast('¡La sala de cine está completamente llena!', true);
       return;
     }
+
+    const countToPick = Math.min(state.user.available_tickets, freeSeats.length);
+    // Shuffle
+    const shuffled = freeSeats.sort(() => 0.5 - Math.random());
+    const chosen = shuffled.slice(0, countToPick);
+
+    const inserts = chosen.map((num) => ({
+      seat_number: num,
+      username: state.user.username,
+      avatar_url: state.user.avatar,
+      claimed_at: new Date().toISOString()
+    }));
+
+    await supabase.from('seats').insert(inserts);
 
     window.soundFX.playSuccessChime();
     if (typeof confetti === 'function') {
       confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
     }
 
-    showToast(data.message || '¡Números asignados con éxito!');
+    showToast(`¡Se han asignado ${chosen.length} asientos de la suerte a tu cuenta! 🎟️`);
     await loadState();
-
   } catch (err) {
-    console.error('Error in auto-pick:', err);
-    window.soundFX.playError();
+    console.error('Error en auto-pick:', err);
     showToast('Error al auto-asignar asientos', true);
   }
 }
 
 // -------------------------------------------------------------------
-// 6. WebSocket en Vivo
+// 6. Iniciar / Cerrar Sesión con Kick
 // -------------------------------------------------------------------
-function initWebSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
+function promptLogin() {
+  const username = prompt('Ingresa tu nombre de usuario de Kick:');
+  if (username && username.trim()) {
+    localStorage.setItem('kick_user', username.trim());
+    showToast(`Sesión iniciada como @${username.trim()}`);
+    loadState();
+  }
+}
 
-  ws = new WebSocket(wsUrl);
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.type === 'SEATS_UPDATED') {
-        if (state) state.seats = data.seats;
-        loadState();
-      } else if (data.type === 'KICK_EVENT') {
-        showToast(data.event.label);
-        window.soundFX.playSuccessChime();
-        loadState();
-      } else if (data.type === 'DRAW_COMPLETED') {
-        showToast(`🏆 ¡El ganador del sorteo es @${data.winner.username} con el Asiento #${data.winner.seat_number}!`);
-        window.soundFX.playWinnerFanfare();
-        if (typeof confetti === 'function') {
-          confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-        }
-        loadState();
-      } else if (data.type === 'CONFIG_UPDATED' || data.type === 'GIVEAWAY_RESET') {
-        loadState();
-      }
-    } catch (err) {}
-  };
-
-  ws.onclose = () => setTimeout(initWebSocket, 3000);
+function handleLogout() {
+  localStorage.removeItem('kick_user');
+  showToast('Has cerrado sesión.');
+  loadState();
 }
 
 // -------------------------------------------------------------------
-// 7. Notificaciones Toast
+// 7. Supabase Realtime (Sincronización en Vivo para todos los viewers)
 // -------------------------------------------------------------------
+function initSupabaseRealtime() {
+  if (!supabase) return;
+
+  supabase
+    .channel('public_live_giveaway')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'seats' }, () => {
+      loadState();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'giveaway_config' }, () => {
+      loadState();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+      loadState();
+    })
+    .subscribe();
+}
+
 function showToast(message, isError = false) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -454,7 +462,6 @@ function showToast(message, isError = false) {
   `;
 
   container.appendChild(toast);
-
   setTimeout(() => {
     toast.style.opacity = '0';
     toast.style.transform = 'translateX(100%)';
@@ -463,15 +470,55 @@ function showToast(message, isError = false) {
   }, 4000);
 }
 
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
+}
+
 // -------------------------------------------------------------------
 // 8. Event Listeners
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
-  initWebSocket();
+  initSupabaseRealtime();
 
   autoPickBtn.addEventListener('click', handleAutoPick);
   floatingAutoPickBtn.addEventListener('click', handleAutoPick);
+
+  if (navLoginBtn) {
+    navLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      promptLogin();
+    });
+  }
+
+  const logoutBtn = document.querySelector('a[href="/api/auth/logout"]') || document.querySelector('a[title="Cerrar Sesión"]');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleLogout();
+    });
+  }
+
+  const lockedLoginBtn = document.querySelector('#seatsLockedBox a');
+  if (lockedLoginBtn) {
+    lockedLoginBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      promptLogin();
+    });
+  }
+
+  const loggedOutWalletBtn = document.querySelector('#walletLoggedOut a');
+  if (loggedOutWalletBtn) {
+    loggedOutWalletBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      promptLogin();
+    });
+  }
 
   document.querySelectorAll('.filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {

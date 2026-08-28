@@ -1,6 +1,5 @@
-// Lógica del Panel de Streamer (Admin) - Protegido por Roles
+// Lógica del Panel de Streamer (Admin) - Conectado Directo a Supabase Cloud
 let adminState = null;
-let ws = null;
 
 // Elementos DOM
 const adminTotalSeats = document.getElementById('adminTotalSeats');
@@ -25,53 +24,105 @@ const dbStatusBadge = document.getElementById('dbStatusBadge');
 const oauthStatusBadge = document.getElementById('oauthStatusBadge');
 
 async function loadAdminData() {
-  try {
-    const res = await fetch('/api/state');
-    if (!res.ok) throw new Error('Error al cargar datos');
-    adminState = await res.json();
+  if (!supabase) {
+    alert('Error al conectar con Supabase Cloud.');
+    return;
+  }
 
-    // Verificación de Seguridad en Frontend
-    if (!adminState.user || !adminState.user.is_admin) {
-      alert('Acceso no autorizado. Debes iniciar sesión con la cuenta de Kick del streamer (@Caoz) o un moderador.');
-      window.location.href = '/';
-      return;
-    }
+  const currentUser = localStorage.getItem('kick_user');
+  const role = checkUserRole(currentUser);
+
+  if (!role.is_admin) {
+    alert('Acceso no autorizado. Debes iniciar sesión con tu cuenta de Kick (@Caoz o @Bersek).');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  try {
+    const [configRes, seatsRes, profilesRes] = await Promise.all([
+      supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
+      supabase.from('seats').select('*'),
+      supabase.from('profiles').select('*')
+    ]);
+
+    const config = configRes.data || {
+      title: 'Sorteo Oficial PlayStation 5 🎮',
+      prize: 'PlayStation 5 Slim (Edición Disco)',
+      total_seats: 200,
+      is_locked: false
+    };
+
+    const seats = seatsRes.data || [];
+    const profiles = profilesRes.data || [];
+
+    // Mapear asientos por usuario
+    const userSeatsMap = {};
+    seats.forEach((s) => {
+      const u = s.username.toLowerCase();
+      if (!userSeatsMap[u]) userSeatsMap[u] = [];
+      userSeatsMap[u].push(s.seat_number);
+    });
+
+    const totalSeats = config.total_seats || 200;
+    const occupiedCount = seats.length;
+
+    const allUsersList = profiles.map((p) => {
+      const mySeats = userSeatsMap[p.username.toLowerCase()] || [];
+      const totalTickets = p.total_tickets ?? ((p.own_subs || 0) + (p.gifted_subs || 0) + (p.bonus_tickets || 0));
+      return {
+        username: p.username,
+        display_name: p.display_name || p.username,
+        avatar: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${p.username}`,
+        own_subs: p.own_subs || 0,
+        gifted_subs: p.gifted_subs || 0,
+        total_tickets: totalTickets,
+        used_tickets: mySeats.length,
+        seats: mySeats
+      };
+    });
+
+    adminState = {
+      config,
+      stats: {
+        total_seats: totalSeats,
+        occupied_seats: occupiedCount,
+        occupancy_percent: Math.round((occupiedCount / totalSeats) * 100),
+        total_participants: profiles.length
+      },
+      all_users_list: allUsersList
+    };
 
     renderAdminUI();
   } catch (err) {
     console.error('Error in loadAdminData:', err);
-    showToast('Error conectando al servidor', true);
+    showToast('Error conectando a Supabase', true);
   }
 }
 
 function renderAdminUI() {
   if (!adminState) return;
 
-  const { config, stats, all_users_list, has_supabase, has_kick_oauth } = adminState;
+  const { config, stats, all_users_list } = adminState;
 
-  // Badges de Integración
   if (dbStatusBadge) {
-    dbStatusBadge.textContent = has_supabase ? 'Supabase Cloud (Conectado)' : 'Almacenamiento Local';
-    dbStatusBadge.style.color = has_supabase ? 'var(--kick-green)' : 'var(--cyan-accent)';
+    dbStatusBadge.textContent = 'Supabase Cloud (Conectado)';
+    dbStatusBadge.style.color = 'var(--kick-green)';
   }
   if (oauthStatusBadge) {
-    oauthStatusBadge.textContent = has_kick_oauth ? 'Kick OAuth 2.0 PKCE (Activo)' : 'Modo Desarrollo';
-    oauthStatusBadge.style.color = has_kick_oauth ? 'var(--kick-green)' : 'var(--cyan-accent)';
+    oauthStatusBadge.textContent = 'GitHub Pages Serverless';
+    oauthStatusBadge.style.color = 'var(--cyan-accent)';
   }
 
-  // Métricas
   adminTotalSeats.textContent = stats.total_seats;
   adminOccupiedSeats.textContent = stats.occupied_seats;
   adminOccupancyPercent.textContent = `${stats.occupancy_percent}%`;
   adminTotalParticipants.textContent = stats.total_participants;
 
-  // Configuración
   configTitle.value = config.title || '';
   configPrize.value = config.prize || '';
   configTotalSeats.value = String(config.total_seats || 200);
   configLocked.value = config.is_locked ? 'true' : 'false';
 
-  // Tabla de usuarios
   renderUsersTable(all_users_list || []);
 }
 
@@ -83,7 +134,7 @@ function renderUsersTable(users) {
     usersTableBody.innerHTML = `
       <tr>
         <td colspan="7" style="text-align: center; color: var(--text-secondary); padding: 24px;">
-          Aún no hay participantes registrados. Las suscripciones en Kick aparecerán aquí automáticamente.
+          Aún no hay participantes registrados en Supabase.
         </td>
       </tr>
     `;
@@ -131,7 +182,7 @@ function renderUsersTable(users) {
 }
 
 // -------------------------------------------------------------------
-// Acciones del Admin
+// Acciones Directas en Supabase
 // -------------------------------------------------------------------
 async function handleEmitEvent() {
   const username = simUsername.value.trim();
@@ -144,28 +195,46 @@ async function handleEmitEvent() {
 
   try {
     emitEventBtn.disabled = true;
-    emitEventBtn.textContent = 'Enviando...';
+    emitEventBtn.textContent = 'Guardando en Supabase...';
 
-    const res = await fetch('/api/admin/simulate-event', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Buscar perfil existente en Supabase
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('*')
+      .ilike('username', username)
+      .maybeSingle();
+
+    const count = eventType.startsWith('gift_sub') ? parseInt(eventType.split('_')[2], 10) : 1;
+
+    if (existing) {
+      if (eventType.startsWith('gift_sub')) {
+        await supabase.from('profiles').update({
+          gifted_subs: (existing.gifted_subs || 0) + count
+        }).eq('id', existing.id);
+      } else {
+        await supabase.from('profiles').update({
+          own_subs: (existing.own_subs || 0) + 1
+        }).eq('id', existing.id);
+      }
+    } else {
+      await supabase.from('profiles').insert({
+        kick_user_id: String(Math.floor(Math.random() * 10000000)),
         username: username,
-        event_type: eventType,
-        count: eventType.startsWith('gift_sub') ? parseInt(eventType.split('_')[2], 10) : 1
-      })
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error');
+        display_name: username,
+        avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+        own_subs: eventType.startsWith('gift_sub') ? 0 : 1,
+        gifted_subs: eventType.startsWith('gift_sub') ? count : 0,
+        bonus_tickets: 0
+      });
+    }
 
     window.soundFX.playSuccessChime();
-    showToast(data.message);
+    showToast(`¡Evento registrado en Supabase para @${username}!`);
     await loadAdminData();
 
   } catch (err) {
     window.soundFX.playError();
-    showToast(err.message, true);
+    showToast('Error registrando evento en Supabase', true);
   } finally {
     emitEventBtn.disabled = false;
     emitEventBtn.textContent = '🚀 Emitir Evento en Tiempo Real';
@@ -175,26 +244,22 @@ async function handleEmitEvent() {
 async function handleSaveConfig() {
   try {
     saveConfigBtn.disabled = true;
-    const res = await fetch('/api/admin/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: configTitle.value.trim(),
-        prize: configPrize.value.trim(),
-        total_seats: parseInt(configTotalSeats.value, 10),
-        is_locked: configLocked.value === 'true'
-      })
-    });
+    const { error } = await supabase.from('giveaway_config').update({
+      title: configTitle.value.trim(),
+      prize: configPrize.value.trim(),
+      total_seats: parseInt(configTotalSeats.value, 10),
+      is_locked: configLocked.value === 'true',
+      updated_at: new Date().toISOString()
+    }).eq('id', 'current');
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error al guardar configuración');
+    if (error) throw error;
 
-    showToast('¡Configuración guardada en Supabase!');
+    showToast('¡Configuración guardada directamente en Supabase!');
     window.soundFX.playSuccessChime();
     await loadAdminData();
 
   } catch (err) {
-    showToast(err.message, true);
+    showToast('Error al guardar configuración', true);
   } finally {
     saveConfigBtn.disabled = false;
   }
@@ -206,44 +271,42 @@ async function handleResetGiveaway() {
   }
 
   try {
-    const res = await fetch('/api/admin/reset', { method: 'POST' });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error al reiniciar');
-
-    showToast('Sala de sorteo vaciada con éxito.');
+    await supabase.from('seats').delete().neq('seat_number', 0);
+    showToast('Sala de sorteo vaciada en Supabase.');
     await loadAdminData();
   } catch (err) {
-    showToast(err.message, true);
+    showToast('Error al reiniciar asientos', true);
   }
 }
 
 window.addTicketToUser = async function(username, count) {
   try {
-    const res = await fetch('/api/admin/simulate-event', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: username,
-        event_type: 'manual_bonus',
-        count: count
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error');
-    showToast(`Se añadió +${count} ticket bonus a @${username}`);
-    await loadAdminData();
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('*')
+      .ilike('username', username)
+      .single();
+
+    if (existing) {
+      await supabase.from('profiles').update({
+        bonus_tickets: (existing.bonus_tickets || 0) + count
+      }).eq('id', existing.id);
+      showToast(`+${count} Ticket bonus añadido a @${username}`);
+      await loadAdminData();
+    }
   } catch (err) {
-    showToast(err.message, true);
+    showToast('Error añadiendo bonus', true);
   }
 };
 
-function initWebSocket() {
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${protocol}//${window.location.host}/ws`;
-
-  ws = new WebSocket(wsUrl);
-  ws.onmessage = () => loadAdminData();
-  ws.onclose = () => setTimeout(initWebSocket, 3000);
+function initSupabaseRealtime() {
+  if (!supabase) return;
+  supabase
+    .channel('admin_live_sync')
+    .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+      loadAdminData();
+    })
+    .subscribe();
 }
 
 function showToast(message, isError = false) {
@@ -268,7 +331,7 @@ function showToast(message, isError = false) {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadAdminData();
-  initWebSocket();
+  initSupabaseRealtime();
 
   emitEventBtn.addEventListener('click', handleEmitEvent);
   saveConfigBtn.addEventListener('click', handleSaveConfig);
