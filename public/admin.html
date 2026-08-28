@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Streamer - Control de Sorteo Kick</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+    }
+    .admin-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .admin-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.88rem;
+    }
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+    .user-cell img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--kick-green);
+    }
+    .tag-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .tag-green {
+      background: rgba(83, 252, 24, 0.15);
+      color: var(--kick-green);
+      border: 1px solid rgba(83, 252, 24, 0.3);
+    }
+    .tag-cyan {
+      background: rgba(0, 242, 254, 0.15);
+      color: var(--cyan-accent);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand">
+        <div class="brand-logo">K</div>
+        <div class="brand-title">
+          PANEL STREAMER
+          <span class="kick-badge">ADMIN CONTROL</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="/" class="nav-btn">
+          🎟️ Sala de Cine (Público)
+        </a>
+        <a href="/draw" target="_blank" class="nav-btn streamer-btn">
+          🎰 Pantalla OBS Sorteo
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
+    
+    <!-- Integration Status Bar -->
+    <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+      <div class="rule-pill" style="border-color: rgba(83, 252, 24, 0.4);">
+        <span>🗄️</span> Base de Datos: <strong id="dbStatusBadge" style="color: var(--kick-green);">Supabase (Auto-Sync)</strong>
+      </div>
+      <div class="rule-pill" style="border-color: rgba(0, 242, 254, 0.4);">
+        <span>🔑</span> Kick OAuth 2.0: <strong id="oauthStatusBadge" style="color: var(--cyan-accent);">PKCE Habilitado</strong>
+      </div>
+      <div class="rule-pill">
+        <span>📡</span> Webhook Kick: <strong style="color: var(--text-primary);">http://localhost:8000/api/webhooks/kick</strong>
+      </div>
+    </div>
+
+    <!-- Top Metrics Overview -->
+    <div class="wallet-stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+      <div class="stat-box">
+        <div class="stat-num" id="adminTotalSeats">200</div>
+        <div class="stat-label">Capacidad de Sala</div>
+      </div>
+      <div class="stat-box highlight-box">
+        <div class="stat-num" id="adminOccupiedSeats">0</div>
+        <div class="stat-label">Asientos Ocupados</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="adminOccupancyPercent">0%</div>
+        <div class="stat-label">% Ocupación</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="adminTotalParticipants">0</div>
+        <div class="stat-label">Participantes Únicos</div>
+      </div>
+    </div>
+
+    <!-- Admin Actions Grid -->
+    <div class="admin-grid">
+      
+      <!-- Panel: Simulador de Eventos de Kick (Webhooks) -->
+      <div class="hero-card">
+        <div>
+          <div class="hero-badge-tag" style="background: rgba(0, 242, 254, 0.12); color: var(--cyan-accent); border-color: rgba(0, 242, 254, 0.3);">
+            ⚡ SIMULADOR DE EVENTOS KICK
+          </div>
+          <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Simular Suscripción o Gift en Vivo</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+            Emula la llegada de un Webhook de Kick en tiempo real. Añade tickets instantáneos al usuario seleccionado y emite alerta en directo.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label">Usuario de Kick:</label>
+            <input type="text" class="form-input" id="simUsername" value="GamerPro99" placeholder="Nombre en Kick">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de Evento:</label>
+            <select class="form-select" id="simEventType">
+              <option value="sub">⭐ Compró 1 Sub Propia (+1 Ticket)</option>
+              <option value="gift_sub_5">🎁 Regaló 5 Subs (+5 Tickets)</option>
+              <option value="gift_sub_10">🎁 Regaló 10 Subs (+10 Tickets)</option>
+              <option value="gift_sub_20">🎁 Regaló 20 Subs (+20 Tickets)</option>
+              <option value="gift_sub_50">👑 Regaló 50 Subs (+50 Tickets)</option>
+              <option value="manual_bonus">🎟️ Bonus Especial Streamer (+1 Ticket)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" id="emitEventBtn">
+          🚀 Emitir Evento en Tiempo Real
+        </button>
+      </div>
+
+      <!-- Panel: Configuración General del Sorteo -->
+      <div class="hero-card">
+        <div>
+          <div class="hero-badge-tag">
+            ⚙️ CONFIGURACIÓN DEL SORTEO
+          </div>
+          <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Ajustes de Sala y Premio</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+            Personaliza el título, premio, capacidad de la sala o bloquea la reserva antes de sortear.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label">Título del Sorteo:</label>
+            <input type="text" class="form-input" id="configTitle" value="Sorteo PlayStation 5 Slim 🎮">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Premio a Sortear:</label>
+            <input type="text" class="form-input" id="configPrize" value="PlayStation 5 Slim (Edición Disco)">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Capacidad de Sala:</label>
+              <select class="form-select" id="configTotalSeats">
+                <option value="50">50 Asientos</option>
+                <option value="100">100 Asientos</option>
+                <option value="200" selected>200 Asientos</option>
+                <option value="300">300 Asientos</option>
+                <option value="500">500 Asientos</option>
+                <option value="1000">1000 Asientos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado de Sala:</label>
+              <select class="form-select" id="configLocked">
+                <option value="false">🟢 Abierta (Permite reservas)</option>
+                <option value="true">🔒 Bloqueada (Solo lectura)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" style="flex: 1;" id="saveConfigBtn">
+            💾 Guardar Ajustes
+          </button>
+          <button class="btn btn-secondary" style="color: var(--danger-red); border-color: rgba(255, 51, 102, 0.3);" id="resetGiveawayBtn" title="Vaciar sala de asientos">
+            🗑️ Reiniciar Sala
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Participants & Tickets Management Table -->
+    <div class="cinema-container" style="padding: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 1.25rem; font-weight: 800;">
+          👥 Lista de Participantes & Asignación de Tickets
+        </h3>
+        <input type="text" class="search-input" id="searchUserTable" placeholder="Filtrar por @usuario..." style="width: 240px;">
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Usuario Kick</th>
+              <th>Subs Propias</th>
+              <th>Subs Regaladas</th>
+              <th>Total Tickets</th>
+              <th>Asientos Reservados</th>
+              <th>Tickets Libres</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Rellenado con JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/static/js/audio.js"></script>
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteo Oficial PlayStation 5 🎮 - Kick</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="/" class="brand">
+        <div class="brand-logo">K</div>
+        <div class="brand-title">
+          KICK RAFFLE
+          <span class="kick-badge">PS5 EDITION</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <!-- Botones de Administración (Solo visibles para Streamer y Moderadores) -->
+        <a href="/draw" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
+          🎰 OBS Live Draw
+        </a>
+        <a href="/admin" class="nav-btn streamer-btn" id="navAdminBtn" style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
+          👑 Panel Streamer
+        </a>
+
+        <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
+        <a href="/api/auth/kick/login" class="nav-btn" id="navLoginBtn" style="background: var(--kick-green); color: #051402; font-weight: 800; box-shadow: 0 0 15px var(--kick-green-glow);">
+          🟢 Iniciar Sesión con Kick
+        </a>
+
+        <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
+        <div class="user-pill" id="userPillBox" style="display: none;">
+          <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
+          <div class="user-meta">
+            <span class="user-name" id="navUserName">@Usuario</span>
+            <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
+          </div>
+          <a href="/api/auth/logout" class="nav-btn" style="padding: 4px 8px; font-size: 0.72rem; margin-left: 6px;" title="Cerrar Sesión">
+            Salir
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-grid">
+      <!-- Giveaway Info Card -->
+      <div class="hero-card">
+        <div>
+          <div class="hero-badge-tag">
+            <span style="color: var(--kick-green);">●</span> SORTEO OFICIAL EN VIVO
+          </div>
+          <h1 class="hero-title" id="giveawayTitle">Sorteo PlayStation 5 Slim 🎮</h1>
+          <p class="hero-desc">
+            ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte automáticamente en <strong>1 Asiento</strong> en la sala interactiva.
+          </p>
+        </div>
+
+        <div class="rules-pills">
+          <div class="rule-pill">
+            <span>⭐</span> <strong>1 Sub Propia</strong> = 1 Asiento
+          </div>
+          <div class="rule-pill">
+            <span>🎁</span> <strong>1 Sub Regalada</strong> = 1 Asiento
+          </div>
+          <div class="rule-pill">
+            <span>🎟️</span> <strong>5 Subs Regaladas</strong> = 5 Asientos
+          </div>
+          <div class="rule-pill">
+            <span>🔒</span> <strong>Anti-Fraude</strong> = Kick OAuth Verificado
+          </div>
+        </div>
+      </div>
+
+      <!-- User Wallet / Ticket HUD Card -->
+      <div class="wallet-card" id="walletCard">
+        
+        <!-- Estado: Usuario NO logueado -->
+        <div id="walletLoggedOut" style="text-align: center; padding: 20px 0;">
+          <div style="font-size: 3rem; margin-bottom: 10px;">🎟️</div>
+          <h3 style="font-size: 1.2rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
+            Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus asientos.
+          </p>
+          <a href="/api/auth/kick/login" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+            🟢 Iniciar Sesión con Kick
+          </a>
+        </div>
+
+        <!-- Estado: Usuario SÍ logueado -->
+        <div id="walletLoggedIn" style="display: none; flex-direction: column; height: 100%; justify-content: space-between;">
+          <div class="wallet-header">
+            <div class="wallet-user-info">
+              <img src="" alt="Kick Avatar" class="wallet-avatar-big" id="walletAvatar">
+              <div>
+                <div class="wallet-user-name">
+                  <span id="walletUsername">@Usuario</span>
+                  <span class="verified-icon" title="Cuenta de Kick Verificada">✓</span>
+                </div>
+                <span style="font-size: 0.78rem; color: var(--kick-green);" id="walletSubStatus">Usuario Conectado</span>
+              </div>
+            </div>
+            <span class="tag-badge tag-green" id="userRoleBadge">Espectador</span>
+          </div>
+
+          <div class="wallet-stats-grid">
+            <div class="stat-box">
+              <div class="stat-num" id="statOwnSubs">0</div>
+              <div class="stat-label">Subs Propias</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statGiftedSubs">0</div>
+              <div class="stat-label">Subs Regaladas</div>
+            </div>
+            <div class="stat-box highlight-box">
+              <div class="stat-num" id="statAvailableTickets">0</div>
+              <div class="stat-label">Tickets Libres</div>
+            </div>
+          </div>
+
+          <div class="wallet-actions">
+            <button class="btn btn-primary" style="flex: 1;" id="autoPickBtn">
+              🎲 Auto-Asignar Mis Asientos
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Cinema Theater Selection Room -->
+  <section class="cinema-section">
+    <div class="container">
+      <div class="cinema-container">
+        
+        <!-- Cinema Screen with Kick Live Stream of @Caoz -->
+        <div class="screen-wrapper">
+          <div class="cinema-screen-container">
+            <div class="screen-header-bar">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="stream-status-pill">
+                  <span class="live-dot"></span> EN VIVO EN KICK
+                </div>
+                <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">
+                  Transmisión Oficial de <span style="color: var(--kick-green);">@Caoz</span>
+                </span>
+              </div>
+
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.75rem;" id="toggleStreamBtn">
+                  📺 Ocultar / Ver Stream
+                </button>
+                <a href="https://kick.com/caoz" target="_blank" class="nav-btn streamer-btn" style="padding: 4px 12px; font-size: 0.75rem;">
+                  Ir a Kick.com/Caoz ↗
+                </a>
+              </div>
+            </div>
+
+            <!-- Kick Player Embed -->
+            <div class="kick-stream-iframe-wrapper" id="streamPlayerBox">
+              <iframe 
+                src="https://player.kick.com/caoz?autoplay=true&muted=true" 
+                frameborder="0" 
+                scrolling="no" 
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                allowfullscreen="true">
+              </iframe>
+            </div>
+          </div>
+          <div class="screen-light-rays"></div>
+        </div>
+
+        <!-- Cinema Toolbar & Legend -->
+        <div class="cinema-toolbar">
+          <div class="seat-legend">
+            <div class="legend-item">
+              <div class="legend-sample sample-free"></div>
+              <span>Disponible</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-sample sample-mine"></div>
+              <span>Mis Números</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-sample sample-taken"></div>
+              <span>Ocupado por otro viewer</span>
+            </div>
+          </div>
+
+          <div class="toolbar-filters">
+            <button class="filter-btn active" data-filter="all">Todos (<span id="countTotalSeats">200</span>)</button>
+            <button class="filter-btn" data-filter="free">🟢 Libres (<span id="countFreeSeats">0</span>)</button>
+            <button class="filter-btn" data-filter="mine">⚡ Míos (<span id="countMySeats">0</span>)</button>
+            <button class="filter-btn" data-filter="taken">🔒 Ocupados (<span id="countTakenSeats">0</span>)</button>
+            <input type="text" class="search-input" id="searchSeatInput" placeholder="Buscar # o @user...">
+          </div>
+        </div>
+
+        <!-- Interactive Cinema Seats Grid -->
+        <div class="seats-grid-wrapper">
+          <div class="seats-grid" id="seatsGrid">
+            <!-- Asientos generados dinámicamente con JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Ticket Counter Bar -->
+  <div class="floating-action-bar" id="floatingBar" style="display: none;">
+    <div class="action-bar-text">
+      Tienes <strong id="floatingAvailableCount">0</strong> tickets disponibles para elegir en la sala de cine.
+    </div>
+    <button class="btn btn-primary" id="floatingAutoPickBtn">
+      🎲 Auto-Elegir Números
+    </button>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/static/js/audio.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

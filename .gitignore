@@ -1,0 +1,18 @@
+# Variables de Entorno y Claves Secretas
+.env
+.env.local
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos Virtuales
+venv/
+.venv/
+env/
+
+# Archivos de Sistema
+.DS_Store
+Thumbs.db

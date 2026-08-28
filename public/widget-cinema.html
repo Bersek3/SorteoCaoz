@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget Mini Sala de Cine - OBS</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      background: transparent;
+      margin: 0;
+      padding: 12px;
+      overflow: hidden;
+      font-family: var(--font-main);
+    }
+
+    .mini-cinema-card {
+      background: rgba(10, 14, 22, 0.88);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(83, 252, 24, 0.35);
+      border-radius: 18px;
+      padding: 16px;
+      width: 360px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8), 0 0 20px rgba(83, 252, 24, 0.2);
+    }
+
+    .mini-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .mini-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mini-badge {
+      background: rgba(83, 252, 24, 0.15);
+      color: var(--kick-green);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(83, 252, 24, 0.4);
+    }
+
+    .mini-screen {
+      height: 16px;
+      background: linear-gradient(180deg, var(--kick-green) 0%, transparent 100%);
+      border-radius: 50% / 100% 100% 0 0;
+      margin-bottom: 12px;
+      opacity: 0.8;
+      box-shadow: 0 0 10px var(--kick-green-glow);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 4px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .mini-seat {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: #141c2b;
+      border: 1px solid #23334d;
+      font-size: 0.6rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      transition: all 0.2s ease;
+    }
+
+    .mini-seat.taken {
+      background: #ff3366;
+      border-color: #ff3366;
+      color: #fff;
+      box-shadow: 0 0 6px rgba(255, 51, 102, 0.6);
+    }
+
+    .mini-seat.newly-taken {
+      animation: pulse-seat 1s ease 2;
+    }
+
+    @keyframes pulse-seat {
+      0% { transform: scale(1); background: var(--kick-green); }
+      50% { transform: scale(1.3); background: #ffffff; box-shadow: 0 0 12px #fff; }
+      100% { transform: scale(1); background: #ff3366; }
+    }
+
+    .mini-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mini-cinema-card">
+    <div class="mini-header">
+      <div class="mini-title">
+        <span>🎮</span> SALA SORTEO PS5
+      </div>
+      <div class="mini-badge" id="occupancyText">0 / 200</div>
+    </div>
+
+    <div class="mini-screen"></div>
+
+    <div class="mini-grid" id="miniGrid">
+      <!-- Mini asientos generados con JS -->
+    </div>
+
+    <div class="mini-footer">
+      <span>1 Sub = 1 Asiento</span>
+      <span style="color: var(--kick-green);" id="percentText">0% Lleno</span>
+    </div>
+  </div>
+
+  <script>
+    const miniGrid = document.getElementById('miniGrid');
+    const occupancyText = document.getElementById('occupancyText');
+    const percentText = document.getElementById('percentText');
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+        renderMiniSeats(data.config.total_seats || 100, data.seats || {});
+      } catch (e) {}
+    }
+
+    function renderMiniSeats(total, seats) {
+      miniGrid.innerHTML = '';
+      const occupiedCount = Object.keys(seats).length;
+      occupancyText.textContent = `${occupiedCount} / ${total}`;
+      percentText.textContent = `${Math.round((occupiedCount / total) * 100)}% Lleno`;
+
+      // Renderizar los primeros 100 cupos en el mini widget
+      const displayMax = Math.min(total, 100);
+      for (let i = 1; i <= displayMax; i++) {
+        const isOccupied = String(i) in seats;
+        const seat = document.createElement('div');
+        seat.className = `mini-seat ${isOccupied ? 'taken' : ''}`;
+        seat.textContent = i;
+        miniGrid.appendChild(seat);
+      }
+    }
+
+    // WebSocket en Vivo
+    function initWS() {
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${proto}//${location.host}/ws`);
+      ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === 'SEATS_UPDATED' || msg.type === 'KICK_EVENT' || msg.type === 'INITIAL_STATE') {
+            loadData();
+          }
+        } catch (err) {}
+      };
+      ws.onclose = () => setTimeout(initWS, 3000);
+    }
+
+    loadData();
+    initWS();
+  </script>
+</body>
+</html>

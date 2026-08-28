@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget Barra de Progreso Sorteo PS5 - OBS</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body {
+      background: transparent;
+      margin: 0;
+      padding: 16px;
+      overflow: hidden;
+      font-family: var(--font-main);
+    }
+
+    .goal-bar-container {
+      background: rgba(12, 17, 26, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(83, 252, 24, 0.35);
+      border-radius: 40px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(83, 252, 24, 0.2);
+      max-width: 680px;
+    }
+
+    .goal-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .goal-badge {
+      background: var(--kick-green);
+      color: #000;
+      font-weight: 900;
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .goal-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--kick-green-dark), var(--kick-green), var(--cyan-accent));
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 12px var(--kick-green-glow);
+    }
+
+    .goal-numbers {
+      font-size: 0.9rem;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      color: var(--kick-green);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="goal-bar-container">
+    <div class="goal-info">
+      <div class="goal-badge">SORTEO PS5</div>
+      <div class="goal-title">Meta de Asientos:</div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="goal-numbers" id="goalNumbers">0 / 200 (0%)</div>
+  </div>
+
+  <script>
+    const progressFill = document.getElementById('progressFill');
+    const goalNumbers = document.getElementById('goalNumbers');
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+        const total = data.config.total_seats || 200;
+        const occupied = Object.keys(data.seats || {}).length;
+        const percent = Math.min(100, Math.round((occupied / total) * 100));
+
+        progressFill.style.width = `${percent}%`;
+        goalNumbers.textContent = `${occupied} / ${total} (${percent}%)`;
+      } catch (e) {}
+    }
+
+    function initWS() {
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${proto}//${location.host}/ws`);
+      ws.onmessage = () => loadData();
+      ws.onclose = () => setTimeout(initWS, 3000);
+    }
+
+    loadData();
+    initWS();
+  </script>
+</body>
+</html>

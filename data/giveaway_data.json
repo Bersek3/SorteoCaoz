@@ -1,0 +1,208 @@
+{
+  "config": {
+    "title": "Sorteo Oficial PlayStation 5 🎮",
+    "prize": "PlayStation 5 Slim (Edición Disco)",
+    "channel": "CaozLive",
+    "total_seats": 200,
+    "is_locked": false,
+    "created_at": "2026-08-27T21:30:33.141105"
+  },
+  "users": {
+    "CaozLive": {
+      "id": "kick_001",
+      "username": "CaozLive",
+      "display_name": "CaozLive (Streamer)",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=CaozLive",
+      "is_streamer": true,
+      "own_subs": 0,
+      "gifted_subs": 0,
+      "bonus_tickets": 0,
+      "total_tickets": 0
+    },
+    "GamerPro99": {
+      "id": "kick_101",
+      "username": "GamerPro99",
+      "display_name": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "is_streamer": false,
+      "own_subs": 1,
+      "gifted_subs": 5,
+      "bonus_tickets": 0,
+      "total_tickets": 6
+    },
+    "NekoGamer": {
+      "id": "kick_102",
+      "username": "NekoGamer",
+      "display_name": "NekoGamer",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=NekoGamer",
+      "is_streamer": false,
+      "own_subs": 1,
+      "gifted_subs": 2,
+      "bonus_tickets": 0,
+      "total_tickets": 3
+    },
+    "KickMaster": {
+      "id": "kick_103",
+      "username": "KickMaster",
+      "display_name": "KickMaster",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=KickMaster",
+      "is_streamer": false,
+      "own_subs": 1,
+      "gifted_subs": 10,
+      "bonus_tickets": 0,
+      "total_tickets": 11
+    },
+    "StreamerFan123": {
+      "id": "kick_1532",
+      "username": "StreamerFan123",
+      "display_name": "StreamerFan123",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=StreamerFan123",
+      "is_streamer": false,
+      "own_subs": 0,
+      "gifted_subs": 2,
+      "bonus_tickets": 0,
+      "total_tickets": 2
+    },
+    "Caoz": {
+      "id": "48c8a278-b65f-4b3a-9426-91f14ebd1e58",
+      "kick_user_id": "5005",
+      "username": "Caoz",
+      "display_name": "Caoz",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=Caoz",
+      "is_streamer": false,
+      "own_subs": 0,
+      "gifted_subs": 5,
+      "bonus_tickets": 1,
+      "total_tickets": 6
+    },
+    "Bersek": {
+      "id": "b5b87364-3e14-457c-b459-b839be0f28cc",
+      "kick_user_id": "2984464",
+      "username": "Bersek",
+      "display_name": "Bersek",
+      "avatar": "https://files.kick.com/images/user/2984464/profile_image/conversion/8b4e7fba-64d9-469b-b1eb-da87178f4fab-medium.webp",
+      "is_streamer": false,
+      "own_subs": 1,
+      "gifted_subs": 0,
+      "bonus_tickets": 0,
+      "total_tickets": 1
+    }
+  },
+  "seats": {
+    "7": {
+      "seat_number": 7,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T22:09:33.596939"
+    },
+    "23": {
+      "seat_number": 23,
+      "username": "GamerPro99",
+      "claimed_at": "2026-08-27T21:30:33.141316"
+    },
+    "50": {
+      "seat_number": 50,
+      "username": "NekoGamer",
+      "claimed_at": "2026-08-27T21:30:33.141318"
+    },
+    "77": {
+      "seat_number": 77,
+      "username": "KickMaster",
+      "claimed_at": "2026-08-27T21:30:33.141319"
+    },
+    "100": {
+      "seat_number": 100,
+      "username": "KickMaster",
+      "claimed_at": "2026-08-27T21:30:33.141320"
+    },
+    "170": {
+      "seat_number": 170,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T21:33:02.776077"
+    },
+    "174": {
+      "seat_number": 174,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T21:33:02.776081"
+    },
+    "78": {
+      "seat_number": 78,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T21:34:28.384228"
+    },
+    "143": {
+      "seat_number": 143,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T21:34:29.628278"
+    },
+    "8": {
+      "seat_number": 8,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T22:09:35.809152"
+    },
+    "9": {
+      "seat_number": 9,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T22:09:38.092763"
+    },
+    "13": {
+      "seat_number": 13,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T22:09:42.992376"
+    },
+    "18": {
+      "seat_number": 18,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T22:09:46.487087"
+    },
+    "16": {
+      "seat_number": 16,
+      "username": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T22:09:48.688216"
+    }
+  },
+  "winner": {
+    "seat_number": 170,
+    "username": "GamerPro99",
+    "display_name": "GamerPro99",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+    "claimed_at": "2026-08-27T21:33:02.776077",
+    "user_total_tickets": 6,
+    "win_probability": 66.67,
+    "prize": "PlayStation 5 Slim (Edición Disco)",
+    "drawn_at": "2026-08-27T21:34:06.693462"
+  },
+  "draw_history": [
+    {
+      "seat_number": 78,
+      "username": "GamerPro99",
+      "display_name": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T21:33:02.776064",
+      "user_total_tickets": 6,
+      "win_probability": 66.67,
+      "prize": "PlayStation 5 Slim (Edición Disco)",
+      "drawn_at": "2026-08-27T21:33:39.556809"
+    },
+    {
+      "seat_number": 170,
+      "username": "GamerPro99",
+      "display_name": "GamerPro99",
+      "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
+      "claimed_at": "2026-08-27T21:33:02.776077",
+      "user_total_tickets": 6,
+      "win_probability": 66.67,
+      "prize": "PlayStation 5 Slim (Edición Disco)",
+      "drawn_at": "2026-08-27T21:34:06.693462"
+    }
+  ]
+}
