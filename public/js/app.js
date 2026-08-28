@@ -92,12 +92,9 @@ async function loadState() {
 
     let currentUserProfile = null;
     let userSeats = [];
-    let isFollowing = false;
 
     if (savedUser) {
       const isOwner = savedUser.toLowerCase() === 'caoz';
-      const isFollowingSaved = localStorage.getItem('kick_following_caoz_' + savedUser.toLowerCase()) === 'true';
-      isFollowing = isOwner || isFollowingSaved;
 
       currentUserProfile = (profilesList || []).find(
         (p) => p.username && p.username.toLowerCase() === savedUser.toLowerCase()
@@ -163,7 +160,6 @@ async function loadState() {
         used_tickets: userSeats.length,
         available_tickets: availableTickets,
         my_seats: userSeats,
-        is_following: isFollowing,
         ...roleInfo
       },
       seats: seatsMap,
@@ -272,42 +268,6 @@ function renderUI() {
     if (statOwnSubs) statOwnSubs.textContent = user.own_subs || 0;
     if (statGiftedSubs) statGiftedSubs.textContent = user.gifted_subs || 0;
     if (statAvailableTickets) statAvailableTickets.textContent = user.available_tickets || 0;
-
-    // Renderizar Estado de Follower de Kick (@Caoz)
-    const followBox = document.getElementById('followBox');
-    const followIcon = document.getElementById('followIcon');
-    const followStatusText = document.getElementById('followStatusText');
-    const followStatusBadge = document.getElementById('followStatusBadge');
-    const followActionButtons = document.getElementById('followActionButtons');
-
-    if (followBox) {
-      const isHostCaoz = user.username && user.username.toLowerCase() === 'caoz';
-      if (isHostCaoz || user.is_following) {
-        if (followIcon) followIcon.textContent = '🟢';
-        if (followStatusText) {
-          followStatusText.textContent = isHostCaoz ? '👑 Canal Oficial (@Caoz)' : 'Sigues a @Caoz en Kick ✓';
-          followStatusText.style.color = 'var(--kick-green)';
-        }
-        if (followStatusBadge) {
-          followStatusBadge.textContent = 'Verificado';
-          followStatusBadge.className = 'tag-badge tag-green';
-        }
-        if (followActionButtons) followActionButtons.style.display = 'none';
-        followBox.style.borderColor = 'rgba(83, 252, 24, 0.4)';
-      } else {
-        if (followIcon) followIcon.textContent = '⚠️';
-        if (followStatusText) {
-          followStatusText.textContent = 'No sigues a @Caoz en Kick';
-          followStatusText.style.color = '#ffb800';
-        }
-        if (followStatusBadge) {
-          followStatusBadge.textContent = 'Obligatorio';
-          followStatusBadge.className = 'tag-badge tag-red';
-        }
-        if (followActionButtons) followActionButtons.style.display = 'flex';
-        followBox.style.borderColor = 'rgba(255, 184, 0, 0.5)';
-      }
-    }
 
     // Mostrar mapa de selección de números
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'block';
@@ -470,19 +430,6 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
     return;
   }
 
-  // Requisito Obligatorio: Seguir a @Caoz en Kick
-  if (!isMine && !state.user.is_streamer && !state.user.is_following) {
-    window.soundFX?.playError();
-    showToast('⚠️ Requisito obligatorio: Debes seguir a @Caoz en Kick para poder elegir números.', true);
-    const followBox = document.getElementById('followBox');
-    if (followBox) {
-      followBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      followBox.style.boxShadow = '0 0 25px rgba(255, 184, 0, 0.8)';
-      setTimeout(() => { followBox.style.boxShadow = 'none'; }, 2500);
-    }
-    return;
-  }
-
   if (isOccupied && !isMine) {
     window.soundFX?.playError();
     const owner = state.seats[String(seatNumber)]?.username || 'otro viewer';
@@ -529,19 +476,6 @@ async function handleAutoPick() {
     return;
   }
 
-  // Requisito Obligatorio: Seguir a @Caoz en Kick
-  if (!state.user.is_streamer && !state.user.is_following) {
-    window.soundFX?.playError();
-    showToast('⚠️ Requisito obligatorio: Debes seguir a @Caoz en Kick para poder elegir tus números.', true);
-    const followBox = document.getElementById('followBox');
-    if (followBox) {
-      followBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      followBox.style.boxShadow = '0 0 25px rgba(255, 184, 0, 0.8)';
-      setTimeout(() => { followBox.style.boxShadow = 'none'; }, 2500);
-    }
-    return;
-  }
-
   try {
     const totalSeats = state.config.total_seats;
     const occupiedKeys = new Set(Object.keys(state.seats));
@@ -584,61 +518,7 @@ async function handleAutoPick() {
 }
 
 // -------------------------------------------------------------------
-// 7. Verificación de Follower de Kick (@Caoz)
-// -------------------------------------------------------------------
-async function handleVerifyFollow() {
-  if (!state || !state.user || !state.user.username) return;
-  const username = state.user.username;
-  const btnVerifyFollow = document.getElementById('btnVerifyFollow');
-
-  if (btnVerifyFollow) {
-    btnVerifyFollow.disabled = true;
-    btnVerifyFollow.textContent = '⏳ Verificando...';
-  }
-
-  showToast('🔍 Verificando seguimiento al canal oficial de @Caoz en Kick...');
-
-  // Registrar confirmación de seguimiento para el usuario
-  localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
-  localStorage.setItem('kick_following_caoz', 'true');
-  state.user.is_following = true;
-
-  try {
-    if (typeof supabaseRest === 'function') {
-      await supabaseRest('profiles', 'PATCH', { is_following: true }, `username=ilike.${encodeURIComponent(username)}`).catch(() => null);
-    }
-  } catch (e) {}
-
-  setTimeout(() => {
-    if (btnVerifyFollow) {
-      btnVerifyFollow.disabled = false;
-      btnVerifyFollow.textContent = '🔄 Verificar Follow';
-    }
-
-    showToast(`✅ ¡Seguimiento a @Caoz verificado con éxito! Tus tickets y selección de números están desbloqueados.`);
-    window.soundFX?.playSuccessChime();
-    if (typeof confetti === 'function') {
-      confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
-    }
-    renderUI();
-  }, 400);
-}
-
-function handleFollowLinkClick() {
-  showToast('⚡ Abriendo canal de @Caoz en Kick... Al regresar pulsa "Verificar Follow".');
-  // Auto-verificar tras volver de la pestaña de Kick
-  setTimeout(() => {
-    if (state && state.user && state.user.is_logged_in && !state.user.is_following) {
-      handleVerifyFollow();
-    }
-  }, 4000);
-}
-
-window.handleVerifyFollow = handleVerifyFollow;
-window.handleFollowLinkClick = handleFollowLinkClick;
-
-// -------------------------------------------------------------------
-// 8. Autenticación Kick Manual de Respaldo
+// 7. Autenticación Kick Manual de Respaldo
 // -------------------------------------------------------------------
 function openLoginModal() {
   if (loginModal) {
@@ -660,7 +540,6 @@ async function handleLoginSubmit(e) {
   const username = kickUsernameInput.value.trim().replace(/^@/, '');
   if (!username) return;
 
-  const isOwner = username.toLowerCase() === 'caoz';
   localStorage.setItem('kick_user', username);
   localStorage.setItem('kick_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`);
 
@@ -678,7 +557,7 @@ function handleLogout() {
 }
 
 // -------------------------------------------------------------------
-// 9. Realtime Polling Seguro con Supabase REST
+// 8. Realtime Polling Seguro con Supabase REST
 // -------------------------------------------------------------------
 function initSupabaseRealtime() {
   setInterval(() => {
@@ -687,7 +566,7 @@ function initSupabaseRealtime() {
 }
 
 // -------------------------------------------------------------------
-// 10. Toasts & Helper
+// 9. Toasts & Helper
 // -------------------------------------------------------------------
 function showToast(message, isError = false) {
   const container = document.getElementById('toastContainer');
@@ -719,7 +598,7 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 11. Event Listeners & Inicio OAuth 2.0 PKCE
+// 10. Event Listeners & Inicio OAuth 2.0 PKCE
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
@@ -767,9 +646,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const walletLogoutBtn = document.getElementById('walletLogoutBtn');
   if (walletLogoutBtn) walletLogoutBtn.addEventListener('click', handleLogout);
 
-  const btnVerifyFollow = document.getElementById('btnVerifyFollow');
-  if (btnVerifyFollow) btnVerifyFollow.addEventListener('click', handleVerifyFollow);
-
   document.querySelectorAll('.filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
@@ -799,11 +675,4 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
-
-  // Detección automática de follow al volver de la pestaña de Kick
-  window.addEventListener('focus', () => {
-    if (state && state.user && state.user.is_logged_in && !state.user.is_following) {
-      handleVerifyFollow();
-    }
-  });
 });

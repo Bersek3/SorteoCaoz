@@ -166,38 +166,3 @@ async function processKickOAuthCallback() {
 
   return null;
 }
-
-// -------------------------------------------------------------------
-// Comprobación de Follower con la API de Kick & Sesión
-// -------------------------------------------------------------------
-window.checkKickFollowLive = async function(username) {
-  if (!username) return false;
-  if (username.toLowerCase() === 'caoz') return true;
-
-  const token = sessionStorage.getItem('kick_access_token');
-
-  try {
-    // 1. Consulta con Token OAuth oficial a la API de Kick
-    if (token) {
-      const authRes = await fetch('https://api.kick.com/public/v1/channels/caoz', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      }).catch(() => null);
-
-      if (authRes && authRes.ok) {
-        const data = await authRes.json();
-        if (data && (data.is_following === true || data.following === true)) {
-          localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
-          return true;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('[Kick Follow API] Error consultando API de Kick:', err);
-  }
-
-  const saved = localStorage.getItem('kick_following_caoz_' + username.toLowerCase());
-  return saved === 'true';
-};
