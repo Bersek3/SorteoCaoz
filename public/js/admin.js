@@ -19,7 +19,7 @@ const configDateOnly = document.getElementById('configDateOnly');
 const configTimeOnly = document.getElementById('configTimeOnly');
 
 const saveConfigBtn = document.getElementById('saveConfigBtn');
-const resetGiveawayBtn = document.getElementById('resetGiveawayBtn');
+const exportExcelBtn = document.getElementById('exportExcelBtn');
 const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
 const usersTableBody = document.getElementById('usersTableBody');
@@ -309,18 +309,56 @@ async function handleSaveConfig() {
   }
 }
 
-async function handleResetGiveaway() {
-  if (!confirm('¿Estás seguro de que deseas vaciar todos los números elegidos?')) {
+// -------------------------------------------------------------------
+// Exportación a Excel / CSV con compatibilidad total UTF-8
+// -------------------------------------------------------------------
+function exportToExcel() {
+  if (!adminState || !adminState.all_users_list || adminState.all_users_list.length === 0) {
+    showToast('No hay participantes registrados para exportar.', true);
     return;
   }
 
-  try {
-    await supabaseClient.from('seats').delete().neq('seat_number', 0);
-    showToast('Selección de números vaciada en Supabase.');
-    await loadAdminData();
-  } catch (err) {
-    showToast('Error al reiniciar números', true);
-  }
+  const users = adminState.all_users_list;
+  
+  // Encabezados en formato CSV con punto y coma (nativo para Microsoft Excel y Google Sheets)
+  let csvContent = '\uFEFF'; // BOM UTF-8 para garantizar acentos y caracteres especiales
+  csvContent += 'Usuario Kick;Nombre Visible;Subs Propias;Subs Regaladas;Tickets Bonus;Total Tickets;Numeros Elegidos;Cantidad Asignada;Tickets Libres;Fecha Exportacion\r\n';
+
+  const exportTime = new Date().toLocaleString('es-ES');
+
+  users.forEach((u) => {
+    const freeTickets = Math.max(0, u.total_tickets - u.used_tickets);
+    const seatsStr = u.seats.length > 0 ? `"${u.seats.join(', ')}"` : 'Ninguno';
+    const bonus = Math.max(0, (u.total_tickets - (u.own_subs || 0) - (u.gifted_subs || 0)));
+
+    const row = [
+      `@${u.username}`,
+      `"${(u.display_name || u.username).replace(/"/g, '""')}"`,
+      u.own_subs || 0,
+      u.gifted_subs || 0,
+      bonus,
+      u.total_tickets,
+      seatsStr,
+      u.seats.length,
+      freeTickets,
+      `"${exportTime}"`
+    ];
+    csvContent += row.join(';') + '\r\n';
+  });
+
+  // Generar y descargar el archivo CSV automáticamente
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Sorteo_Caoz_Participantes_${dateStr}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast('📊 ¡Planilla Excel (.csv) exportada y descargada con éxito!');
+  window.soundFX?.playSuccessChime();
 }
 
 window.addTicketToUser = async function(username, count) {
@@ -381,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   emitEventBtn.addEventListener('click', handleEmitEvent);
   saveConfigBtn.addEventListener('click', handleSaveConfig);
-  resetGiveawayBtn.addEventListener('click', handleResetGiveaway);
+  if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
   if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
 
   searchUserTable.addEventListener('input', () => {
