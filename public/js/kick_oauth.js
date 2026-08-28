@@ -177,7 +177,7 @@ window.checkKickFollowLive = async function(username) {
   const token = sessionStorage.getItem('kick_access_token');
 
   try {
-    // 1. Intento con Token OAuth oficial a la API de Kick
+    // 1. Consulta con Token OAuth oficial a la API de Kick
     if (token) {
       const authRes = await fetch('https://api.kick.com/public/v1/channels/caoz', {
         headers: {
@@ -189,29 +189,32 @@ window.checkKickFollowLive = async function(username) {
       if (authRes && authRes.ok) {
         const data = await authRes.json();
         if (data && (data.is_following === true || data.following === true)) {
-          localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+          sessionStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
           return true;
         }
       }
     }
 
     // 2. Consulta a API pública de Kick sobre el canal de Caoz
-    const publicRes = await fetch(`https://kick.com/api/v1/channels/caoz`, {
+    const publicRes = await fetch(`https://kick.com/api/v2/channels/caoz/followers`, {
       headers: { 'Accept': 'application/json' }
     }).catch(() => null);
 
     if (publicRes && publicRes.ok) {
-      const channelData = await publicRes.json();
-      if (channelData && channelData.user && channelData.user.username.toLowerCase() === username.toLowerCase()) {
-        localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
-        return true;
+      const followersData = await publicRes.json();
+      if (followersData && Array.isArray(followersData.data)) {
+        const isFollower = followersData.data.some(f => (f.username || f.name || '').toLowerCase() === username.toLowerCase());
+        if (isFollower) {
+          sessionStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+          return true;
+        }
       }
     }
   } catch (err) {
     console.warn('[Kick Follow API] Error consultando API de Kick:', err);
   }
 
-  // 3. Fallback en tiempo real
-  const savedFollow = localStorage.getItem('kick_following_caoz_' + username.toLowerCase());
-  return savedFollow === 'true';
+  // Si no está verificado en vivo por la API de Kick, es falso
+  sessionStorage.removeItem('kick_following_caoz_' + username.toLowerCase());
+  return false;
 };

@@ -96,8 +96,9 @@ async function loadState() {
 
     if (savedUser) {
       const isOwner = savedUser.toLowerCase() === 'caoz';
-      const isFollowingSaved = localStorage.getItem('kick_following_caoz_' + savedUser.toLowerCase()) === 'true';
-      isFollowing = isOwner || isFollowingSaved;
+      // Solo el streamer anfitrión (@Caoz) está exento de seguir su propio canal.
+      // Cualquier otro usuario (incluyendo @Bersek3) debe verificar el follow en vivo.
+      isFollowing = isOwner ? true : (sessionStorage.getItem('kick_following_caoz_' + savedUser.toLowerCase()) === 'true');
 
       currentUserProfile = (profilesList || []).find(
         (p) => p.username && p.username.toLowerCase() === savedUser.toLowerCase()
@@ -281,10 +282,11 @@ function renderUI() {
     const followActionButtons = document.getElementById('followActionButtons');
 
     if (followBox) {
-      if (user.is_following || user.is_streamer) {
+      const isHostCaoz = user.username && user.username.toLowerCase() === 'caoz';
+      if (isHostCaoz || user.is_following) {
         if (followIcon) followIcon.textContent = '🟢';
         if (followStatusText) {
-          followStatusText.textContent = 'Sigues a @Caoz en Kick ✓';
+          followStatusText.textContent = isHostCaoz ? '👑 Canal Oficial (@Caoz)' : 'Sigues a @Caoz en Kick ✓';
           followStatusText.style.color = 'var(--kick-green)';
         }
         if (followStatusBadge) {
