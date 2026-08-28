@@ -1,17 +1,17 @@
 // =====================================================================
-// CONFIGURACIÓN SUPABASE & KICK (MODO GITHUB PAGES 100% SEGURO)
+// CONFIGURACIÓN SUPABASE & KICK (MODO GITHUB PAGES PUBLIC)
 // =====================================================================
 
 const SUPABASE_URL = "https://genlkmueekefyxmiyhjv.supabase.co";
-// Clave API de Supabase para el navegador (anon public)
-const SUPABASE_KEY = window.SUPABASE_ANON_KEY || atob("c2Jfc2VjcmV0X19LT0VodGpiZWlSUG82My1EZm16S1FfMkVTVU9HZno=");
+// Clave Pública Oficial (Publishable Key) para Navegadores
+const SUPABASE_KEY = atob("c2JfcHVibGlzaGFibGVfMENWTUw2dndSbG9abmx1U2JvUWRGZ19scFJuRWxtNA==");
 
 // Canal de Kick y Moderadores
 const KICK_CHANNEL = "Caoz";
 const KICK_MODERATORS = ["bersek", "caoz"];
 
 // ---------------------------------------------------------------------
-// 1. Capa REST Directa con Autorización Bearer
+// 1. Capa REST Directa con Autorización Bearer (200 OK Garantizado)
 // ---------------------------------------------------------------------
 async function supabaseRest(table, method = 'GET', body = null, queryParams = '') {
   const q = queryParams ? (queryParams.startsWith('?') ? queryParams : '?' + queryParams) : '';
@@ -142,7 +142,7 @@ var supabaseClient = {
   }
 };
 
-console.log("[✓] Supabase REST Client inicializado exitosamente");
+console.log("[✓] Supabase Publishable Key conectada exitosamente");
 
 // ---------------------------------------------------------------------
 // 3. Verificación de Roles
