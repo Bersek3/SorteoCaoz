@@ -34,12 +34,16 @@ async function startKickOAuth() {
     const codeChallenge = await generateCodeChallenge(codeVerifier);
     const state = generateRandomString(32);
 
+    // Determinar la Redirect URI limpia
+    let redirectUri = window.location.origin + window.location.pathname;
+    if (!redirectUri.endsWith('/') && !redirectUri.endsWith('.html')) {
+      redirectUri += '/';
+    }
+
     // Guardar en sessionStorage para corroborar al volver
     sessionStorage.setItem('kick_code_verifier', codeVerifier);
     sessionStorage.setItem('kick_auth_state', state);
-
-    // Determinar la Redirect URI actual (limpia de parámetros)
-    const redirectUri = window.location.origin + window.location.pathname;
+    sessionStorage.setItem('kick_redirect_uri', redirectUri);
 
     const authUrl = new URL('https://id.kick.com/oauth/authorize');
     authUrl.searchParams.set('client_id', KICK_CLIENT_ID);
@@ -54,7 +58,7 @@ async function startKickOAuth() {
     window.location.href = authUrl.toString();
   } catch (err) {
     console.error('Error al iniciar Kick OAuth:', err);
-    alert('No se pudo conectar con el portal de Kick OAuth.');
+    alert('Error al conectar con Kick OAuth. Ver consola.');
   }
 }
 
@@ -66,27 +70,24 @@ async function processKickOAuthCallback() {
   const error = urlParams.get('error');
 
   if (error) {
-    console.error('Kick OAuth error:', error, urlParams.get('error_description'));
+    console.error('Kick OAuth error devuelto por Kick:', error, urlParams.get('error_description'));
     window.history.replaceState({}, document.title, window.location.pathname);
     return null;
   }
 
   if (!code) return null;
 
+  console.log('[Kick OAuth] Código de autorización recibido:', code);
+
   const savedVerifier = sessionStorage.getItem('kick_code_verifier');
-  const savedState = sessionStorage.getItem('kick_auth_state');
+  const savedRedirectUri = sessionStorage.getItem('kick_redirect_uri') || (window.location.origin + window.location.pathname);
 
   // Limpiar URL de los parámetros temporales
   window.history.replaceState({}, document.title, window.location.pathname);
 
-  if (!savedVerifier || returnedState !== savedState) {
-    console.warn('Verificación de estado PKCE fallida o expirada.');
-  }
-
-  const redirectUri = window.location.origin + window.location.pathname;
-
   try {
-    // Intercambiar código por Access Token
+    // 1. Intercambiar código por Access Token
+    console.log('[Kick OAuth] Intercambiando código por token con redirect_uri:', savedRedirectUri);
     const tokenRes = await fetch('https://id.kick.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -95,20 +96,23 @@ async function processKickOAuthCallback() {
         client_secret: KICK_CLIENT_SECRET,
         grant_type: 'authorization_code',
         code: code,
-        redirect_uri: redirectUri,
+        redirect_uri: savedRedirectUri,
         code_verifier: savedVerifier || ''
       })
     });
 
     const tokenData = await tokenRes.json();
+    console.log('[Kick OAuth] Respuesta del Token:', tokenRes.status, tokenData);
+
     if (!tokenRes.ok || !tokenData.access_token) {
-      console.error('Error al obtener token de Kick:', tokenData);
+      console.error('No se pudo obtener el token de acceso de Kick:', tokenData);
       return null;
     }
 
     const accessToken = tokenData.access_token;
 
-    // Obtener perfil del usuario desde Kick API
+    // 2. Obtener perfil del usuario desde Kick API
+    console.log('[Kick OAuth] Solicitando perfil a https://api.kick.com/public/v1/users');
     const userRes = await fetch('https://api.kick.com/public/v1/users', {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -117,29 +121,43 @@ async function processKickOAuthCallback() {
     });
 
     const userData = await userRes.json();
-    let kickUser = null;
+    console.log('[Kick OAuth] Respuesta de perfil de usuario:', userData);
 
+    let kickUser = null;
     if (userData && userData.data && userData.data[0]) {
       kickUser = userData.data[0];
     } else if (userData && userData.username) {
       kickUser = userData;
     }
 
-    if (kickUser && kickUser.username) {
-      const username = kickUser.username;
+    if (kickUser && (kickUser.username || kickUser.name)) {
+      const username = kickUser.username || kickUser.name;
       const avatar = kickUser.profile_picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
 
       localStorage.setItem('kick_user', username);
       localStorage.setItem('kick_avatar', avatar);
 
-      // Sincronizar usuario autenticado con Supabase
-      if (window.supabaseClient) {
-        await window.supabaseClient.from('profiles').upsert({
-          kick_user_id: String(kickUser.user_id || Math.floor(Math.random() * 1000000)),
-          username: username,
-          display_name: kickUser.name || username,
-          avatar_url: avatar
-        }, { onConflict: 'username' });
+      // 3. Sincronizar usuario autenticado con Supabase (vía REST Helper seguro)
+      try {
+        if (typeof supabaseRest === 'function') {
+          const isOwner = username.toLowerCase() === 'caoz';
+          const existing = await supabaseRest('profiles', 'GET', null, `username=ilike.${encodeURIComponent(username)}`);
+
+          if (!existing || existing.length === 0) {
+            await supabaseRest('profiles', 'POST', {
+              kick_user_id: String(kickUser.user_id || Math.floor(Math.random() * 1000000)),
+              username: username,
+              display_name: kickUser.name || username,
+              avatar_url: avatar,
+              is_streamer: isOwner,
+              own_subs: isOwner ? 0 : 1,
+              gifted_subs: 0,
+              bonus_tickets: 0
+            });
+          }
+        }
+      } catch (dbErr) {
+        console.warn('Advertencia al guardar perfil en Supabase:', dbErr);
       }
 
       return {
@@ -149,7 +167,7 @@ async function processKickOAuthCallback() {
       };
     }
   } catch (err) {
-    console.error('Error procesando callback de Kick:', err);
+    console.error('Excepción al procesar callback de Kick OAuth:', err);
   }
 
   return null;

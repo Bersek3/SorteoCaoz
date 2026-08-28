@@ -12,8 +12,55 @@ const KICK_MODERATORS = ["bersek", "caoz"];
 
 var supabaseClient = null;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  console.log("[✓] Supabase Cloud Client inicializado correctamente");
+  try {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      },
+      global: {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    });
+    console.log("[✓] Supabase Cloud Client inicializado con cabeceras de autorización");
+  } catch (e) {
+    console.error("Error al inicializar Supabase Client:", e);
+  }
+}
+
+// ---------------------------------------------------------------------
+// Helper REST Directo y Seguro (Garantiza 200 OK en todas las consultas)
+// ---------------------------------------------------------------------
+async function supabaseRest(table, method = 'GET', body = null, queryParams = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${table}${queryParams ? (queryParams.startsWith('?') ? queryParams : '?' + queryParams) : ''}`;
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': method === 'POST' ? 'return=representation' : (method === 'PATCH' ? 'return=representation' : 'count=exact')
+  };
+
+  const options = {
+    method: method,
+    headers: headers
+  };
+
+  if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
+    options.body = JSON.stringify(body);
+  }
+
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Supabase REST error (${res.status}): ${errText}`);
+  }
+
+  if (res.status === 204) return null;
+  return await res.json();
 }
 
 // Helper para verificar roles

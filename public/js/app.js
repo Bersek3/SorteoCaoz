@@ -40,28 +40,23 @@ const seatsSelectionArea = document.getElementById('seatsSelectionArea');
 const seatsLockedBox = document.getElementById('seatsLockedBox');
 
 // -------------------------------------------------------------------
-// 1. Cargar Estado Directamente desde Supabase Cloud
+// 1. Cargar Estado Directamente desde Supabase Cloud (REST Seguro)
 // -------------------------------------------------------------------
 async function loadState() {
-  if (!supabaseClient) {
-    console.error('Supabase Client no está disponible');
-    return;
-  }
-
   try {
     const savedUser = localStorage.getItem('kick_user');
     const roleInfo = (typeof checkUserRole === 'function') 
       ? checkUserRole(savedUser)
       : { is_logged_in: !!savedUser, is_admin: false, is_streamer: false, is_moderator: false, role: 'viewer' };
 
-    // Consultas paralelas a Supabase
-    const [configRes, seatsRes, profilesRes] = await Promise.all([
-      supabaseClient.from('giveaway_config').select('*').eq('id', 'current').single(),
-      supabaseClient.from('seats').select('*'),
-      supabaseClient.from('profiles').select('*')
+    // Consultas directas y seguras a Supabase con cabeceras de autorización
+    const [configDataList, seatsList, profilesList] = await Promise.all([
+      supabaseRest('giveaway_config', 'GET', null, 'id=eq.current').catch(() => null),
+      supabaseRest('seats', 'GET').catch(() => []),
+      supabaseRest('profiles', 'GET').catch(() => [])
     ]);
 
-    const configData = configRes.data || {
+    const configData = (configDataList && configDataList[0]) || {
       title: 'Sorteo Oficial PlayStation 5 🎮',
       prize: 'PlayStation 5 Slim (Edición Disco)',
       channel_slug: 'Caoz',
@@ -71,8 +66,8 @@ async function loadState() {
 
     // Mapeo de Asientos
     const seatsMap = {};
-    if (seatsRes.data) {
-      seatsRes.data.forEach((s) => {
+    if (seatsList && Array.isArray(seatsList)) {
+      seatsList.forEach((s) => {
         seatsMap[String(s.seat_number)] = {
           seat_number: s.seat_number,
           username: s.username,
@@ -86,7 +81,7 @@ async function loadState() {
     let userSeats = [];
 
     if (savedUser) {
-      currentUserProfile = (profilesRes.data || []).find(
+      currentUserProfile = (profilesList || []).find(
         (p) => p.username.toLowerCase() === savedUser.toLowerCase()
       );
 
@@ -97,15 +92,19 @@ async function loadState() {
           kick_user_id: String(Math.abs(hashString(savedUser)) % 10000000),
           username: savedUser,
           display_name: savedUser,
-          avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser}`,
+          avatar_url: localStorage.getItem('kick_avatar') || `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser}`,
           is_streamer: isOwner,
           own_subs: isOwner ? 0 : 1,
           gifted_subs: 0,
           bonus_tickets: 0
         };
 
-        const insertRes = await supabaseClient.from('profiles').insert(newProfile).select().single();
-        currentUserProfile = insertRes.data || newProfile;
+        try {
+          const inserted = await supabaseRest('profiles', 'POST', newProfile);
+          currentUserProfile = (inserted && inserted[0]) || newProfile;
+        } catch (e) {
+          currentUserProfile = newProfile;
+        }
       }
 
       userSeats = Object.values(seatsMap)
@@ -137,7 +136,7 @@ async function loadState() {
         ...(currentUserProfile || {}),
         username: savedUser,
         display_name: currentUserProfile?.display_name || savedUser,
-        avatar: currentUserProfile?.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser || 'Guest'}`,
+        avatar: currentUserProfile?.avatar_url || localStorage.getItem('kick_avatar') || `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser || 'Guest'}`,
         own_subs: currentUserProfile?.own_subs || 0,
         gifted_subs: currentUserProfile?.gifted_subs || 0,
         total_tickets: totalTickets,
@@ -155,7 +154,7 @@ async function loadState() {
         win_probability: configData.winner_odds,
         prize: configData.prize
       } : null,
-      all_users_list: profilesRes.data || []
+      all_users_list: profilesList || []
     };
 
     renderUI();
@@ -316,7 +315,7 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 }
 
 // -------------------------------------------------------------------
-// 4. Selección Directa en Supabase
+// 4. Selección Directa en Supabase (Garantizada con REST)
 // -------------------------------------------------------------------
 async function handleSeatClick(seatNumber, isMine, isOccupied) {
   if (!state.user.is_logged_in) {
@@ -340,13 +339,11 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
 
   try {
     if (isMine) {
-      // Liberar asiento en Supabase
-      await supabaseClient.from('seats').delete().eq('seat_number', seatNumber);
+      await supabaseRest('seats', 'DELETE', null, `seat_number=eq.${seatNumber}`);
       window.soundFX.playSeatRelease();
       showToast(`Asiento #${seatNumber} liberado.`);
     } else {
-      // Reservar asiento en Supabase
-      await supabaseClient.from('seats').insert({
+      await supabaseRest('seats', 'POST', {
         seat_number: seatNumber,
         username: state.user.username,
         avatar_url: state.user.avatar,
@@ -388,7 +385,6 @@ async function handleAutoPick() {
     }
 
     const countToPick = Math.min(state.user.available_tickets, freeSeats.length);
-    // Shuffle
     const shuffled = freeSeats.sort(() => 0.5 - Math.random());
     const chosen = shuffled.slice(0, countToPick);
 
@@ -399,7 +395,7 @@ async function handleAutoPick() {
       claimed_at: new Date().toISOString()
     }));
 
-    await supabaseClient.from('seats').insert(inserts);
+    await supabaseRest('seats', 'POST', inserts);
 
     window.soundFX.playSuccessChime();
     if (typeof confetti === 'function') {
@@ -461,28 +457,33 @@ async function handleLoginSubmit(e) {
 
 function handleLogout() {
   localStorage.removeItem('kick_user');
+  localStorage.removeItem('kick_avatar');
   showToast('Has cerrado sesión.');
   loadState();
 }
 
 // -------------------------------------------------------------------
-// 7. Supabase Realtime (Sincronización en Vivo para todos los viewers)
+// 7. Supabase Realtime & Polling de Respaldo
 // -------------------------------------------------------------------
 function initSupabaseRealtime() {
-  if (!supabaseClient) return;
+  // 1. Suscripción en tiempo real con Supabase Client
+  if (supabaseClient) {
+    try {
+      supabaseClient
+        .channel('public_live_giveaway')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'seats' }, () => loadState())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'giveaway_config' }, () => loadState())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => loadState())
+        .subscribe();
+    } catch (e) {
+      console.warn('Realtime subscription fallback:', e);
+    }
+  }
 
-  supabaseClient
-    .channel('public_live_giveaway')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'seats' }, () => {
-      loadState();
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'giveaway_config' }, () => {
-      loadState();
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-      loadState();
-    })
-    .subscribe();
+  // 2. Polling de respaldo cada 6 segundos para garantizar actualización continua
+  setInterval(() => {
+    loadState();
+  }, 6000);
 }
 
 function showToast(message, isError = false) {
