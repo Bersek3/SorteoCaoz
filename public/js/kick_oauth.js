@@ -150,7 +150,7 @@ async function processKickOAuthCallback() {
               display_name: kickUser.name || username,
               avatar_url: avatar,
               is_streamer: isOwner,
-              own_subs: isOwner ? 0 : 1,
+              own_subs: 0,
               gifted_subs: 0,
               bonus_tickets: 0
             });

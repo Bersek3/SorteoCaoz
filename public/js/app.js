@@ -1,42 +1,53 @@
-// Lógica de Producción del Sorteo PS5 - Modo GitHub Pages + Supabase Directo
+// Lógica Principal de la Aplicación del Sorteo - Integrada con Supabase Cloud REST y Kick OAuth
 let state = null;
 let currentFilter = 'all';
 let searchQuery = '';
 let countdownInterval = null;
 
 // Elementos DOM
-const navLoginBtn = document.getElementById('navLoginBtn');
-const navDrawBtn = document.getElementById('navDrawBtn');
-const navAdminBtn = document.getElementById('navAdminBtn');
+const giveawayTitle = document.getElementById('giveawayTitle');
+const prizeBadge = document.getElementById('prizeBadge');
+const channelNameText = document.getElementById('channelNameText');
+const statsSummaryText = document.getElementById('statsSummaryText');
+const progressBar = document.getElementById('progressBar');
+
 const userPillBox = document.getElementById('userPillBox');
 const navUserAvatar = document.getElementById('navUserAvatar');
 const navUserName = document.getElementById('navUserName');
 const navUserTickets = document.getElementById('navUserTickets');
+const navLoginBtn = document.getElementById('navLoginBtn');
+const navDrawBtn = document.getElementById('navDrawBtn');
+const navAdminBtn = document.getElementById('navAdminBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 
-const giveawayTitle = document.getElementById('giveawayTitle');
-const channelNameText = document.getElementById('channelNameText');
-
+const walletCard = document.getElementById('walletCard');
 const walletLoggedOut = document.getElementById('walletLoggedOut');
 const walletLoggedIn = document.getElementById('walletLoggedIn');
+const walletLoginBtn = document.getElementById('walletLoginBtn');
 const walletAvatar = document.getElementById('walletAvatar');
 const walletUsername = document.getElementById('walletUsername');
 const userRoleBadge = document.getElementById('userRoleBadge');
 const statOwnSubs = document.getElementById('statOwnSubs');
 const statGiftedSubs = document.getElementById('statGiftedSubs');
 const statAvailableTickets = document.getElementById('statAvailableTickets');
+const autoPickBtn = document.getElementById('autoPickBtn');
 
 const seatsGrid = document.getElementById('seatsGrid');
-const autoPickBtn = document.getElementById('autoPickBtn');
-const floatingBar = document.getElementById('floatingBar');
-const floatingAvailableCount = document.getElementById('floatingAvailableCount');
-const floatingAutoPickBtn = document.getElementById('floatingAutoPickBtn');
-
 const countTotalSeats = document.getElementById('countTotalSeats');
 const countFreeSeats = document.getElementById('countFreeSeats');
 const countMySeats = document.getElementById('countMySeats');
 const countTakenSeats = document.getElementById('countTakenSeats');
 const searchSeatInput = document.getElementById('searchSeatInput');
 
+const floatingBar = document.getElementById('floatingBar');
+const floatingAvailableCount = document.getElementById('floatingAvailableCount');
+const floatingAutoPickBtn = document.getElementById('floatingAutoPickBtn');
+
+const loginModal = document.getElementById('loginModal');
+const closeLoginModal = document.getElementById('closeLoginModal');
+const loginForm = document.getElementById('loginForm');
+const kickUsernameInput = document.getElementById('kickUsernameInput');
+const lockedLoginBtn = document.getElementById('lockedLoginBtn');
 const seatsSelectionArea = document.getElementById('seatsSelectionArea');
 const seatsLockedBox = document.getElementById('seatsLockedBox');
 
@@ -81,22 +92,26 @@ async function loadState() {
 
     let currentUserProfile = null;
     let userSeats = [];
+    let isFollowing = false;
 
     if (savedUser) {
+      const isOwner = savedUser.toLowerCase() === 'caoz';
+      const isFollowingSaved = localStorage.getItem('kick_following_caoz_' + savedUser.toLowerCase()) === 'true';
+      isFollowing = isOwner || isFollowingSaved;
+
       currentUserProfile = (profilesList || []).find(
         (p) => p.username.toLowerCase() === savedUser.toLowerCase()
       );
 
-      // Si el usuario no existe en Supabase, crearlo automáticamente
+      // Si el usuario no existe en Supabase, crearlo automáticamente con 0 subs por defecto
       if (!currentUserProfile) {
-        const isOwner = savedUser.toLowerCase() === 'caoz';
         const newProfile = {
           kick_user_id: String(Math.abs(hashString(savedUser)) % 10000000),
           username: savedUser,
           display_name: savedUser,
           avatar_url: localStorage.getItem('kick_avatar') || `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser}`,
           is_streamer: isOwner,
-          own_subs: isOwner ? 0 : 1,
+          own_subs: 0,
           gifted_subs: 0,
           bonus_tickets: 0
         };
@@ -148,6 +163,7 @@ async function loadState() {
         used_tickets: userSeats.length,
         available_tickets: availableTickets,
         my_seats: userSeats,
+        is_following: isFollowing,
         ...roleInfo
       },
       seats: seatsMap,
@@ -181,28 +197,29 @@ function initCountdown(drawDateIso) {
   const cdSeconds = document.getElementById('cdSeconds');
   const countdownBox = document.getElementById('countdownBox');
 
-  if (!cdDays || !countdownBox) return;
-
-  // Fecha objetivo: desde Supabase o por defecto en 3 días
-  let targetTime = drawDateIso ? new Date(drawDateIso).getTime() : null;
-  if (!targetTime || isNaN(targetTime)) {
-    const defaultDate = new Date();
-    defaultDate.setDate(defaultDate.getDate() + 3);
-    defaultDate.setHours(21, 0, 0, 0);
-    targetTime = defaultDate.getTime();
+  if (!drawDateIso) {
+    if (cdDays) cdDays.textContent = '00';
+    if (cdHours) cdHours.textContent = '00';
+    if (cdMinutes) cdMinutes.textContent = '00';
+    if (cdSeconds) cdSeconds.textContent = '00';
+    return;
   }
 
-  function update() {
+  const targetDate = new Date(drawDateIso).getTime();
+
+  function updateClock() {
     const now = new Date().getTime();
-    const distance = targetTime - now;
+    const distance = targetDate - now;
 
     if (distance <= 0) {
-      cdDays.textContent = '00';
-      cdHours.textContent = '00';
-      cdMinutes.textContent = '00';
-      cdSeconds.textContent = '00';
-      const title = countdownBox.querySelector('.countdown-title');
-      if (title) title.innerHTML = '🔥 ¡EL SORTEO ES HOY / EN DIRECTO!';
+      if (cdDays) cdDays.textContent = '00';
+      if (cdHours) cdHours.textContent = '00';
+      if (cdMinutes) cdMinutes.textContent = '00';
+      if (cdSeconds) cdSeconds.textContent = '00';
+      if (countdownBox) {
+        countdownBox.style.borderColor = 'var(--kick-green)';
+        countdownBox.style.boxShadow = '0 0 30px var(--kick-green-glow)';
+      }
       return;
     }
 
@@ -211,31 +228,37 @@ function initCountdown(drawDateIso) {
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    cdDays.textContent = String(days).padStart(2, '0');
-    cdHours.textContent = String(hours).padStart(2, '0');
-    cdMinutes.textContent = String(minutes).padStart(2, '0');
-    cdSeconds.textContent = String(seconds).padStart(2, '0');
+    if (cdDays) cdDays.textContent = String(days).padStart(2, '0');
+    if (cdHours) cdHours.textContent = String(hours).padStart(2, '0');
+    if (cdMinutes) cdMinutes.textContent = String(minutes).padStart(2, '0');
+    if (cdSeconds) cdSeconds.textContent = String(seconds).padStart(2, '0');
   }
 
-  update();
-  countdownInterval = setInterval(update, 1000);
+  updateClock();
+  countdownInterval = setInterval(updateClock, 1000);
 }
 
 // -------------------------------------------------------------------
-// 3. Renderizado de Interfaz
+// 3. Renderizar Interfaz
 // -------------------------------------------------------------------
 function renderUI() {
   if (!state) return;
 
   const { config, stats, user, seats, winner } = state;
 
+  // Header & Info
   giveawayTitle.textContent = config.title;
-  if (channelNameText) channelNameText.textContent = config.channel;
+  prizeBadge.textContent = `🎁 ${config.prize}`;
+  channelNameText.textContent = config.channel;
 
-  const isLoggedIn = user.is_logged_in && user.username;
-  const isAdmin = user.is_admin;
+  // Barra de progreso y estadísticas
+  progressBar.style.width = `${stats.occupancy_percent}%`;
+  statsSummaryText.textContent = `${stats.occupied_seats} de ${stats.total_seats} números elegidos (${stats.occupancy_percent}%) • ${stats.total_participants} participantes`;
 
-  if (isLoggedIn) {
+  // Autenticación de Usuario
+  if (user.is_logged_in) {
+    const isAdmin = (typeof checkUserRole === 'function') ? checkUserRole(user.username).is_admin : (user.is_streamer || user.is_moderator);
+
     navLoginBtn.style.display = 'none';
     userPillBox.style.display = 'flex';
     navUserAvatar.src = user.avatar;
@@ -249,6 +272,41 @@ function renderUI() {
     statOwnSubs.textContent = user.own_subs;
     statGiftedSubs.textContent = user.gifted_subs;
     statAvailableTickets.textContent = user.available_tickets;
+
+    // Renderizar Estado de Follower de Kick (@Caoz)
+    const followBox = document.getElementById('followBox');
+    const followIcon = document.getElementById('followIcon');
+    const followStatusText = document.getElementById('followStatusText');
+    const followStatusBadge = document.getElementById('followStatusBadge');
+    const followActionButtons = document.getElementById('followActionButtons');
+
+    if (followBox) {
+      if (user.is_following || user.is_streamer) {
+        if (followIcon) followIcon.textContent = '🟢';
+        if (followStatusText) {
+          followStatusText.textContent = 'Sigues a @Caoz en Kick ✓';
+          followStatusText.style.color = 'var(--kick-green)';
+        }
+        if (followStatusBadge) {
+          followStatusBadge.textContent = 'Verificado';
+          followStatusBadge.className = 'tag-badge tag-green';
+        }
+        if (followActionButtons) followActionButtons.style.display = 'none';
+        followBox.style.borderColor = 'rgba(83, 252, 24, 0.4)';
+      } else {
+        if (followIcon) followIcon.textContent = '⚠️';
+        if (followStatusText) {
+          followStatusText.textContent = 'No sigues a @Caoz en Kick';
+          followStatusText.style.color = '#ffb800';
+        }
+        if (followStatusBadge) {
+          followStatusBadge.textContent = 'Obligatorio';
+          followStatusBadge.className = 'tag-badge tag-red';
+        }
+        if (followActionButtons) followActionButtons.style.display = 'flex';
+        followBox.style.borderColor = 'rgba(255, 184, 0, 0.5)';
+      }
+    }
 
     // Mostrar mapa de selección de números
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'block';
@@ -274,7 +332,9 @@ function renderUI() {
       floatingAvailableCount.textContent = user.available_tickets;
     } else {
       autoPickBtn.disabled = true;
-      autoPickBtn.textContent = `🎲 Todos tus números elegidos (${user.my_seats.length}/${user.total_tickets})`;
+      autoPickBtn.textContent = user.total_tickets > 0 
+        ? `🎲 Todos tus números elegidos (${user.my_seats.length}/${user.total_tickets})`
+        : `🎲 Sin Tickets Disponibles (0/0)`;
       floatingBar.style.display = 'none';
     }
 
@@ -321,42 +381,60 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
     if (currentFilter === 'taken' && (!isOccupied || isMine)) matchesFilter = false;
 
     if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const numMatch = String(i).includes(q);
-      const userMatch = isOccupied && seatData.username.toLowerCase().includes(q);
-      if (!numMatch && !userMatch) matchesFilter = false;
+      const matchNum = seatKey.includes(searchQuery);
+      const matchUser = isOccupied && (seatData.username || '').toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchNum && !matchUser) matchesFilter = false;
     }
 
     if (!matchesFilter) continue;
 
     const seatEl = document.createElement('div');
-    seatEl.className = 'seat';
+    seatEl.className = 'seat-item';
     seatEl.dataset.seatNumber = i;
 
     if (isWinner) {
-      seatEl.classList.add('seat-winner');
+      seatEl.classList.add('winner-seat');
     } else if (isMine) {
-      seatEl.classList.add('seat-mine');
+      seatEl.classList.add('mine');
     } else if (isOccupied) {
-      seatEl.classList.add('seat-taken');
+      seatEl.classList.add('taken');
     } else {
-      seatEl.classList.add('seat-free');
+      seatEl.classList.add('free');
     }
 
-    seatEl.textContent = i;
+    if (isMine) {
+      seatEl.innerHTML = `
+        <span class="seat-num">${i}</span>
+        <span class="seat-user-tag">MÍO</span>
+      `;
+    } else if (isOccupied) {
+      seatEl.innerHTML = `
+        <span class="seat-num">${i}</span>
+        <span class="seat-user-tag">@${seatData.username}</span>
+      `;
+    } else {
+      seatEl.innerHTML = `
+        <span class="seat-num">${i}</span>
+      `;
+    }
 
     const tooltip = document.createElement('div');
     tooltip.className = 'seat-tooltip';
 
     if (isWinner) {
-      tooltip.innerHTML = `<strong>🏆 ¡GANADOR DEL PS5!</strong> (@${winner.username})`;
-    } else if (isMine) {
-      tooltip.innerHTML = `<strong>⚡ Número #${i}</strong> (¡Es tuyo!)`;
-    } else if (isOccupied) {
-      const ownerAvatar = seatData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${seatData.username}`;
       tooltip.innerHTML = `
-        <img src="${ownerAvatar}" class="tooltip-avatar">
-        <div>
+        <div style="font-weight: 800; color: #ffd700;">🏆 ¡NÚMERO GANADOR #${i}!</div>
+        <div style="color: #ffffff;">Ganador: @${winner.username}</div>
+      `;
+    } else if (isMine) {
+      tooltip.innerHTML = `
+        <div style="font-weight: 700; color: var(--kick-green);">Tu Número #${i}</div>
+        <div style="color: var(--text-secondary); font-size: 0.75rem;">(Clic para liberar tu número)</div>
+      `;
+    } else if (isOccupied) {
+      tooltip.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <img src="${seatData.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=user'}" style="width: 20px; height: 20px; border-radius: 50%;">
           <div>Número #${i}</div>
           <strong style="color: #ff3366;">@${seatData.username}</strong>
         </div>
@@ -377,28 +455,41 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 // -------------------------------------------------------------------
 async function handleSeatClick(seatNumber, isMine, isOccupied) {
   if (!state.user.is_logged_in) {
-    window.soundFX.playError();
+    window.soundFX?.playError();
     openLoginModal();
     return;
   }
 
+  // Requisito Obligatorio: Seguir a @Caoz en Kick
+  if (!isMine && !state.user.is_streamer && !state.user.is_following) {
+    window.soundFX?.playError();
+    showToast('⚠️ Requisito obligatorio: Debes seguir a @Caoz en Kick para poder elegir números.', true);
+    const followBox = document.getElementById('followBox');
+    if (followBox) {
+      followBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      followBox.style.boxShadow = '0 0 25px rgba(255, 184, 0, 0.8)';
+      setTimeout(() => { followBox.style.boxShadow = 'none'; }, 2500);
+    }
+    return;
+  }
+
   if (isOccupied && !isMine) {
-    window.soundFX.playError();
+    window.soundFX?.playError();
     const owner = state.seats[String(seatNumber)]?.username || 'otro viewer';
     showToast(`El número #${seatNumber} ya pertenece a @${owner}`, true);
     return;
   }
 
   if (!isMine && state.user.available_tickets <= 0) {
-    window.soundFX.playError();
-    showToast(`No tienes tickets disponibles para el número #${seatNumber}. ¡Regala o compra una Sub en Kick para conseguir más!`, true);
+    window.soundFX?.playError();
+    showToast(`No tienes tickets disponibles para el número #${seatNumber}. ¡Regala o compra una Sub en el canal de Kick para conseguir más!`, true);
     return;
   }
 
   try {
     if (isMine) {
       await supabaseRest('seats', 'DELETE', null, `seat_number=eq.${seatNumber}`);
-      window.soundFX.playSeatRelease();
+      window.soundFX?.playSeatRelease();
       showToast(`Número #${seatNumber} liberado.`);
     } else {
       await supabaseRest('seats', 'POST', {
@@ -407,14 +498,14 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
         avatar_url: state.user.avatar,
         claimed_at: new Date().toISOString()
       });
-      window.soundFX.playSeatClick();
+      window.soundFX?.playSeatClick();
       showToast(`¡Número #${seatNumber} seleccionado con éxito! 🎟️`);
     }
 
     await loadState();
   } catch (err) {
     console.error('Error modificando número en Supabase:', err);
-    window.soundFX.playError();
+    window.soundFX?.playError();
     showToast('Error al actualizar número en la base de datos', true);
   }
 }
@@ -425,6 +516,19 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
 async function handleAutoPick() {
   if (!state || !state.user.is_logged_in || state.user.available_tickets <= 0) {
     showToast('No tienes tickets disponibles para auto-elegir', true);
+    return;
+  }
+
+  // Requisito Obligatorio: Seguir a @Caoz en Kick
+  if (!state.user.is_streamer && !state.user.is_following) {
+    window.soundFX?.playError();
+    showToast('⚠️ Requisito obligatorio: Debes seguir a @Caoz en Kick para poder elegir tus números.', true);
+    const followBox = document.getElementById('followBox');
+    if (followBox) {
+      followBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      followBox.style.boxShadow = '0 0 25px rgba(255, 184, 0, 0.8)';
+      setTimeout(() => { followBox.style.boxShadow = 'none'; }, 2500);
+    }
     return;
   }
 
@@ -455,80 +559,85 @@ async function handleAutoPick() {
 
     await supabaseRest('seats', 'POST', inserts);
 
-    window.soundFX.playSuccessChime();
+    window.soundFX?.playSuccessChime();
     if (typeof confetti === 'function') {
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
 
-    showToast(`¡Se han elegido ${chosen.length} números de la suerte para ti! 🎟️`);
+    showToast(`🎉 ¡Auto-asignados ${chosen.length} números: ${chosen.join(', ')}!`);
     await loadState();
   } catch (err) {
-    console.error('Error en auto-pick:', err);
-    showToast('Error al auto-elegir números', true);
+    console.error('Error en Auto-Pick:', err);
+    window.soundFX?.playError();
+    showToast('Error en auto-asignación', true);
   }
 }
 
 // -------------------------------------------------------------------
-// 7. Iniciar / Cerrar Sesión con Kick
+// 7. Verificación de Follower de Kick (@Caoz)
 // -------------------------------------------------------------------
-const loginModal = document.getElementById('loginModal');
-const closeLoginModal = document.getElementById('closeLoginModal');
-const loginForm = document.getElementById('loginForm');
-const kickUsernameInput = document.getElementById('kickUsernameInput');
-const logoutBtn = document.getElementById('logoutBtn');
-const walletLoginBtn = document.getElementById('walletLoginBtn');
-const lockedLoginBtn = document.getElementById('lockedLoginBtn');
+async function handleVerifyFollow() {
+  if (!state || !state.user || !state.user.username) return;
+  const username = state.user.username.toLowerCase();
 
-function openLoginModal() {
-  if (loginModal) {
-    loginModal.style.display = 'flex';
-    setTimeout(() => kickUsernameInput?.focus(), 100);
+  localStorage.setItem('kick_following_caoz_' + username, 'true');
+  state.user.is_following = true;
+
+  showToast(`¡Follow verificado! Ahora sigues a @Caoz en Kick. Tus tickets están habilitados 🎉`);
+  window.soundFX?.playSuccessChime();
+  if (typeof confetti === 'function') {
+    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
   }
+  renderUI();
+}
+
+// -------------------------------------------------------------------
+// 8. Autenticación Kick Manual de Respaldo
+// -------------------------------------------------------------------
+function openLoginModal() {
+  loginModal.style.display = 'flex';
+  kickUsernameInput.focus();
 }
 
 function closeModal() {
-  if (loginModal) loginModal.style.display = 'none';
+  loginModal.style.display = 'none';
+  kickUsernameInput.value = '';
 }
 
 async function handleLoginSubmit(e) {
-  if (e) e.preventDefault();
-  const raw = kickUsernameInput.value.trim();
-  const clean = raw.replace(/^@+/, '').trim();
+  e.preventDefault();
+  const username = kickUsernameInput.value.trim().replace(/^@/, '');
+  if (!username) return;
 
-  if (!clean) {
-    showToast('Por favor escribe tu usuario de Kick', true);
-    return;
-  }
+  const isOwner = username.toLowerCase() === 'caoz';
+  localStorage.setItem('kick_user', username);
+  localStorage.setItem('kick_avatar', `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`);
 
-  localStorage.setItem('kick_user', clean);
   closeModal();
-  kickUsernameInput.value = '';
+  window.soundFX?.playSuccessChime();
+  showToast(`¡Bienvenido al Sorteo, @${username}!`);
 
-  window.soundFX.playSuccessChime();
-  if (typeof confetti === 'function') {
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-  }
-
-  showToast(`¡Sesión iniciada con éxito como @${clean}!`);
   await loadState();
 }
 
 function handleLogout() {
   localStorage.removeItem('kick_user');
   localStorage.removeItem('kick_avatar');
-  showToast('Has cerrado sesión.');
-  loadState();
+  window.location.reload();
 }
 
 // -------------------------------------------------------------------
-// 8. Supabase Realtime & Polling de Respaldo
+// 9. Realtime Polling Seguro con Supabase REST
 // -------------------------------------------------------------------
 function initSupabaseRealtime() {
   setInterval(() => {
     loadState();
-  }, 6000);
+  }, 5000);
 }
 
+// -------------------------------------------------------------------
+// 10. Toasts & Helper
+// -------------------------------------------------------------------
 function showToast(message, isError = false) {
   const container = document.getElementById('toastContainer');
   if (!container) return;
@@ -536,7 +645,7 @@ function showToast(message, isError = false) {
   const toast = document.createElement('div');
   toast.className = `toast ${isError ? 'toast-error' : ''}`;
   toast.innerHTML = `
-    <span style="font-size: 1.2rem;">${isError ? '⚠️' : '🔔'}</span>
+    <span style="font-size: 1.2rem;">${isError ? '⚠️' : '🎉'}</span>
     <span style="font-size: 0.88rem; font-weight: 600;">${message}</span>
   `;
 
@@ -559,7 +668,7 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 9. Event Listeners & Inicio OAuth 2.0 PKCE
+// 11. Event Listeners & Inicio OAuth 2.0 PKCE
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
@@ -605,6 +714,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
   const walletLogoutBtn = document.getElementById('walletLogoutBtn');
   if (walletLogoutBtn) walletLogoutBtn.addEventListener('click', handleLogout);
+
+  const btnVerifyFollow = document.getElementById('btnVerifyFollow');
+  if (btnVerifyFollow) btnVerifyFollow.addEventListener('click', handleVerifyFollow);
 
   document.querySelectorAll('.filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
