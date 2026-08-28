@@ -168,7 +168,7 @@ async function processKickOAuthCallback() {
 }
 
 // -------------------------------------------------------------------
-// Comprobación Automática en Vivo de Follow con la API de Kick
+// Comprobación de Follower con la API de Kick & Sesión
 // -------------------------------------------------------------------
 window.checkKickFollowLive = async function(username) {
   if (!username) return false;
@@ -189,23 +189,7 @@ window.checkKickFollowLive = async function(username) {
       if (authRes && authRes.ok) {
         const data = await authRes.json();
         if (data && (data.is_following === true || data.following === true)) {
-          sessionStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
-          return true;
-        }
-      }
-    }
-
-    // 2. Consulta a API pública de Kick sobre el canal de Caoz
-    const publicRes = await fetch(`https://kick.com/api/v2/channels/caoz/followers`, {
-      headers: { 'Accept': 'application/json' }
-    }).catch(() => null);
-
-    if (publicRes && publicRes.ok) {
-      const followersData = await publicRes.json();
-      if (followersData && Array.isArray(followersData.data)) {
-        const isFollower = followersData.data.some(f => (f.username || f.name || '').toLowerCase() === username.toLowerCase());
-        if (isFollower) {
-          sessionStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+          localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
           return true;
         }
       }
@@ -214,7 +198,6 @@ window.checkKickFollowLive = async function(username) {
     console.warn('[Kick Follow API] Error consultando API de Kick:', err);
   }
 
-  // Si no está verificado en vivo por la API de Kick, es falso
-  sessionStorage.removeItem('kick_following_caoz_' + username.toLowerCase());
-  return false;
+  const saved = localStorage.getItem('kick_following_caoz_' + username.toLowerCase());
+  return saved === 'true';
 };
