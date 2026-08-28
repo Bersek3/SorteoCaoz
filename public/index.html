@@ -35,14 +35,14 @@
         </button>
 
         <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
-        <div class="user-pill" id="userPillBox" style="display: none;">
+        <div class="user-pill" id="userPillBox" style="display: none; align-items: center; gap: 10px;">
           <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
           <div class="user-meta">
             <span class="user-name" id="navUserName">@Usuario</span>
             <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
           </div>
-          <button id="logoutBtn" class="nav-btn" style="padding: 4px 8px; font-size: 0.72rem; margin-left: 6px; cursor: pointer; background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: var(--text-secondary);" title="Cerrar Sesión">
-            Salir
+          <button id="logoutBtn" class="nav-btn" style="padding: 6px 12px; font-size: 0.78rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="Cerrar Sesión de Kick">
+            🚪 Cerrar Sesión
           </button>
         </div>
       </div>
@@ -154,9 +154,12 @@
             </div>
           </div>
 
-          <div class="wallet-actions">
+          <div class="wallet-actions" style="display: flex; gap: 10px;">
             <button class="btn btn-primary" style="flex: 1;" id="autoPickBtn">
               🎲 Auto-Elegir Mis Números
+            </button>
+            <button class="btn btn-secondary" id="walletLogoutBtn" style="padding: 10px 16px; border-color: rgba(255, 51, 102, 0.4); color: var(--danger-red);" title="Cerrar Sesión">
+              🚪 Salir
             </button>
           </div>
         </div>

@@ -79,11 +79,14 @@
 
       <div class="nav-links">
         <a href="index.html" class="nav-btn">
-          🎟️ Sala de Cine (Público)
+          🎟️ Sorteo (Público)
         </a>
         <a href="draw.html" target="_blank" class="nav-btn streamer-btn">
           🎰 Pantalla OBS Sorteo
         </a>
+        <button id="adminLogoutBtn" class="nav-btn" style="border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.1); cursor: pointer; border-radius: 8px;" title="Cerrar Sesión">
+          🚪 Cerrar Sesión
+        </button>
       </div>
     </div>
   </header>
@@ -107,11 +110,11 @@
     <div class="wallet-stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
       <div class="stat-box">
         <div class="stat-num" id="adminTotalSeats">200</div>
-        <div class="stat-label">Capacidad de Sala</div>
+        <div class="stat-label">Total de Números</div>
       </div>
       <div class="stat-box highlight-box">
         <div class="stat-num" id="adminOccupiedSeats">0</div>
-        <div class="stat-label">Asientos Ocupados</div>
+        <div class="stat-label">Números Elegidos</div>
       </div>
       <div class="stat-box">
         <div class="stat-num" id="adminOccupancyPercent">0%</div>
@@ -183,7 +186,19 @@
 
           <div class="form-group">
             <label class="form-label">📅 Fecha y Hora Oficial del Sorteo (Para la cuenta regresiva):</label>
-            <input type="datetime-local" class="form-input" id="configDrawDate">
+            <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px;">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Seleccionar Día (Calendario):</label>
+                <input type="date" class="form-input" id="configDateOnly" style="width: 100%; cursor: pointer;" onkeydown="return false;" onclick="try{this.showPicker()}catch(e){}">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Hora del Stream:</label>
+                <input type="time" class="form-input" id="configTimeOnly" value="21:00" style="width: 100%;">
+              </div>
+            </div>
+            <small style="display: block; color: var(--kick-green); font-size: 0.75rem; margin-top: 6px;">
+              ℹ️ Haz clic en la fecha para abrir el calendario (no permite fechas pasadas).
+            </small>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">

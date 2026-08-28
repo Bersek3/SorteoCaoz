@@ -15,8 +15,12 @@ const configTitle = document.getElementById('configTitle');
 const configPrize = document.getElementById('configPrize');
 const configTotalSeats = document.getElementById('configTotalSeats');
 const configLocked = document.getElementById('configLocked');
+const configDateOnly = document.getElementById('configDateOnly');
+const configTimeOnly = document.getElementById('configTimeOnly');
+
 const saveConfigBtn = document.getElementById('saveConfigBtn');
 const resetGiveawayBtn = document.getElementById('resetGiveawayBtn');
+const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
 const usersTableBody = document.getElementById('usersTableBody');
 const searchUserTable = document.getElementById('searchUserTable');
@@ -51,13 +55,14 @@ async function loadAdminData() {
       title: 'Sorteo Oficial PlayStation 5 🎮',
       prize: 'PlayStation 5 Slim (Edición Disco)',
       total_seats: 200,
-      is_locked: false
+      is_locked: false,
+      drawn_at: null
     };
 
     const seats = seatsRes.data || [];
     const profiles = profilesRes.data || [];
 
-    // Mapear asientos por usuario
+    // Mapear números elegidos por usuario
     const userSeatsMap = {};
     seats.forEach((s) => {
       const u = s.username.toLowerCase();
@@ -124,13 +129,27 @@ function renderAdminUI() {
   configPrize.value = config.prize || '';
   configTotalSeats.value = String(config.total_seats || 200);
   configLocked.value = config.is_locked ? 'true' : 'false';
-  
-  const configDrawDate = document.getElementById('configDrawDate');
-  if (configDrawDate && config.draw_date) {
-    // Formato YYYY-MM-DDTHH:MM para input datetime-local
-    const dt = new Date(config.draw_date);
-    const localIso = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
-    configDrawDate.value = localIso;
+
+  // Configuración del Selector de Fecha Interactiva (Calendario)
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (configDateOnly) {
+    configDateOnly.min = todayStr; // No permite seleccionar días en el pasado
+  }
+
+  const savedDateIso = config.drawn_at || config.broadcaster_id || config.draw_date;
+  if (savedDateIso) {
+    const dt = new Date(savedDateIso);
+    if (!isNaN(dt.getTime())) {
+      const localDate = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000));
+      if (configDateOnly) configDateOnly.value = localDate.toISOString().split('T')[0];
+      if (configTimeOnly) configTimeOnly.value = localDate.toISOString().split('T')[1].slice(0, 5);
+    }
+  } else {
+    // Por defecto dentro de 3 días a las 21:00
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 3);
+    if (configDateOnly && !configDateOnly.value) configDateOnly.value = defaultDate.toISOString().split('T')[0];
+    if (configTimeOnly && !configTimeOnly.value) configTimeOnly.value = '21:00';
   }
 
   renderUsersTable(all_users_list || []);
@@ -254,42 +273,64 @@ async function handleEmitEvent() {
 async function handleSaveConfig() {
   try {
     saveConfigBtn.disabled = true;
-    const configDrawDate = document.getElementById('configDrawDate');
-    const drawDateIso = configDrawDate && configDrawDate.value ? new Date(configDrawDate.value).toISOString() : null;
+
+    // Validación estricta de fecha y hora
+    const dateVal = configDateOnly ? configDateOnly.value : '';
+    const timeVal = (configTimeOnly && configTimeOnly.value) ? configTimeOnly.value : '21:00';
+
+    if (!dateVal) {
+      showToast('⚠️ Por favor selecciona una fecha en el calendario.', true);
+      saveConfigBtn.disabled = false;
+      return;
+    }
+
+    const selectedDateTime = new Date(`${dateVal}T${timeVal}`);
+    const now = new Date();
+
+    if (selectedDateTime.getTime() <= now.getTime()) {
+      window.soundFX.playError();
+      showToast('⚠️ La fecha del sorteo no puede ser anterior ni igual al momento actual.', true);
+      saveConfigBtn.disabled = false;
+      return;
+    }
+
+    const drawDateIso = selectedDateTime.toISOString();
 
     const { error } = await supabaseClient.from('giveaway_config').update({
       title: configTitle.value.trim(),
       prize: configPrize.value.trim(),
       total_seats: parseInt(configTotalSeats.value, 10),
       is_locked: configLocked.value === 'true',
-      draw_date: drawDateIso,
+      drawn_at: drawDateIso,
+      broadcaster_id: drawDateIso,
       updated_at: new Date().toISOString()
     }).eq('id', 'current');
 
     if (error) throw error;
 
-    showToast('¡Configuración y fecha guardadas directamente en Supabase!');
+    showToast('¡Fecha y configuración guardadas con éxito!');
     window.soundFX.playSuccessChime();
     await loadAdminData();
 
   } catch (err) {
-    showToast('Error al guardar configuración', true);
+    console.error('Error al guardar configuración:', err);
+    showToast('Error al guardar configuración en la base de datos', true);
   } finally {
     saveConfigBtn.disabled = false;
   }
 }
 
 async function handleResetGiveaway() {
-  if (!confirm('¿Estás seguro de que deseas vaciar todos los asientos reservados de la sala?')) {
+  if (!confirm('¿Estás seguro de que deseas vaciar todos los números elegidos?')) {
     return;
   }
 
   try {
     await supabaseClient.from('seats').delete().neq('seat_number', 0);
-    showToast('Sala de sorteo vaciada en Supabase.');
+    showToast('Selección de números vaciada en Supabase.');
     await loadAdminData();
   } catch (err) {
-    showToast('Error al reiniciar asientos', true);
+    showToast('Error al reiniciar números', true);
   }
 }
 
@@ -313,14 +354,16 @@ window.addTicketToUser = async function(username, count) {
   }
 };
 
+function handleLogout() {
+  localStorage.removeItem('kick_user');
+  localStorage.removeItem('kick_avatar');
+  window.location.href = 'index.html';
+}
+
 function initSupabaseRealtime() {
-  if (!supabaseClient) return;
-  supabaseClient
-    .channel('admin_live_sync')
-    .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-      loadAdminData();
-    })
-    .subscribe();
+  setInterval(() => {
+    loadAdminData();
+  }, 6000);
 }
 
 function showToast(message, isError = false) {
@@ -350,6 +393,8 @@ document.addEventListener('DOMContentLoaded', () => {
   emitEventBtn.addEventListener('click', handleEmitEvent);
   saveConfigBtn.addEventListener('click', handleSaveConfig);
   resetGiveawayBtn.addEventListener('click', handleResetGiveaway);
+  if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
+
   searchUserTable.addEventListener('input', () => {
     if (adminState) renderUsersTable(adminState.all_users_list);
   });

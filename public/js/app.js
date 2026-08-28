@@ -119,6 +119,8 @@ async function loadState() {
     const totalTickets = currentUserProfile ? (currentUserProfile.total_tickets ?? ((currentUserProfile.own_subs || 0) + (currentUserProfile.gifted_subs || 0) + (currentUserProfile.bonus_tickets || 0))) : 0;
     const availableTickets = Math.max(0, totalTickets - userSeats.length);
 
+    const drawDateIso = configData.drawn_at || configData.broadcaster_id || configData.draw_date || null;
+
     state = {
       config: {
         title: configData.title || 'Sorteo Oficial PlayStation 5 🎮',
@@ -126,7 +128,7 @@ async function loadState() {
         channel: configData.channel_slug || 'Caoz',
         total_seats: totalSeats,
         is_locked: configData.is_locked || false,
-        draw_date: configData.draw_date || null
+        draw_date: drawDateIso
       },
       stats: {
         total_seats: totalSeats,
@@ -601,6 +603,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
   if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+  const walletLogoutBtn = document.getElementById('walletLogoutBtn');
+  if (walletLogoutBtn) walletLogoutBtn.addEventListener('click', handleLogout);
 
   document.querySelectorAll('.filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
