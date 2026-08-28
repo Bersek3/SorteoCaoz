@@ -60,22 +60,50 @@
           </div>
           <h1 class="hero-title" id="giveawayTitle">Sorteo PlayStation 5 Slim 🎮</h1>
           <p class="hero-desc">
-            ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte automáticamente en <strong>1 Asiento</strong> en la sala interactiva.
+            ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte automáticamente en <strong>1 Ticket</strong> para elegir tu número de la suerte.
           </p>
         </div>
 
         <div class="rules-pills">
           <div class="rule-pill">
-            <span>⭐</span> <strong>1 Sub Propia</strong> = 1 Asiento
+            <span>⭐</span> <strong>1 Sub Propia</strong> = 1 Número
           </div>
           <div class="rule-pill">
-            <span>🎁</span> <strong>1 Sub Regalada</strong> = 1 Asiento
+            <span>🎁</span> <strong>1 Sub Regalada</strong> = 1 Número
           </div>
           <div class="rule-pill">
-            <span>🎟️</span> <strong>5 Subs Regaladas</strong> = 5 Asientos
+            <span>🎟️</span> <strong>5 Subs Regaladas</strong> = 5 Números
           </div>
           <div class="rule-pill">
             <span>🔒</span> <strong>Anti-Fraude</strong> = Kick OAuth Verificado
+          </div>
+        </div>
+
+        <!-- Countdown Timer Component -->
+        <div class="countdown-box" id="countdownBox">
+          <div class="countdown-title">
+            <span>⏳</span> CUENTA REGRESIVA PARA EL SORTEO EN VIVO
+          </div>
+          <div class="countdown-grid">
+            <div class="countdown-segment">
+              <div class="countdown-num" id="cdDays">00</div>
+              <div class="countdown-label">Días</div>
+            </div>
+            <div class="countdown-divider">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-num" id="cdHours">00</div>
+              <div class="countdown-label">Horas</div>
+            </div>
+            <div class="countdown-divider">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-num" id="cdMinutes">00</div>
+              <div class="countdown-label">Minutos</div>
+            </div>
+            <div class="countdown-divider">:</div>
+            <div class="countdown-segment">
+              <div class="countdown-num" id="cdSeconds">00</div>
+              <div class="countdown-label">Segundos</div>
+            </div>
           </div>
         </div>
       </div>
@@ -88,7 +116,7 @@
           <div style="font-size: 3rem; margin-bottom: 10px;">🎟️</div>
           <h3 style="font-size: 1.2rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
           <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
-            Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus asientos.
+            Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus números.
           </p>
           <button class="btn btn-primary" id="walletLoginBtn" style="width: 100%;">
             🟢 Iniciar Sesión con Kick
@@ -128,7 +156,7 @@
 
           <div class="wallet-actions">
             <button class="btn btn-primary" style="flex: 1;" id="autoPickBtn">
-              🎲 Auto-Asignar Mis Asientos
+              🎲 Auto-Elegir Mis Números
             </button>
           </div>
         </div>
@@ -137,12 +165,12 @@
     </div>
   </section>
 
-  <!-- Cinema Theater Selection Room -->
+  <!-- Number Selection Section -->
   <section class="cinema-section">
     <div class="container">
       <div class="cinema-container">
         
-        <!-- Cinema Screen with Kick Live Stream of @Caoz -->
+        <!-- Live Stream Header -->
         <div class="screen-wrapper">
           <div class="cinema-screen-container">
             <div class="screen-header-bar">
@@ -179,23 +207,23 @@
           <div class="screen-light-rays"></div>
         </div>
 
-        <!-- Bloque de Sala Bloqueada (Visible solo si NO está logueado) -->
+        <!-- Bloque de Selección Bloqueada (Visible solo si NO está logueado) -->
         <div id="seatsLockedBox" style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
           <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
           <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
-            SALA DE SELECCIÓN DE ASIENTOS BLOQUEADA
+            SELECCIÓN DE NÚMEROS BLOQUEADA
           </h2>
           <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
-            Para ver el mapa interactivo de números de la sala de cine y reservar tus asientos para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
+            Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
           </p>
           <button class="btn btn-primary" id="lockedLoginBtn" style="padding: 14px 32px; font-size: 1.05rem; display: inline-flex;">
             🟢 Iniciar Sesión con Kick para Elegir Números
           </button>
         </div>
 
-        <!-- Área de Selección de Asientos (Visible solo si ESTÁ logueado con Kick) -->
+        <!-- Área de Selección de Números (Visible solo si ESTÁ logueado con Kick) -->
         <div id="seatsSelectionArea" style="display: none;">
-          <!-- Cinema Toolbar & Legend -->
+          <!-- Toolbar & Legend -->
           <div class="cinema-toolbar">
             <div class="seat-legend">
               <div class="legend-item">
@@ -221,10 +249,10 @@
             </div>
           </div>
 
-          <!-- Interactive Cinema Seats Grid -->
+          <!-- Interactive Numbers Grid -->
           <div class="seats-grid-wrapper">
             <div class="seats-grid" id="seatsGrid">
-              <!-- Asientos generados dinámicamente con JS -->
+              <!-- Números generados dinámicamente con JS -->
             </div>
           </div>
         </div>
@@ -236,7 +264,7 @@
   <!-- Floating Ticket Counter Bar -->
   <div class="floating-action-bar" id="floatingBar" style="display: none;">
     <div class="action-bar-text">
-      Tienes <strong id="floatingAvailableCount">0</strong> tickets disponibles para elegir en la sala de cine.
+      Tienes <strong id="floatingAvailableCount">0</strong> tickets disponibles para elegir tus números.
     </div>
     <button class="btn btn-primary" id="floatingAutoPickBtn">
       🎲 Auto-Elegir Números

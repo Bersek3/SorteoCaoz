@@ -2,6 +2,7 @@
 let state = null;
 let currentFilter = 'all';
 let searchQuery = '';
+let countdownInterval = null;
 
 // Elementos DOM
 const navLoginBtn = document.getElementById('navLoginBtn');
@@ -61,10 +62,11 @@ async function loadState() {
       prize: 'PlayStation 5 Slim (Edición Disco)',
       channel_slug: 'Caoz',
       total_seats: 200,
-      is_locked: false
+      is_locked: false,
+      draw_date: null
     };
 
-    // Mapeo de Asientos
+    // Mapeo de Números
     const seatsMap = {};
     if (seatsList && Array.isArray(seatsList)) {
       seatsList.forEach((s) => {
@@ -123,7 +125,8 @@ async function loadState() {
         prize: configData.prize || 'PlayStation 5 Slim',
         channel: configData.channel_slug || 'Caoz',
         total_seats: totalSeats,
-        is_locked: configData.is_locked || false
+        is_locked: configData.is_locked || false,
+        draw_date: configData.draw_date || null
       },
       stats: {
         total_seats: totalSeats,
@@ -158,13 +161,66 @@ async function loadState() {
     };
 
     renderUI();
+    initCountdown(state.config.draw_date);
   } catch (err) {
     console.error('Error cargando datos de Supabase:', err);
   }
 }
 
 // -------------------------------------------------------------------
-// 2. Renderizado de Interfaz
+// 2. Cuenta Regresiva (Countdown Clock)
+// -------------------------------------------------------------------
+function initCountdown(drawDateIso) {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  const cdDays = document.getElementById('cdDays');
+  const cdHours = document.getElementById('cdHours');
+  const cdMinutes = document.getElementById('cdMinutes');
+  const cdSeconds = document.getElementById('cdSeconds');
+  const countdownBox = document.getElementById('countdownBox');
+
+  if (!cdDays || !countdownBox) return;
+
+  // Fecha objetivo: desde Supabase o por defecto en 3 días
+  let targetTime = drawDateIso ? new Date(drawDateIso).getTime() : null;
+  if (!targetTime || isNaN(targetTime)) {
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 3);
+    defaultDate.setHours(21, 0, 0, 0);
+    targetTime = defaultDate.getTime();
+  }
+
+  function update() {
+    const now = new Date().getTime();
+    const distance = targetTime - now;
+
+    if (distance <= 0) {
+      cdDays.textContent = '00';
+      cdHours.textContent = '00';
+      cdMinutes.textContent = '00';
+      cdSeconds.textContent = '00';
+      const title = countdownBox.querySelector('.countdown-title');
+      if (title) title.innerHTML = '🔥 ¡EL SORTEO ES HOY / EN DIRECTO!';
+      return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    cdDays.textContent = String(days).padStart(2, '0');
+    cdHours.textContent = String(hours).padStart(2, '0');
+    cdMinutes.textContent = String(minutes).padStart(2, '0');
+    cdSeconds.textContent = String(seconds).padStart(2, '0');
+  }
+
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+// -------------------------------------------------------------------
+// 3. Renderizado de Interfaz
 // -------------------------------------------------------------------
 function renderUI() {
   if (!state) return;
@@ -192,7 +248,7 @@ function renderUI() {
     statGiftedSubs.textContent = user.gifted_subs;
     statAvailableTickets.textContent = user.available_tickets;
 
-    // Mostrar mapa de selección
+    // Mostrar mapa de selección de números
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'block';
     if (seatsLockedBox) seatsLockedBox.style.display = 'none';
 
@@ -211,12 +267,12 @@ function renderUI() {
 
     if (user.available_tickets > 0) {
       autoPickBtn.disabled = false;
-      autoPickBtn.textContent = `🎲 Auto-Asignar (${user.available_tickets} Libres)`;
+      autoPickBtn.textContent = `🎲 Auto-Elegir (${user.available_tickets} Libres)`;
       floatingBar.style.display = 'flex';
       floatingAvailableCount.textContent = user.available_tickets;
     } else {
       autoPickBtn.disabled = true;
-      autoPickBtn.textContent = `🎲 Todos tus tickets asignados (${user.my_seats.length}/${user.total_tickets})`;
+      autoPickBtn.textContent = `🎲 Todos tus números elegidos (${user.my_seats.length}/${user.total_tickets})`;
       floatingBar.style.display = 'none';
     }
 
@@ -244,7 +300,7 @@ function renderUI() {
 }
 
 // -------------------------------------------------------------------
-// 3. Renderizado de Asientos
+// 4. Renderizado de Números
 // -------------------------------------------------------------------
 function renderSeatsGrid(totalSeats, seats, user, winner) {
   seatsGrid.innerHTML = '';
@@ -293,18 +349,18 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
     if (isWinner) {
       tooltip.innerHTML = `<strong>🏆 ¡GANADOR DEL PS5!</strong> (@${winner.username})`;
     } else if (isMine) {
-      tooltip.innerHTML = `<strong>⚡ Asiento #${i}</strong> (¡Es tuyo!)`;
+      tooltip.innerHTML = `<strong>⚡ Número #${i}</strong> (¡Es tuyo!)`;
     } else if (isOccupied) {
       const ownerAvatar = seatData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${seatData.username}`;
       tooltip.innerHTML = `
         <img src="${ownerAvatar}" class="tooltip-avatar">
         <div>
-          <div>Asiento #${i}</div>
+          <div>Número #${i}</div>
           <strong style="color: #ff3366;">@${seatData.username}</strong>
         </div>
       `;
     } else {
-      tooltip.innerHTML = `<strong>🟢 Asiento #${i} Disponible</strong> (Clic para reservar)`;
+      tooltip.innerHTML = `<strong>🟢 Número #${i} Disponible</strong> (Clic para elegir)`;
     }
 
     seatEl.appendChild(tooltip);
@@ -315,7 +371,7 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 }
 
 // -------------------------------------------------------------------
-// 4. Selección Directa en Supabase (Garantizada con REST)
+// 5. Selección Directa en Supabase (Garantizada con REST)
 // -------------------------------------------------------------------
 async function handleSeatClick(seatNumber, isMine, isOccupied) {
   if (!state.user.is_logged_in) {
@@ -327,13 +383,13 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
   if (isOccupied && !isMine) {
     window.soundFX.playError();
     const owner = state.seats[String(seatNumber)]?.username || 'otro viewer';
-    showToast(`El asiento #${seatNumber} ya pertenece a @${owner}`, true);
+    showToast(`El número #${seatNumber} ya pertenece a @${owner}`, true);
     return;
   }
 
   if (!isMine && state.user.available_tickets <= 0) {
     window.soundFX.playError();
-    showToast(`No tienes tickets disponibles para el asiento #${seatNumber}. ¡Regala o compra una Sub en Kick para conseguir más!`, true);
+    showToast(`No tienes tickets disponibles para el número #${seatNumber}. ¡Regala o compra una Sub en Kick para conseguir más!`, true);
     return;
   }
 
@@ -341,7 +397,7 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
     if (isMine) {
       await supabaseRest('seats', 'DELETE', null, `seat_number=eq.${seatNumber}`);
       window.soundFX.playSeatRelease();
-      showToast(`Asiento #${seatNumber} liberado.`);
+      showToast(`Número #${seatNumber} liberado.`);
     } else {
       await supabaseRest('seats', 'POST', {
         seat_number: seatNumber,
@@ -350,23 +406,23 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
         claimed_at: new Date().toISOString()
       });
       window.soundFX.playSeatClick();
-      showToast(`¡Asiento #${seatNumber} reservado con éxito! 🎟️`);
+      showToast(`¡Número #${seatNumber} seleccionado con éxito! 🎟️`);
     }
 
     await loadState();
   } catch (err) {
-    console.error('Error modificando asiento en Supabase:', err);
+    console.error('Error modificando número en Supabase:', err);
     window.soundFX.playError();
-    showToast('Error al actualizar asiento en la base de datos', true);
+    showToast('Error al actualizar número en la base de datos', true);
   }
 }
 
 // -------------------------------------------------------------------
-// 5. Auto-Pick Directo en Supabase
+// 6. Auto-Pick Directo en Supabase
 // -------------------------------------------------------------------
 async function handleAutoPick() {
   if (!state || !state.user.is_logged_in || state.user.available_tickets <= 0) {
-    showToast('No tienes tickets disponibles para auto-asignar', true);
+    showToast('No tienes tickets disponibles para auto-elegir', true);
     return;
   }
 
@@ -380,7 +436,7 @@ async function handleAutoPick() {
     }
 
     if (freeSeats.length === 0) {
-      showToast('¡La sala de cine está completamente llena!', true);
+      showToast('¡Todos los números han sido elegidos!', true);
       return;
     }
 
@@ -402,16 +458,16 @@ async function handleAutoPick() {
       confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
     }
 
-    showToast(`¡Se han asignado ${chosen.length} asientos de la suerte a tu cuenta! 🎟️`);
+    showToast(`¡Se han elegido ${chosen.length} números de la suerte para ti! 🎟️`);
     await loadState();
   } catch (err) {
     console.error('Error en auto-pick:', err);
-    showToast('Error al auto-asignar asientos', true);
+    showToast('Error al auto-elegir números', true);
   }
 }
 
 // -------------------------------------------------------------------
-// 6. Iniciar / Cerrar Sesión con Kick
+// 7. Iniciar / Cerrar Sesión con Kick
 // -------------------------------------------------------------------
 const loginModal = document.getElementById('loginModal');
 const closeLoginModal = document.getElementById('closeLoginModal');
@@ -463,24 +519,9 @@ function handleLogout() {
 }
 
 // -------------------------------------------------------------------
-// 7. Supabase Realtime & Polling de Respaldo
+// 8. Supabase Realtime & Polling de Respaldo
 // -------------------------------------------------------------------
 function initSupabaseRealtime() {
-  // 1. Suscripción en tiempo real con Supabase Client
-  if (supabaseClient) {
-    try {
-      supabaseClient
-        .channel('public_live_giveaway')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'seats' }, () => loadState())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'giveaway_config' }, () => loadState())
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => loadState())
-        .subscribe();
-    } catch (e) {
-      console.warn('Realtime subscription fallback:', e);
-    }
-  }
-
-  // 2. Polling de respaldo cada 6 segundos para garantizar actualización continua
   setInterval(() => {
     loadState();
   }, 6000);
@@ -516,7 +557,7 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 8. Event Listeners & Inicio OAuth 2.0 PKCE
+// 9. Event Listeners & Inicio OAuth 2.0 PKCE
 // -------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...

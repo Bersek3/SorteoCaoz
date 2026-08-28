@@ -124,6 +124,14 @@ function renderAdminUI() {
   configPrize.value = config.prize || '';
   configTotalSeats.value = String(config.total_seats || 200);
   configLocked.value = config.is_locked ? 'true' : 'false';
+  
+  const configDrawDate = document.getElementById('configDrawDate');
+  if (configDrawDate && config.draw_date) {
+    // Formato YYYY-MM-DDTHH:MM para input datetime-local
+    const dt = new Date(config.draw_date);
+    const localIso = new Date(dt.getTime() - (dt.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+    configDrawDate.value = localIso;
+  }
 
   renderUsersTable(all_users_list || []);
 }
@@ -246,17 +254,21 @@ async function handleEmitEvent() {
 async function handleSaveConfig() {
   try {
     saveConfigBtn.disabled = true;
+    const configDrawDate = document.getElementById('configDrawDate');
+    const drawDateIso = configDrawDate && configDrawDate.value ? new Date(configDrawDate.value).toISOString() : null;
+
     const { error } = await supabaseClient.from('giveaway_config').update({
       title: configTitle.value.trim(),
       prize: configPrize.value.trim(),
       total_seats: parseInt(configTotalSeats.value, 10),
       is_locked: configLocked.value === 'true',
+      draw_date: drawDateIso,
       updated_at: new Date().toISOString()
     }).eq('id', 'current');
 
     if (error) throw error;
 
-    showToast('¡Configuración guardada directamente en Supabase!');
+    showToast('¡Configuración y fecha guardadas directamente en Supabase!');
     window.soundFX.playSuccessChime();
     await loadAdminData();
 

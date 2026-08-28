@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS giveaway_config (
     broadcaster_id TEXT,
     total_seats INTEGER DEFAULT 200,
     is_locked BOOLEAN DEFAULT FALSE,
+    draw_date TIMESTAMPTZ,
     winner_seat INTEGER,
     winner_username TEXT,
     winner_avatar TEXT,

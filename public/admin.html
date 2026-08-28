@@ -166,9 +166,9 @@
           <div class="hero-badge-tag">
             ⚙️ CONFIGURACIÓN DEL SORTEO
           </div>
-          <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Ajustes de Sala y Premio</h2>
+          <h2 style="font-size: 1.4rem; margin-bottom: 8px;">Ajustes de Sorteo y Premio</h2>
           <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
-            Personaliza el título, premio, capacidad de la sala o bloquea la reserva antes de sortear.
+            Personaliza el título, premio, cantidad de tickets y fecha oficial del sorteo.
           </p>
 
           <div class="form-group">
@@ -181,34 +181,39 @@
             <input type="text" class="form-input" id="configPrize" value="PlayStation 5 Slim (Edición Disco)">
           </div>
 
+          <div class="form-group">
+            <label class="form-label">📅 Fecha y Hora Oficial del Sorteo (Para la cuenta regresiva):</label>
+            <input type="datetime-local" class="form-input" id="configDrawDate">
+          </div>
+
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
             <div class="form-group">
-              <label class="form-label">Capacidad de Sala:</label>
+              <label class="form-label">Total de Números:</label>
               <select class="form-select" id="configTotalSeats">
-                <option value="50">50 Asientos</option>
-                <option value="100">100 Asientos</option>
-                <option value="200" selected>200 Asientos</option>
-                <option value="300">300 Asientos</option>
-                <option value="500">500 Asientos</option>
-                <option value="1000">1000 Asientos</option>
+                <option value="50">50 Números</option>
+                <option value="100">100 Números</option>
+                <option value="200" selected>200 Números</option>
+                <option value="300">300 Números</option>
+                <option value="500">500 Números</option>
+                <option value="1000">1000 Números</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Estado de Sala:</label>
+              <label class="form-label">Estado de Selección:</label>
               <select class="form-select" id="configLocked">
-                <option value="false">🟢 Abierta (Permite reservas)</option>
+                <option value="false">🟢 Abierta (Permite elegir)</option>
                 <option value="true">🔒 Bloqueada (Solo lectura)</option>
               </select>
             </div>
           </div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
           <button class="btn btn-primary" style="flex: 1;" id="saveConfigBtn">
             💾 Guardar Ajustes
           </button>
-          <button class="btn btn-secondary" style="color: var(--danger-red); border-color: rgba(255, 51, 102, 0.3);" id="resetGiveawayBtn" title="Vaciar sala de asientos">
-            🗑️ Reiniciar Sala
+          <button class="btn btn-secondary" style="color: var(--danger-red); border-color: rgba(255, 51, 102, 0.3);" id="resetGiveawayBtn" title="Vaciar selección de números">
+            🗑️ Vaciar Números
           </button>
         </div>
       </div>
@@ -232,7 +237,7 @@
               <th>Subs Propias</th>
               <th>Subs Regaladas</th>
               <th>Total Tickets</th>
-              <th>Asientos Reservados</th>
+              <th>Números Elegidos</th>
               <th>Tickets Libres</th>
               <th>Acciones</th>
             </tr>

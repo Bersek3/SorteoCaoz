@@ -452,7 +452,98 @@ body {
 }
 
 /* ------------------------------------------------------------------- */
-/* CINEMA THEATER ROOM                                                 */
+/* FORM INPUTS & SELECTS (Dark Theme Correction)                       */
+/* ------------------------------------------------------------------- */
+input, select, textarea, .form-control {
+  background: #0d131f !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(83, 252, 24, 0.3) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  font-size: 0.95rem !important;
+  outline: none !important;
+  transition: var(--transition-smooth);
+}
+
+input:focus, select:focus, textarea:focus, .form-control:focus {
+  border-color: var(--kick-green) !important;
+  box-shadow: 0 0 15px rgba(83, 252, 24, 0.35) !important;
+}
+
+select option {
+  background: #0d131f !important;
+  color: #ffffff !important;
+  padding: 10px !important;
+}
+
+/* Countdown HUD Clock Component */
+.countdown-box {
+  background: rgba(10, 15, 26, 0.92);
+  border: 1px solid rgba(83, 252, 24, 0.35);
+  box-shadow: 0 0 30px rgba(83, 252, 24, 0.12), 0 10px 30px rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  padding: 18px 24px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.countdown-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--kick-green);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.countdown-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.countdown-segment {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.countdown-num {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 1.7rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #ffffff;
+  min-width: 58px;
+  text-shadow: 0 0 12px rgba(83, 252, 24, 0.5);
+}
+
+.countdown-label {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 5px;
+  letter-spacing: 1px;
+}
+
+.countdown-divider {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--kick-green);
+  margin-top: -16px;
+}
+
+/* ------------------------------------------------------------------- */
+/* BASE / RESET & CORE LAYOUT                                          */
 /* ------------------------------------------------------------------- */
 .cinema-section {
   padding: 20px 0 60px;

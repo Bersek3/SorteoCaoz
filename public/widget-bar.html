@@ -115,7 +115,7 @@
         const occupied = seatsRes.data?.length || 0;
         const percent = Math.min(100, Math.round((occupied / total) * 100));
 
-        statsText.textContent = `${occupied} / ${total} Asientos`;
+        statsText.textContent = `${occupied} / ${total} Números`;
         percentText.textContent = `${percent}% Completado`;
         progressBar.style.width = `${percent}%`;
       } catch (e) {}
