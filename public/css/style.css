@@ -1447,25 +1447,281 @@ select option {
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 
-/* ------------------------------------------------------------------- */
-/* RESPONSIVENESS                                                      */
-/* ------------------------------------------------------------------- */
-@media (max-width: 900px) {
+/* =================================================================== */
+/* COMPREHENSIVE RESPONSIVE DESIGN (TABLETS & MOBILE SMARTPHONES)      */
+/* =================================================================== */
+
+/* Tablet & Smaller Desktops (<= 1024px) */
+@media (max-width: 1024px) {
   .hero-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
+
+  .wallet-card {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .cinema-screen-container {
+    max-width: 100%;
+  }
+
+  .seats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+    gap: 10px;
+  }
+}
+
+/* Medium Tablets & Large Phones (<= 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 14px;
+  }
+
+  .navbar {
+    padding: 10px 0;
+  }
+
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+
+  .brand-title {
+    font-size: 1.1rem;
+  }
+
+  .kick-text-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+  }
+
+  .hero-section {
+    padding: 24px 0 16px;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+    line-height: 1.25;
+  }
+
+  .hero-desc {
+    font-size: 0.88rem;
+  }
+
+  .rules-pills {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .rule-pill {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+
+  .countdown-box {
+    padding: 16px 12px;
+    border-radius: 16px;
+  }
+
+  .countdown-num {
+    font-size: 1.8rem;
+  }
+
+  .countdown-label {
+    font-size: 0.68rem;
+  }
+
+  .countdown-divider {
+    font-size: 1.4rem;
+    margin: 0 4px;
+  }
+
   .cinema-toolbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    padding: 14px;
+    gap: 12px;
   }
-  .seats-grid {
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+
+  .seat-legend {
+    justify-content: center;
+    gap: 12px;
+    font-size: 0.75rem;
+  }
+
+  .toolbar-filters {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
+    width: 100%;
   }
+
+  .filter-btn {
+    width: 100%;
+    text-align: center;
+    padding: 9px 8px;
+    font-size: 0.78rem;
+  }
+
+  .search-input {
+    grid-column: span 2;
+    width: 100% !important;
+  }
+
+  .seats-grid-wrapper {
+    padding: 16px 10px;
+    border-radius: 16px;
+  }
+
+  .seats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+    gap: 8px;
+    max-height: 440px;
+  }
+
   .seat-item {
-    height: 52px;
+    height: 54px;
+    border-radius: 10px;
   }
+
   .seat-item .seat-num {
-    font-size: 0.95rem;
+    font-size: 1rem;
+  }
+
+  .seat-item .seat-user-tag {
+    font-size: 0.58rem;
+  }
+
+  .floating-action-bar {
+    width: calc(100% - 24px);
+    max-width: 420px;
+    padding: 10px 16px;
+    border-radius: 18px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+    bottom: 12px;
+  }
+
+  .floating-action-bar .action-bar-text {
+    font-size: 0.84rem;
+  }
+
+  .floating-action-bar .btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.88rem;
+  }
+
+  .modal-content {
+    width: 94%;
+    max-width: 400px;
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+}
+
+/* Small Mobile Devices (<= 480px) */
+@media (max-width: 480px) {
+  .brand-title {
+    display: none; /* Keep brand clean with only logo to save navbar space */
+  }
+
+  .navbar {
+    padding: 8px 0;
+  }
+
+  .nav-links {
+    gap: 6px;
+  }
+
+  .user-pill {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-badge-tag {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  .wallet-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .stat-box {
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+
+  .stat-num {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+  }
+
+  .countdown-num {
+    font-size: 1.5rem;
+  }
+
+  .countdown-label {
+    font-size: 0.6rem;
+  }
+
+  .countdown-divider {
+    font-size: 1.2rem;
+    margin: 0 2px;
+  }
+
+  .seats-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .seat-item {
+    height: 48px;
+    border-radius: 8px;
+    padding: 2px 3px;
+  }
+
+  .seat-item .seat-num {
+    font-size: 0.9rem;
+  }
+
+  .seat-item .seat-user-tag {
+    font-size: 0.52rem;
+    padding: 1px 3px;
+  }
+
+  .seat-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 }
