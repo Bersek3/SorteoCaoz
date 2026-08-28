@@ -24,8 +24,6 @@ const adminLogoutBtn = document.getElementById('adminLogoutBtn');
 
 const usersTableBody = document.getElementById('usersTableBody');
 const searchUserTable = document.getElementById('searchUserTable');
-const dbStatusBadge = document.getElementById('dbStatusBadge');
-const oauthStatusBadge = document.getElementById('oauthStatusBadge');
 
 async function loadAdminData() {
   if (!supabaseClient) {
@@ -110,15 +108,6 @@ function renderAdminUI() {
   if (!adminState) return;
 
   const { config, stats, all_users_list } = adminState;
-
-  if (dbStatusBadge) {
-    dbStatusBadge.textContent = 'Supabase Cloud (Conectado)';
-    dbStatusBadge.style.color = 'var(--kick-green)';
-  }
-  if (oauthStatusBadge) {
-    oauthStatusBadge.textContent = 'GitHub Pages Serverless';
-    oauthStatusBadge.style.color = 'var(--cyan-accent)';
-  }
 
   adminTotalSeats.textContent = stats.total_seats;
   adminOccupiedSeats.textContent = stats.occupied_seats;
