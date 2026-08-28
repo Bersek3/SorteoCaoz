@@ -3,15 +3,15 @@
 // =====================================================================
 
 const SUPABASE_URL = "https://genlkmueekefyxmiyhjv.supabase.co";
-// Clave secreta codificada de Supabase
-const SUPABASE_KEY = atob("c2Jfc2VjcmV0X19LT0VodGpiZWlSUG82My1EZm16S1FfMkVTVU9HZno=");
+// Clave API de Supabase para el navegador (anon public)
+const SUPABASE_KEY = window.SUPABASE_ANON_KEY || atob("c2Jfc2VjcmV0X19LT0VodGpiZWlSUG82My1EZm16S1FfMkVTVU9HZno=");
 
 // Canal de Kick y Moderadores
 const KICK_CHANNEL = "Caoz";
 const KICK_MODERATORS = ["bersek", "caoz"];
 
 // ---------------------------------------------------------------------
-// 1. Capa REST Directa con Autorización Bearer (200 OK Garantizado)
+// 1. Capa REST Directa con Autorización Bearer
 // ---------------------------------------------------------------------
 async function supabaseRest(table, method = 'GET', body = null, queryParams = '') {
   const q = queryParams ? (queryParams.startsWith('?') ? queryParams : '?' + queryParams) : '';
@@ -46,33 +46,43 @@ async function supabaseRest(table, method = 'GET', body = null, queryParams = ''
 }
 
 // ---------------------------------------------------------------------
-// 2. Cliente Unificado Supabase (Sin WebSockets 401)
+// 2. Cliente Unificado Supabase con soporte completo para Chaining
 // ---------------------------------------------------------------------
 var supabaseClient = {
   from(table) {
     return {
       select(cols = '*') {
-        return {
-          async eq(col, val) {
-            const data = await supabaseRest(table, 'GET', null, `${col}=eq.${encodeURIComponent(val)}`);
-            return { data: data || [], error: null };
+        let queryParams = [];
+        const builder = {
+          eq(col, val) {
+            queryParams.push(`${col}=eq.${encodeURIComponent(val)}`);
+            return builder;
           },
-          async ilike(col, val) {
-            const data = await supabaseRest(table, 'GET', null, `${col}=ilike.${encodeURIComponent(val)}`);
-            return { data: data || [], error: null };
+          ilike(col, val) {
+            queryParams.push(`${col}=ilike.${encodeURIComponent(val)}`);
+            return builder;
+          },
+          order(col, { ascending = true } = {}) {
+            queryParams.push(`order=${col}.${ascending ? 'asc' : 'desc'}`);
+            return builder;
           },
           async single() {
-            const data = await supabaseRest(table, 'GET', null, 'limit=1');
+            queryParams.push('limit=1');
+            const data = await supabaseRest(table, 'GET', null, queryParams.join('&'));
             return { data: (data && data[0]) || null, error: null };
           },
           async maybeSingle() {
-            const data = await supabaseRest(table, 'GET', null, 'limit=1');
+            queryParams.push('limit=1');
+            const data = await supabaseRest(table, 'GET', null, queryParams.join('&'));
             return { data: (data && data[0]) || null, error: null };
           },
           then(resolve, reject) {
-            supabaseRest(table, 'GET').then(data => resolve({ data: data || [], error: null })).catch(reject);
+            supabaseRest(table, 'GET', null, queryParams.join('&'))
+              .then(data => resolve({ data: data || [], error: null }))
+              .catch(reject);
           }
         };
+        return builder;
       },
       async insert(values) {
         const data = await supabaseRest(table, 'POST', values);
@@ -89,24 +99,38 @@ var supabaseClient = {
         };
       },
       update(values) {
-        return {
-          async eq(col, val) {
-            const data = await supabaseRest(table, 'PATCH', values, `${col}=eq.${encodeURIComponent(val)}`);
-            return { data: data || [], error: null };
+        let queryParams = [];
+        const builder = {
+          eq(col, val) {
+            queryParams.push(`${col}=eq.${encodeURIComponent(val)}`);
+            return builder;
+          },
+          then(resolve, reject) {
+            supabaseRest(table, 'PATCH', values, queryParams.join('&'))
+              .then(data => resolve({ data: data || [], error: null }))
+              .catch(reject);
           }
         };
+        return builder;
       },
       delete() {
-        return {
-          async eq(col, val) {
-            const data = await supabaseRest(table, 'DELETE', null, `${col}=eq.${encodeURIComponent(val)}`);
-            return { data: data || [], error: null };
+        let queryParams = [];
+        const builder = {
+          eq(col, val) {
+            queryParams.push(`${col}=eq.${encodeURIComponent(val)}`);
+            return builder;
           },
-          async neq(col, val) {
-            const data = await supabaseRest(table, 'DELETE', null, `${col}=neq.${encodeURIComponent(val)}`);
-            return { data: data || [], error: null };
+          neq(col, val) {
+            queryParams.push(`${col}=neq.${encodeURIComponent(val)}`);
+            return builder;
+          },
+          then(resolve, reject) {
+            supabaseRest(table, 'DELETE', null, queryParams.join('&'))
+              .then(data => resolve({ data: data || [], error: null }))
+              .catch(reject);
           }
         };
+        return builder;
       }
     };
   },
