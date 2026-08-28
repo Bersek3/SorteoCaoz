@@ -1,6 +1,6 @@
 // Kick OAuth 2.0 PKCE - Flujo Oficial Serverless para GitHub Pages
-const KICK_CLIENT_ID = '01JNG06A26N20B30XEF8S9431X';
-const KICK_CLIENT_SECRET = ''; // No requerido con PKCE
+const KICK_CLIENT_ID = '01M131A735E7F6N7NYX8FYVNWP';
+const KICK_CLIENT_SECRET = '76a1c8b0c2233f66862053908dc8da51803a73817baa54766c560e33a2cf28a1';
 
 // Generar par de claves PKCE en el navegador con Web Crypto API
 async function generatePKCE() {
@@ -43,7 +43,7 @@ async function startKickOAuth() {
     authUrl.searchParams.set('client_id', KICK_CLIENT_ID);
     authUrl.searchParams.set('redirect_uri', redirectUri);
     authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('scope', 'user:read channel:read channel:subscriptions:read events:subscribe');
+    authUrl.searchParams.set('scope', 'user:read channel:read');
     authUrl.searchParams.set('code_challenge', codeChallenge);
     authUrl.searchParams.set('code_challenge_method', 'S256');
     authUrl.searchParams.set('state', state);
@@ -75,17 +75,21 @@ async function processKickOAuthCallback() {
   try {
     // 1. Intercambiar código por Access Token
     console.log('[Kick OAuth] Intercambiando código por token con redirect_uri:', savedRedirectUri);
+    const tokenPayload = {
+      client_id: KICK_CLIENT_ID,
+      client_secret: KICK_CLIENT_SECRET,
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: savedRedirectUri
+    };
+    if (savedVerifier) {
+      tokenPayload.code_verifier = savedVerifier;
+    }
+
     const tokenRes = await fetch('https://id.kick.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: KICK_CLIENT_ID,
-        client_secret: KICK_CLIENT_SECRET,
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: savedRedirectUri,
-        code_verifier: savedVerifier || ''
-      })
+      body: new URLSearchParams(tokenPayload)
     });
 
     const tokenData = await tokenRes.json();
@@ -114,13 +118,15 @@ async function processKickOAuthCallback() {
     let kickUser = null;
     if (userData && userData.data && userData.data[0]) {
       kickUser = userData.data[0];
-    } else if (userData && userData.username) {
+    } else if (userData && userData.data && !Array.isArray(userData.data)) {
+      kickUser = userData.data;
+    } else if (userData && (userData.username || userData.name)) {
       kickUser = userData;
     }
 
     if (kickUser && (kickUser.username || kickUser.name)) {
       const username = kickUser.username || kickUser.name;
-      const avatar = kickUser.profile_picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
+      const avatar = kickUser.profile_picture || kickUser.profile_image || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`;
 
       localStorage.setItem('kick_user', username);
       localStorage.setItem('kick_avatar', avatar);
@@ -133,9 +139,9 @@ async function processKickOAuthCallback() {
 
           if (!existing || existing.length === 0) {
             await supabaseRest('profiles', 'POST', {
-              kick_user_id: String(kickUser.user_id || Math.floor(Math.random() * 1000000)),
+              kick_user_id: String(kickUser.user_id || kickUser.id || Math.floor(Math.random() * 1000000)),
               username: username,
-              display_name: kickUser.name || username,
+              display_name: kickUser.name || kickUser.username || username,
               avatar_url: avatar,
               is_streamer: isOwner,
               own_subs: 0,
@@ -151,7 +157,7 @@ async function processKickOAuthCallback() {
       return {
         username: username,
         avatar: avatar,
-        kick_user_id: kickUser.user_id
+        kick_user_id: kickUser.user_id || kickUser.id
       };
     }
   } catch (err) {
