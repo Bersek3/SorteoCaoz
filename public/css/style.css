@@ -179,6 +179,37 @@ body {
   box-shadow: 0 0 15px rgba(83, 252, 24, 0.3);
 }
 
+.kick-btn-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.5));
+}
+
+.kick-main-login-btn .kick-btn-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.kick-login-btn {
+  background: var(--kick-green) !important;
+  color: #051402 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 20px var(--kick-green-glow) !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.kick-login-btn:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 0 30px var(--kick-green-glow), 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
 /* User Switcher Dropdown / Pill */
 .user-pill {
   display: flex;
