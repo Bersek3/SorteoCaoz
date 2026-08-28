@@ -513,18 +513,40 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 8. Event Listeners
+// 8. Event Listeners & Inicio OAuth 2.0 PKCE
 // -------------------------------------------------------------------
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Procesar retorno de Kick OAuth si viene con ?code=...
+  if (typeof processKickOAuthCallback === 'function') {
+    const oauthUser = await processKickOAuthCallback();
+    if (oauthUser) {
+      showToast(`¡Autenticado con Kick OAuth como @${oauthUser.username}!`);
+      window.soundFX?.playSuccessChime();
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+      }
+    }
+  }
+
+  // 2. Cargar Estado y Supabase Realtime
   loadState();
   initSupabaseRealtime();
 
   autoPickBtn.addEventListener('click', handleAutoPick);
   floatingAutoPickBtn.addEventListener('click', handleAutoPick);
 
-  if (navLoginBtn) navLoginBtn.addEventListener('click', openLoginModal);
-  if (walletLoginBtn) walletLoginBtn.addEventListener('click', openLoginModal);
-  if (lockedLoginBtn) lockedLoginBtn.addEventListener('click', openLoginModal);
+  // Iniciar Kick OAuth 2.0 oficial directamente al hacer clic
+  const handleKickLoginClick = () => {
+    if (typeof startKickOAuth === 'function') {
+      startKickOAuth();
+    } else {
+      openLoginModal();
+    }
+  };
+
+  if (navLoginBtn) navLoginBtn.addEventListener('click', handleKickLoginClick);
+  if (walletLoginBtn) walletLoginBtn.addEventListener('click', handleKickLoginClick);
+  if (lockedLoginBtn) lockedLoginBtn.addEventListener('click', handleKickLoginClick);
 
   if (closeLoginModal) closeLoginModal.addEventListener('click', closeModal);
   if (loginModal) {
