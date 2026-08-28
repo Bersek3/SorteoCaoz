@@ -219,6 +219,39 @@
 
     </div>
 
+    <!-- Google Drive / Google Sheets Remote Sync Panel -->
+    <div class="cinema-container" style="padding: 24px; margin-bottom: 24px; border: 1px solid rgba(15, 157, 88, 0.4); box-shadow: 0 0 25px rgba(15, 157, 88, 0.12);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="background: rgba(15, 157, 88, 0.15); border: 1px solid #0f9d58; padding: 6px 12px; border-radius: 10px; font-size: 1.2rem;">
+            📊
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff; margin-bottom: 2px;">
+              Sincronización con Google Sheets (Google Drive)
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.82rem; margin: 0;">
+              Vincula una planilla remota en tu Google Drive para registrar a los participantes y números en tiempo real.
+            </p>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" id="helpDriveModalBtn" style="font-size: 0.8rem; padding: 6px 14px; border-color: rgba(15, 157, 88, 0.5); color: #0f9d58; cursor: pointer; border-radius: 8px;">
+          📖 Ver Instrucciones (3 Pasos)
+        </button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;">
+        <input type="url" class="form-input" id="googleSheetWebhookUrl" placeholder="Pega aquí la URL de tu Google Apps Script (https://script.google.com/macros/s/.../exec)" style="width: 100%;">
+        <button class="btn btn-secondary" id="saveSheetUrlBtn" style="white-space: nowrap; padding: 12px 18px; font-size: 0.9rem; cursor: pointer; border-radius: 10px;">
+          💾 Guardar URL
+        </button>
+        <button class="btn btn-primary" id="syncGoogleSheetsBtn" style="white-space: nowrap; background: #0f9d58; border-color: #0f9d58; font-weight: 800; padding: 12px 20px; font-size: 0.9rem; box-shadow: 0 0 20px rgba(15, 157, 88, 0.4); cursor: pointer; border-radius: 10px;">
+          🚀 Sincronizar Ahora con Drive
+        </button>
+      </div>
+    </div>
+
     <!-- Participants & Tickets Management Table -->
     <div class="cinema-container" style="padding: 24px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
@@ -254,6 +287,34 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal Instrucciones Google Drive -->
+  <div id="driveModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: var(--bg-card); border: 2px solid #0f9d58; box-shadow: 0 0 40px rgba(15, 157, 88, 0.35), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 28px; width: 100%; max-width: 580px; position: relative; max-height: 90vh; overflow-y: auto;">
+      <button id="closeDriveModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+        <span style="font-size: 1.8rem;">📊</span>
+        <h3 style="font-size: 1.3rem; font-weight: 900;">Cómo vincular tu Google Sheets (Google Drive)</h3>
+      </div>
+      
+      <div style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+        <p><strong>Paso 1:</strong> Crea una planilla en tu Google Drive (<a href="https://sheets.new" target="_blank" style="color: var(--kick-green); text-decoration: underline;">Abrir nueva planilla sheets.new</a>).</p>
+        <p><strong>Paso 2:</strong> Ve al menú superior <strong>Extensiones &gt; Apps Script</strong>, borra lo que haya y pega este código:</p>
+        <pre style="background: #080c14; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.76rem; color: #53fc18; overflow-x: auto; user-select: all; margin: 10px 0;">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.clear();
+  sheet.appendRow(["Usuario Kick", "Nombre Visible", "Subs Propias", "Subs Regaladas", "Bonus", "Total Tickets", "Numeros Elegidos", "Cantidad Asignada", "Tickets Libres", "Fecha Sincronizacion"]);
+  data.participants.forEach(function(u) {
+    sheet.appendRow([u.username, u.display_name, u.own_subs, u.gifted_subs, u.bonus_tickets, u.total_tickets, u.seats_str, u.seats_count, u.free_tickets, new Date().toLocaleString("es-ES")]);
+  });
+  return ContentService.createTextOutput("OK").setMimeType(ContentService.MimeType.TEXT);
+}</pre>
+        <p><strong>Paso 3:</strong> Haz clic arriba a la derecha en <strong>Implementar &gt; Nueva implementación</strong>. Selecciona tipo: <strong>Aplicación web</strong>, y en <em>Quién tiene acceso</em> elige <strong>Cualquier usuario</strong>. Copia la URL generada, pégala en el panel y haz clic en <strong>Guardar URL</strong>.</p>
+      </div>
+    </div>
   </div>
 
   <!-- Toast Container -->

@@ -1,4 +1,4 @@
-// Lógica del Panel de Streamer (Admin) - Conectado Directo a Supabase Cloud
+// Lógica del Panel de Streamer (Admin) - Conectado Directo a Supabase Cloud & Google Drive
 let adminState = null;
 
 // Elementos DOM
@@ -21,6 +21,14 @@ const configTimeOnly = document.getElementById('configTimeOnly');
 const saveConfigBtn = document.getElementById('saveConfigBtn');
 const exportExcelBtn = document.getElementById('exportExcelBtn');
 const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+
+// Google Sheets / Drive Sync Elements
+const googleSheetWebhookUrl = document.getElementById('googleSheetWebhookUrl');
+const saveSheetUrlBtn = document.getElementById('saveSheetUrlBtn');
+const syncGoogleSheetsBtn = document.getElementById('syncGoogleSheetsBtn');
+const helpDriveModalBtn = document.getElementById('helpDriveModalBtn');
+const driveModal = document.getElementById('driveModal');
+const closeDriveModal = document.getElementById('closeDriveModal');
 
 const usersTableBody = document.getElementById('usersTableBody');
 const searchUserTable = document.getElementById('searchUserTable');
@@ -119,10 +127,16 @@ function renderAdminUI() {
   configTotalSeats.value = String(config.total_seats || 200);
   configLocked.value = config.is_locked ? 'true' : 'false';
 
+  // Cargar URL guardada de Google Sheets
+  const savedSheetUrl = localStorage.getItem('google_sheet_webhook_url') || '';
+  if (googleSheetWebhookUrl && !googleSheetWebhookUrl.value) {
+    googleSheetWebhookUrl.value = savedSheetUrl;
+  }
+
   // Configuración del Selector de Fecha Interactiva (Calendario)
   const todayStr = new Date().toISOString().split('T')[0];
   if (configDateOnly) {
-    configDateOnly.min = todayStr; // No permite seleccionar días en el pasado
+    configDateOnly.min = todayStr;
   }
 
   const savedDateIso = config.drawn_at || config.broadcaster_id || config.draw_date;
@@ -134,7 +148,6 @@ function renderAdminUI() {
       if (configTimeOnly) configTimeOnly.value = localDate.toISOString().split('T')[1].slice(0, 5);
     }
   } else {
-    // Por defecto dentro de 3 días a las 21:00
     const defaultDate = new Date();
     defaultDate.setDate(defaultDate.getDate() + 3);
     if (configDateOnly && !configDateOnly.value) configDateOnly.value = defaultDate.toISOString().split('T')[0];
@@ -215,7 +228,6 @@ async function handleEmitEvent() {
     emitEventBtn.disabled = true;
     emitEventBtn.textContent = 'Guardando en Supabase...';
 
-    // Buscar perfil existente en Supabase
     const { data: existing } = await supabaseClient
       .from('profiles')
       .select('*')
@@ -263,7 +275,6 @@ async function handleSaveConfig() {
   try {
     saveConfigBtn.disabled = true;
 
-    // Validación estricta de fecha y hora
     const dateVal = configDateOnly ? configDateOnly.value : '';
     const timeVal = (configTimeOnly && configTimeOnly.value) ? configTimeOnly.value : '21:00';
 
@@ -310,7 +321,7 @@ async function handleSaveConfig() {
 }
 
 // -------------------------------------------------------------------
-// Exportación a Excel / CSV con compatibilidad total UTF-8
+// 1. Exportación Local a Excel / CSV (1 Clic)
 // -------------------------------------------------------------------
 function exportToExcel() {
   if (!adminState || !adminState.all_users_list || adminState.all_users_list.length === 0) {
@@ -319,9 +330,7 @@ function exportToExcel() {
   }
 
   const users = adminState.all_users_list;
-  
-  // Encabezados en formato CSV con punto y coma (nativo para Microsoft Excel y Google Sheets)
-  let csvContent = '\uFEFF'; // BOM UTF-8 para garantizar acentos y caracteres especiales
+  let csvContent = '\uFEFF';
   csvContent += 'Usuario Kick;Nombre Visible;Subs Propias;Subs Regaladas;Tickets Bonus;Total Tickets;Numeros Elegidos;Cantidad Asignada;Tickets Libres;Fecha Exportacion\r\n';
 
   const exportTime = new Date().toLocaleString('es-ES');
@@ -346,7 +355,6 @@ function exportToExcel() {
     csvContent += row.join(';') + '\r\n';
   });
 
-  // Generar y descargar el archivo CSV automáticamente
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -357,7 +365,80 @@ function exportToExcel() {
   link.click();
   document.body.removeChild(link);
 
-  showToast('📊 ¡Planilla Excel (.csv) exportada y descargada con éxito!');
+  showToast('📊 ¡Planilla Excel (.csv) descargada con éxito!');
+  window.soundFX?.playSuccessChime();
+}
+
+// -------------------------------------------------------------------
+// 2. Sincronización Remota con Google Sheets (Google Drive)
+// -------------------------------------------------------------------
+async function syncWithGoogleDrive() {
+  const url = googleSheetWebhookUrl.value.trim();
+
+  if (!url) {
+    showToast('⚠️ Por favor ingresa la URL de tu Google Apps Script de Drive.', true);
+    googleSheetWebhookUrl.focus();
+    return;
+  }
+
+  if (!adminState || !adminState.all_users_list || adminState.all_users_list.length === 0) {
+    showToast('No hay participantes registrados para sincronizar aún.', true);
+    return;
+  }
+
+  try {
+    syncGoogleSheetsBtn.disabled = true;
+    syncGoogleSheetsBtn.textContent = '⏳ Sincronizando con Google Drive...';
+
+    localStorage.setItem('google_sheet_webhook_url', url);
+
+    const payload = {
+      giveaway_title: adminState?.config?.title || 'Sorteo PlayStation 5',
+      prize: adminState?.config?.prize || 'PS5',
+      exported_at: new Date().toLocaleString('es-ES'),
+      participants: adminState.all_users_list.map((u) => ({
+        username: `@${u.username}`,
+        display_name: u.display_name || u.username,
+        own_subs: u.own_subs || 0,
+        gifted_subs: u.gifted_subs || 0,
+        bonus_tickets: Math.max(0, (u.total_tickets - (u.own_subs || 0) - (u.gifted_subs || 0))),
+        total_tickets: u.total_tickets,
+        seats_str: u.seats.length > 0 ? u.seats.join(', ') : 'Ninguno',
+        seats_count: u.seats.length,
+        free_tickets: Math.max(0, u.total_tickets - u.used_tickets)
+      }))
+    };
+
+    // Envío directo a Google Apps Script Webhook
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    showToast('📊 ¡Planilla en Google Drive sincronizada en tiempo real!');
+    window.soundFX?.playSuccessChime();
+
+  } catch (err) {
+    console.error('Error al sincronizar con Google Drive:', err);
+    showToast('Error al conectar con Google Sheets Webhook', true);
+  } finally {
+    syncGoogleSheetsBtn.disabled = false;
+    syncGoogleSheetsBtn.textContent = '🚀 Sincronizar Ahora con Drive';
+  }
+}
+
+function handleSaveSheetUrl() {
+  const url = googleSheetWebhookUrl.value.trim();
+  if (!url) {
+    showToast('Por favor escribe la URL de tu Google Apps Script', true);
+    return;
+  }
+  localStorage.setItem('google_sheet_webhook_url', url);
+  showToast('💾 URL de Google Sheets guardada en el navegador.');
   window.soundFX?.playSuccessChime();
 }
 
@@ -421,6 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
   saveConfigBtn.addEventListener('click', handleSaveConfig);
   if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
   if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
+
+  if (saveSheetUrlBtn) saveSheetUrlBtn.addEventListener('click', handleSaveSheetUrl);
+  if (syncGoogleSheetsBtn) syncGoogleSheetsBtn.addEventListener('click', syncWithGoogleDrive);
+  if (helpDriveModalBtn) helpDriveModalBtn.addEventListener('click', () => { driveModal.style.display = 'flex'; });
+  if (closeDriveModal) closeDriveModal.addEventListener('click', () => { driveModal.style.display = 'none'; });
 
   searchUserTable.addEventListener('input', () => {
     if (adminState) renderUsersTable(adminState.all_users_list);
