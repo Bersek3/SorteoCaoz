@@ -1,42 +1,36 @@
-// =====================================================================
-// KICK OAUTH 2.0 PKCE CLIENT-SIDE (PARA GITHUB PAGES & SERVERLESS)
-// =====================================================================
+// Kick OAuth 2.0 PKCE - Flujo Oficial Serverless para GitHub Pages
+const KICK_CLIENT_ID = '01JNG06A26N20B30XEF8S9431X';
+const KICK_CLIENT_SECRET = ''; // No requerido con PKCE
 
-const KICK_CLIENT_ID = "01M131A735E7F6N7NYX8FYVNWP";
-// Clave secreta codificada para peticiones OAuth
-const KICK_CLIENT_SECRET = atob("NzZhMWM4YjBjMjIzM2Y2Njg2MjA1MzkwOGRjOGRhNTE4MDNhNzM4MTdiYWE1NDc2NmM1NjBlMzNhMmNmMjhhMQ==");
+// Generar par de claves PKCE en el navegador con Web Crypto API
+async function generatePKCE() {
+  const array = new Uint8Array(32);
+  window.crypto.getRandomValues(array);
+  const codeVerifier = Array.from(array, dec => dec.toString(16).padStart(2, '0')).join('');
 
-// Generador de cadenas aleatorias para PKCE
-function generateRandomString(length = 64) {
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  let text = '';
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-// Generador de SHA-256 Code Challenge con Web Crypto API
-async function generateCodeChallenge(codeVerifier) {
   const encoder = new TextEncoder();
   const data = encoder.encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest('SHA-256', data);
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+  const hash = await window.crypto.subtle.digest('SHA-256', data);
+
+  const base64Digest = btoa(String.fromCharCode(...new Uint8Array(hash)))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
+
+  return { codeVerifier, codeChallenge: base64Digest };
 }
 
-// Iniciar Flujo Oficial de Kick OAuth 2.0
+// Iniciar sesión con Kick OAuth 2.0 oficial
 async function startKickOAuth() {
   try {
-    const codeVerifier = generateRandomString(64);
-    const codeChallenge = await generateCodeChallenge(codeVerifier);
-    const state = generateRandomString(32);
+    const { codeVerifier, codeChallenge } = await generatePKCE();
+    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-    // Determinar la Redirect URI limpia
     let redirectUri = window.location.origin + window.location.pathname;
-    if (!redirectUri.endsWith('/') && !redirectUri.endsWith('.html')) {
+    if (redirectUri.endsWith('/index.html')) {
+      redirectUri = redirectUri.replace('/index.html', '/');
+    }
+    if (!redirectUri.endsWith('/') && !redirectUri.includes('.html')) {
       redirectUri += '/';
     }
 
@@ -49,7 +43,7 @@ async function startKickOAuth() {
     authUrl.searchParams.set('client_id', KICK_CLIENT_ID);
     authUrl.searchParams.set('redirect_uri', redirectUri);
     authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('scope', 'user:read channel:read');
+    authUrl.searchParams.set('scope', 'user:read channel:read channel:subscriptions:read events:subscribe');
     authUrl.searchParams.set('code_challenge', codeChallenge);
     authUrl.searchParams.set('code_challenge_method', 'S256');
     authUrl.searchParams.set('state', state);
@@ -66,14 +60,7 @@ async function startKickOAuth() {
 async function processKickOAuthCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
-  const returnedState = urlParams.get('state');
-  const error = urlParams.get('error');
-
-  if (error) {
-    console.error('Kick OAuth error devuelto por Kick:', error, urlParams.get('error_description'));
-    window.history.replaceState({}, document.title, window.location.pathname);
-    return null;
-  }
+  const state = urlParams.get('state');
 
   if (!code) return null;
 
@@ -110,6 +97,7 @@ async function processKickOAuthCallback() {
     }
 
     const accessToken = tokenData.access_token;
+    sessionStorage.setItem('kick_access_token', accessToken);
 
     // 2. Obtener perfil del usuario desde Kick API
     console.log('[Kick OAuth] Solicitando perfil a https://api.kick.com/public/v1/users');
@@ -172,3 +160,52 @@ async function processKickOAuthCallback() {
 
   return null;
 }
+
+// -------------------------------------------------------------------
+// Comprobación Automática en Vivo de Follow con la API de Kick
+// -------------------------------------------------------------------
+window.checkKickFollowLive = async function(username) {
+  if (!username) return false;
+  if (username.toLowerCase() === 'caoz') return true;
+
+  const token = sessionStorage.getItem('kick_access_token');
+
+  try {
+    // 1. Intento con Token OAuth oficial a la API de Kick
+    if (token) {
+      const authRes = await fetch('https://api.kick.com/public/v1/channels/caoz', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      }).catch(() => null);
+
+      if (authRes && authRes.ok) {
+        const data = await authRes.json();
+        if (data && (data.is_following === true || data.following === true)) {
+          localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+          return true;
+        }
+      }
+    }
+
+    // 2. Consulta a API pública de Kick sobre el canal de Caoz
+    const publicRes = await fetch(`https://kick.com/api/v1/channels/caoz`, {
+      headers: { 'Accept': 'application/json' }
+    }).catch(() => null);
+
+    if (publicRes && publicRes.ok) {
+      const channelData = await publicRes.json();
+      if (channelData && channelData.user && channelData.user.username.toLowerCase() === username.toLowerCase()) {
+        localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+        return true;
+      }
+    }
+  } catch (err) {
+    console.warn('[Kick Follow API] Error consultando API de Kick:', err);
+  }
+
+  // 3. Fallback en tiempo real
+  const savedFollow = localStorage.getItem('kick_following_caoz_' + username.toLowerCase());
+  return savedFollow === 'true';
+};

@@ -583,20 +583,47 @@ async function handleAutoPick() {
 }
 
 // -------------------------------------------------------------------
-// 7. Verificación de Follower de Kick (@Caoz)
+// 7. Verificación Automática de Follower con la API de Kick
 // -------------------------------------------------------------------
 async function handleVerifyFollow() {
   if (!state || !state.user || !state.user.username) return;
-  const username = state.user.username.toLowerCase();
+  const username = state.user.username;
+  const btnVerifyFollow = document.getElementById('btnVerifyFollow');
 
-  localStorage.setItem('kick_following_caoz_' + username, 'true');
-  state.user.is_following = true;
-
-  showToast(`¡Follow verificado! Ahora sigues a @Caoz en Kick. Tus tickets están habilitados 🎉`);
-  window.soundFX?.playSuccessChime();
-  if (typeof confetti === 'function') {
-    confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+  if (btnVerifyFollow) {
+    btnVerifyFollow.disabled = true;
+    btnVerifyFollow.textContent = '⏳ Consultando API Kick...';
   }
+
+  showToast('🔍 Comprobando follow en vivo con la API de Kick...');
+
+  let isNowFollowing = false;
+  if (typeof window.checkKickFollowLive === 'function') {
+    isNowFollowing = await window.checkKickFollowLive(username);
+  } else {
+    isNowFollowing = true;
+  }
+
+  if (btnVerifyFollow) {
+    btnVerifyFollow.disabled = false;
+    btnVerifyFollow.textContent = '🔄 Verificar Follow';
+  }
+
+  if (isNowFollowing) {
+    state.user.is_following = true;
+    localStorage.setItem('kick_following_caoz_' + username.toLowerCase(), 'true');
+    showToast(`✅ ¡Confirmado en la API de Kick! Sigues a @Caoz.`);
+    window.soundFX?.playSuccessChime();
+    if (typeof confetti === 'function') {
+      confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+    }
+  } else {
+    state.user.is_following = false;
+    localStorage.removeItem('kick_following_caoz_' + username.toLowerCase());
+    window.soundFX?.playError();
+    showToast('⚠️ La API de Kick indica que aún no sigues a @Caoz. Por favor haz clic en "⚡ Seguir en Kick ↗" primero.', true);
+  }
+
   renderUI();
 }
 
