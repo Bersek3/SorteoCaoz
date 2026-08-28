@@ -1532,22 +1532,57 @@ select option {
     font-size: 0.82rem;
   }
 
+  /* Countdown Mobile Alignment */
   .countdown-box {
-    padding: 16px 12px;
+    padding: 14px 10px;
     border-radius: 16px;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .countdown-title {
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .countdown-grid {
+    gap: 6px;
+    justify-content: center;
   }
 
   .countdown-num {
-    font-size: 1.8rem;
+    font-size: 1.45rem;
+    min-width: 46px;
+    padding: 6px 10px;
+    border-radius: 10px;
   }
 
   .countdown-label {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
   }
 
   .countdown-divider {
-    font-size: 1.4rem;
-    margin: 0 4px;
+    font-size: 1.3rem;
+    margin-top: -12px;
+  }
+
+  /* Stream Player Header - Clean Mobile Layout */
+  .screen-header-bar {
+    justify-content: center !important;
+    padding: 10px 12px;
+  }
+
+  /* Ocultar botones innecesarios en móviles como solicitó el usuario */
+  .stream-header-actions {
+    display: none !important;
+  }
+
+  .cinema-container {
+    padding: 18px 14px;
+    border-radius: 20px;
   }
 
   .cinema-toolbar {
@@ -1660,7 +1695,7 @@ select option {
   }
 
   .hero-title {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
   }
 
   .hero-badge-tag {
@@ -1687,16 +1722,19 @@ select option {
   }
 
   .countdown-num {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
+    min-width: 40px;
+    padding: 5px 6px;
   }
 
   .countdown-label {
-    font-size: 0.6rem;
+    font-size: 0.58rem;
   }
 
   .countdown-divider {
-    font-size: 1.2rem;
-    margin: 0 2px;
+    font-size: 1.1rem;
+    margin: 0 1px;
+    margin-top: -10px;
   }
 
   .seats-grid {
