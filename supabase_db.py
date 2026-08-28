@@ -43,41 +43,13 @@ class SupabaseDataLayer:
             "config": {
                 "title": "Sorteo Oficial PlayStation 5 🎮",
                 "prize": "PlayStation 5 Slim (Edición Disco)",
-                "channel": os.getenv("KICK_CHANNEL_SLUG", "CaozLive"),
+                "channel": os.getenv("KICK_CHANNEL_SLUG", "Caoz"),
                 "total_seats": 200,
                 "is_locked": False,
                 "created_at": datetime.now().isoformat()
             },
-            "users": {
-                "CaozLive": {
-                    "id": "user_001",
-                    "kick_user_id": "10001",
-                    "username": "CaozLive",
-                    "display_name": "CaozLive (Streamer)",
-                    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=CaozLive",
-                    "is_streamer": True,
-                    "own_subs": 0,
-                    "gifted_subs": 0,
-                    "bonus_tickets": 0,
-                    "total_tickets": 0
-                },
-                "GamerPro99": {
-                    "id": "user_101",
-                    "kick_user_id": "10101",
-                    "username": "GamerPro99",
-                    "display_name": "GamerPro99",
-                    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99",
-                    "is_streamer": False,
-                    "own_subs": 1,
-                    "gifted_subs": 5,
-                    "bonus_tickets": 0,
-                    "total_tickets": 6
-                }
-            },
-            "seats": {
-                "7": {"seat_number": 7, "username": "GamerPro99", "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99", "claimed_at": datetime.now().isoformat()},
-                "23": {"seat_number": 23, "username": "GamerPro99", "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=GamerPro99", "claimed_at": datetime.now().isoformat()}
-            },
+            "users": {},
+            "seats": {},
             "winner": None,
             "draw_history": []
         }
