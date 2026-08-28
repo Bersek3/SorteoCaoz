@@ -31,9 +31,9 @@
         </a>
 
         <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
-        <a href="/api/auth/kick/login" class="nav-btn" id="navLoginBtn" style="background: var(--kick-green); color: #051402; font-weight: 800; box-shadow: 0 0 15px var(--kick-green-glow);">
+        <button class="nav-btn" id="navLoginBtn" style="background: var(--kick-green); color: #051402; font-weight: 800; box-shadow: 0 0 15px var(--kick-green-glow); cursor: pointer; border: none;">
           🟢 Iniciar Sesión con Kick
-        </a>
+        </button>
 
         <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
         <div class="user-pill" id="userPillBox" style="display: none;">
@@ -42,9 +42,9 @@
             <span class="user-name" id="navUserName">@Usuario</span>
             <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
           </div>
-          <a href="/api/auth/logout" class="nav-btn" style="padding: 4px 8px; font-size: 0.72rem; margin-left: 6px;" title="Cerrar Sesión">
+          <button id="logoutBtn" class="nav-btn" style="padding: 4px 8px; font-size: 0.72rem; margin-left: 6px; cursor: pointer; background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: var(--text-secondary);" title="Cerrar Sesión">
             Salir
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -91,9 +91,9 @@
           <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
             Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus asientos.
           </p>
-          <a href="/api/auth/kick/login" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+          <button class="btn btn-primary" id="walletLoginBtn" style="width: 100%;">
             🟢 Iniciar Sesión con Kick
-          </a>
+          </button>
         </div>
 
         <!-- Estado: Usuario SÍ logueado -->
@@ -189,9 +189,9 @@
           <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
             Para ver el mapa interactivo de números de la sala de cine y reservar tus asientos para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
           </p>
-          <a href="/api/auth/kick/login" class="btn btn-primary" style="padding: 14px 32px; font-size: 1.05rem; text-decoration: none; display: inline-flex;">
+          <button class="btn btn-primary" id="lockedLoginBtn" style="padding: 14px 32px; font-size: 1.05rem; display: inline-flex;">
             🟢 Iniciar Sesión con Kick para Elegir Números
-          </a>
+          </button>
         </div>
 
         <!-- Área de Selección de Asientos (Visible solo si ESTÁ logueado con Kick) -->
@@ -242,6 +242,30 @@
     <button class="btn btn-primary" id="floatingAutoPickBtn">
       🎲 Auto-Elegir Números
     </button>
+  </div>
+
+  <!-- Kick Login Modal -->
+  <div id="loginModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: var(--bg-card); border: 2px solid var(--kick-green); box-shadow: 0 0 40px var(--kick-green-glow), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; position: relative; text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+      <button id="closeLoginModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
+      
+      <div style="font-size: 3rem; margin-bottom: 8px;">🟢</div>
+      <h3 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 6px;">Iniciar Sesión con Kick</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 24px;">
+        Ingresa tu nombre de usuario oficial de <strong>Kick</strong> para sincronizar tus tickets y elegir tus asientos.
+      </p>
+
+      <form id="loginForm" onsubmit="return false;">
+        <div style="position: relative; margin-bottom: 20px;">
+          <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--kick-green); font-weight: 800; font-size: 1.1rem;">@</span>
+          <input type="text" id="kickUsernameInput" placeholder="TuUsuarioDeKick" style="width: 100%; padding: 14px 16px 14px 38px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 700; outline: none;" required autocomplete="off">
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitLoginBtn" style="width: 100%; padding: 14px; font-size: 1rem;">
+          🚀 Entrar a la Sala del Sorteo
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Toast Notification Container -->

@@ -413,15 +413,48 @@ async function handleAutoPick() {
 }
 
 // -------------------------------------------------------------------
-// 6. Iniciar / Cerrar Sesión con Kick
+// 6. Iniciar / Cerrar Sesión con Kick (Modal Interactivo)
 // -------------------------------------------------------------------
-function promptLogin() {
-  const username = prompt('Ingresa tu nombre de usuario de Kick:');
-  if (username && username.trim()) {
-    localStorage.setItem('kick_user', username.trim());
-    showToast(`Sesión iniciada como @${username.trim()}`);
-    loadState();
+const loginModal = document.getElementById('loginModal');
+const closeLoginModal = document.getElementById('closeLoginModal');
+const loginForm = document.getElementById('loginForm');
+const kickUsernameInput = document.getElementById('kickUsernameInput');
+const logoutBtn = document.getElementById('logoutBtn');
+const walletLoginBtn = document.getElementById('walletLoginBtn');
+const lockedLoginBtn = document.getElementById('lockedLoginBtn');
+
+function openLoginModal() {
+  if (loginModal) {
+    loginModal.style.display = 'flex';
+    setTimeout(() => kickUsernameInput?.focus(), 100);
   }
+}
+
+function closeModal() {
+  if (loginModal) loginModal.style.display = 'none';
+}
+
+async function handleLoginSubmit(e) {
+  if (e) e.preventDefault();
+  const raw = kickUsernameInput.value.trim();
+  const clean = raw.replace(/^@+/, '').trim();
+
+  if (!clean) {
+    showToast('Por favor escribe tu usuario de Kick', true);
+    return;
+  }
+
+  localStorage.setItem('kick_user', clean);
+  closeModal();
+  kickUsernameInput.value = '';
+
+  window.soundFX.playSuccessChime();
+  if (typeof confetti === 'function') {
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  }
+
+  showToast(`¡Sesión iniciada con éxito como @${clean}!`);
+  await loadState();
 }
 
 function handleLogout() {
@@ -489,36 +522,19 @@ document.addEventListener('DOMContentLoaded', () => {
   autoPickBtn.addEventListener('click', handleAutoPick);
   floatingAutoPickBtn.addEventListener('click', handleAutoPick);
 
-  if (navLoginBtn) {
-    navLoginBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      promptLogin();
+  if (navLoginBtn) navLoginBtn.addEventListener('click', openLoginModal);
+  if (walletLoginBtn) walletLoginBtn.addEventListener('click', openLoginModal);
+  if (lockedLoginBtn) lockedLoginBtn.addEventListener('click', openLoginModal);
+
+  if (closeLoginModal) closeLoginModal.addEventListener('click', closeModal);
+  if (loginModal) {
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) closeModal();
     });
   }
 
-  const logoutBtn = document.querySelector('a[href="/api/auth/logout"]') || document.querySelector('a[title="Cerrar Sesión"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      handleLogout();
-    });
-  }
-
-  const lockedLoginBtn = document.querySelector('#seatsLockedBox a');
-  if (lockedLoginBtn) {
-    lockedLoginBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      promptLogin();
-    });
-  }
-
-  const loggedOutWalletBtn = document.querySelector('#walletLoggedOut a');
-  if (loggedOutWalletBtn) {
-    loggedOutWalletBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      promptLogin();
-    });
-  }
+  if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
+  if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
   document.querySelectorAll('.filter-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
