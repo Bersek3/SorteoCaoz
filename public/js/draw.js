@@ -17,13 +17,13 @@ const totalParticipantsCount = document.getElementById('totalParticipantsCount')
 const prizeTitleText = document.getElementById('prizeTitleText');
 
 async function loadDrawData() {
-  if (!supabase) return;
+  if (!supabaseClient) return;
 
   try {
     const [configRes, seatsRes, profilesRes] = await Promise.all([
-      supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
-      supabase.from('seats').select('*'),
-      supabase.from('profiles').select('*')
+      supabaseClient.from('giveaway_config').select('*').eq('id', 'current').single(),
+      supabaseClient.from('seats').select('*'),
+      supabaseClient.from('profiles').select('*')
     ]);
 
     config = configRes.data || { prize: 'PlayStation 5 Slim' };
@@ -123,7 +123,7 @@ async function startDraw() {
 
     // Guardar ganador en Supabase
     try {
-      await supabase.from('giveaway_config').update({
+      await supabaseClient.from('giveaway_config').update({
         winner_seat: winningSeat.seat_number,
         winner_username: winningSeat.username,
         winner_avatar: winningSeat.avatar_url,
@@ -133,7 +133,7 @@ async function startDraw() {
         updated_at: new Date().toISOString()
       }).eq('id', 'current');
 
-      await supabase.from('draw_history').insert({
+      await supabaseClient.from('draw_history').insert({
         winner_username: winningSeat.username,
         seat_number: winningSeat.seat_number,
         prize: config.prize,

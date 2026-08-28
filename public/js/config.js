@@ -10,10 +10,10 @@ const SUPABASE_KEY = atob("c2Jfc2VjcmV0X19LT0VodGpiZWlSUG82My1EZm16S1FfMkVTVU9HZ
 const KICK_CHANNEL = "Caoz";
 const KICK_MODERATORS = ["bersek", "caoz"];
 
-let supabase = null;
+var supabaseClient = null;
 if (window.supabase && typeof window.supabase.createClient === 'function') {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  console.log("[✓] Supabase Cloud inicializado directamente en GitHub Pages");
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  console.log("[✓] Supabase Cloud Client inicializado correctamente");
 }
 
 // Helper para verificar roles

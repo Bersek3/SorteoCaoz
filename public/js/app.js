@@ -43,20 +43,22 @@ const seatsLockedBox = document.getElementById('seatsLockedBox');
 // 1. Cargar Estado Directamente desde Supabase Cloud
 // -------------------------------------------------------------------
 async function loadState() {
-  if (!supabase) {
-    console.error('Supabase no está disponible');
+  if (!supabaseClient) {
+    console.error('Supabase Client no está disponible');
     return;
   }
 
   try {
     const savedUser = localStorage.getItem('kick_user');
-    const roleInfo = checkUserRole(savedUser);
+    const roleInfo = (typeof checkUserRole === 'function') 
+      ? checkUserRole(savedUser)
+      : { is_logged_in: !!savedUser, is_admin: false, is_streamer: false, is_moderator: false, role: 'viewer' };
 
     // Consultas paralelas a Supabase
     const [configRes, seatsRes, profilesRes] = await Promise.all([
-      supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
-      supabase.from('seats').select('*'),
-      supabase.from('profiles').select('*')
+      supabaseClient.from('giveaway_config').select('*').eq('id', 'current').single(),
+      supabaseClient.from('seats').select('*'),
+      supabaseClient.from('profiles').select('*')
     ]);
 
     const configData = configRes.data || {
@@ -102,7 +104,7 @@ async function loadState() {
           bonus_tickets: 0
         };
 
-        const insertRes = await supabase.from('profiles').insert(newProfile).select().single();
+        const insertRes = await supabaseClient.from('profiles').insert(newProfile).select().single();
         currentUserProfile = insertRes.data || newProfile;
       }
 
@@ -319,7 +321,7 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 async function handleSeatClick(seatNumber, isMine, isOccupied) {
   if (!state.user.is_logged_in) {
     window.soundFX.playError();
-    promptLogin();
+    openLoginModal();
     return;
   }
 
@@ -339,12 +341,12 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
   try {
     if (isMine) {
       // Liberar asiento en Supabase
-      await supabase.from('seats').delete().eq('seat_number', seatNumber);
+      await supabaseClient.from('seats').delete().eq('seat_number', seatNumber);
       window.soundFX.playSeatRelease();
       showToast(`Asiento #${seatNumber} liberado.`);
     } else {
       // Reservar asiento en Supabase
-      await supabase.from('seats').insert({
+      await supabaseClient.from('seats').insert({
         seat_number: seatNumber,
         username: state.user.username,
         avatar_url: state.user.avatar,
@@ -397,7 +399,7 @@ async function handleAutoPick() {
       claimed_at: new Date().toISOString()
     }));
 
-    await supabase.from('seats').insert(inserts);
+    await supabaseClient.from('seats').insert(inserts);
 
     window.soundFX.playSuccessChime();
     if (typeof confetti === 'function') {
@@ -413,7 +415,7 @@ async function handleAutoPick() {
 }
 
 // -------------------------------------------------------------------
-// 6. Iniciar / Cerrar Sesión con Kick (Modal Interactivo)
+// 6. Iniciar / Cerrar Sesión con Kick
 // -------------------------------------------------------------------
 const loginModal = document.getElementById('loginModal');
 const closeLoginModal = document.getElementById('closeLoginModal');
@@ -467,9 +469,9 @@ function handleLogout() {
 // 7. Supabase Realtime (Sincronización en Vivo para todos los viewers)
 // -------------------------------------------------------------------
 function initSupabaseRealtime() {
-  if (!supabase) return;
+  if (!supabaseClient) return;
 
-  supabase
+  supabaseClient
     .channel('public_live_giveaway')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'seats' }, () => {
       loadState();

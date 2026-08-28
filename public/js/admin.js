@@ -24,13 +24,15 @@ const dbStatusBadge = document.getElementById('dbStatusBadge');
 const oauthStatusBadge = document.getElementById('oauthStatusBadge');
 
 async function loadAdminData() {
-  if (!supabase) {
+  if (!supabaseClient) {
     alert('Error al conectar con Supabase Cloud.');
     return;
   }
 
   const currentUser = localStorage.getItem('kick_user');
-  const role = checkUserRole(currentUser);
+  const role = (typeof checkUserRole === 'function') 
+    ? checkUserRole(currentUser)
+    : { is_admin: ['bersek', 'caoz'].includes((currentUser || '').toLowerCase()) };
 
   if (!role.is_admin) {
     alert('Acceso no autorizado. Debes iniciar sesión con tu cuenta de Kick (@Caoz o @Bersek).');
@@ -40,9 +42,9 @@ async function loadAdminData() {
 
   try {
     const [configRes, seatsRes, profilesRes] = await Promise.all([
-      supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
-      supabase.from('seats').select('*'),
-      supabase.from('profiles').select('*')
+      supabaseClient.from('giveaway_config').select('*').eq('id', 'current').single(),
+      supabaseClient.from('seats').select('*'),
+      supabaseClient.from('profiles').select('*')
     ]);
 
     const config = configRes.data || {
@@ -198,7 +200,7 @@ async function handleEmitEvent() {
     emitEventBtn.textContent = 'Guardando en Supabase...';
 
     // Buscar perfil existente en Supabase
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseClient
       .from('profiles')
       .select('*')
       .ilike('username', username)
@@ -208,16 +210,16 @@ async function handleEmitEvent() {
 
     if (existing) {
       if (eventType.startsWith('gift_sub')) {
-        await supabase.from('profiles').update({
+        await supabaseClient.from('profiles').update({
           gifted_subs: (existing.gifted_subs || 0) + count
         }).eq('id', existing.id);
       } else {
-        await supabase.from('profiles').update({
+        await supabaseClient.from('profiles').update({
           own_subs: (existing.own_subs || 0) + 1
         }).eq('id', existing.id);
       }
     } else {
-      await supabase.from('profiles').insert({
+      await supabaseClient.from('profiles').insert({
         kick_user_id: String(Math.floor(Math.random() * 10000000)),
         username: username,
         display_name: username,
@@ -244,7 +246,7 @@ async function handleEmitEvent() {
 async function handleSaveConfig() {
   try {
     saveConfigBtn.disabled = true;
-    const { error } = await supabase.from('giveaway_config').update({
+    const { error } = await supabaseClient.from('giveaway_config').update({
       title: configTitle.value.trim(),
       prize: configPrize.value.trim(),
       total_seats: parseInt(configTotalSeats.value, 10),
@@ -271,7 +273,7 @@ async function handleResetGiveaway() {
   }
 
   try {
-    await supabase.from('seats').delete().neq('seat_number', 0);
+    await supabaseClient.from('seats').delete().neq('seat_number', 0);
     showToast('Sala de sorteo vaciada en Supabase.');
     await loadAdminData();
   } catch (err) {
@@ -281,14 +283,14 @@ async function handleResetGiveaway() {
 
 window.addTicketToUser = async function(username, count) {
   try {
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseClient
       .from('profiles')
       .select('*')
       .ilike('username', username)
       .single();
 
     if (existing) {
-      await supabase.from('profiles').update({
+      await supabaseClient.from('profiles').update({
         bonus_tickets: (existing.bonus_tickets || 0) + count
       }).eq('id', existing.id);
       showToast(`+${count} Ticket bonus añadido a @${username}`);
@@ -300,8 +302,8 @@ window.addTicketToUser = async function(username, count) {
 };
 
 function initSupabaseRealtime() {
-  if (!supabase) return;
-  supabase
+  if (!supabaseClient) return;
+  supabaseClient
     .channel('admin_live_sync')
     .on('postgres_changes', { event: '*', schema: 'public' }, () => {
       loadAdminData();

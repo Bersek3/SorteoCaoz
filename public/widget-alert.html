@@ -119,8 +119,8 @@
     }
 
     function initRealtime() {
-      if (!supabase) return;
-      supabase
+      if (!supabaseClient) return;
+      supabaseClient
         .channel('widget_alert_realtime')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'kick_events' }, (payload) => {
           const ev = payload.new;

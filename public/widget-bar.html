@@ -105,11 +105,11 @@
     const percentText = document.getElementById('percentText');
 
     async function loadData() {
-      if (!supabase) return;
+      if (!supabaseClient) return;
       try {
         const [configRes, seatsRes] = await Promise.all([
-          supabase.from('giveaway_config').select('*').eq('id', 'current').single(),
-          supabase.from('seats').select('*')
+          supabaseClient.from('giveaway_config').select('*').eq('id', 'current').single(),
+          supabaseClient.from('seats').select('*')
         ]);
 
         const total = configRes.data?.total_seats || 200;
@@ -123,8 +123,8 @@
     }
 
     function initRealtime() {
-      if (!supabase) return;
-      supabase
+      if (!supabaseClient) return;
+      supabaseClient
         .channel('widget_bar_realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'seats' }, () => loadData())
         .subscribe();

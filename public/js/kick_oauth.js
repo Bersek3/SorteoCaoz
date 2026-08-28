@@ -133,8 +133,8 @@ async function processKickOAuthCallback() {
       localStorage.setItem('kick_avatar', avatar);
 
       // Sincronizar usuario autenticado con Supabase
-      if (window.supabase) {
-        await window.supabase.from('profiles').upsert({
+      if (window.supabaseClient) {
+        await window.supabaseClient.from('profiles').upsert({
           kick_user_id: String(kickUser.user_id || Math.floor(Math.random() * 1000000)),
           username: username,
           display_name: kickUser.name || username,
