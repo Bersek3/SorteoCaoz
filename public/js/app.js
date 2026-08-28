@@ -100,7 +100,7 @@ async function loadState() {
       isFollowing = isOwner || isFollowingSaved;
 
       currentUserProfile = (profilesList || []).find(
-        (p) => p.username.toLowerCase() === savedUser.toLowerCase()
+        (p) => p.username && p.username.toLowerCase() === savedUser.toLowerCase()
       );
 
       // Si el usuario no existe en Supabase, crearlo automáticamente con 0 subs por defecto
@@ -125,7 +125,7 @@ async function loadState() {
       }
 
       userSeats = Object.values(seatsMap)
-        .filter((s) => s.username.toLowerCase() === savedUser.toLowerCase())
+        .filter((s) => s.username && s.username.toLowerCase() === savedUser.toLowerCase())
         .map((s) => s.seat_number);
     }
 
@@ -239,7 +239,7 @@ function initCountdown(drawDateIso) {
 }
 
 // -------------------------------------------------------------------
-// 3. Renderizar Interfaz
+// 3. Renderizar Interfaz Protegida contra Nulls
 // -------------------------------------------------------------------
 function renderUI() {
   if (!state) return;
@@ -247,31 +247,31 @@ function renderUI() {
   const { config, stats, user, seats, winner } = state;
 
   // Header & Info
-  giveawayTitle.textContent = config.title;
-  prizeBadge.textContent = `🎁 ${config.prize}`;
-  channelNameText.textContent = config.channel;
+  if (giveawayTitle) giveawayTitle.textContent = config.title || '';
+  if (prizeBadge) prizeBadge.textContent = `🎁 ${config.prize || ''}`;
+  if (channelNameText) channelNameText.textContent = config.channel || 'Caoz';
 
   // Barra de progreso y estadísticas
-  progressBar.style.width = `${stats.occupancy_percent}%`;
-  statsSummaryText.textContent = `${stats.occupied_seats} de ${stats.total_seats} números elegidos (${stats.occupancy_percent}%) • ${stats.total_participants} participantes`;
+  if (progressBar) progressBar.style.width = `${stats.occupancy_percent || 0}%`;
+  if (statsSummaryText) statsSummaryText.textContent = `${stats.occupied_seats || 0} de ${stats.total_seats || 200} números elegidos (${stats.occupancy_percent || 0}%) • ${stats.total_participants || 0} participantes`;
 
   // Autenticación de Usuario
-  if (user.is_logged_in) {
+  if (user && user.is_logged_in) {
     const isAdmin = (typeof checkUserRole === 'function') ? checkUserRole(user.username).is_admin : (user.is_streamer || user.is_moderator);
 
-    navLoginBtn.style.display = 'none';
-    userPillBox.style.display = 'flex';
-    navUserAvatar.src = user.avatar;
-    navUserName.textContent = `@${user.username}`;
-    navUserTickets.textContent = `${user.available_tickets} Libres`;
+    if (navLoginBtn) navLoginBtn.style.display = 'none';
+    if (userPillBox) userPillBox.style.display = 'flex';
+    if (navUserAvatar) navUserAvatar.src = user.avatar;
+    if (navUserName) navUserName.textContent = `@${user.username}`;
+    if (navUserTickets) navUserTickets.textContent = `${user.available_tickets || 0} Libres`;
 
-    walletLoggedOut.style.display = 'none';
-    walletLoggedIn.style.display = 'flex';
-    walletAvatar.src = user.avatar;
-    walletUsername.textContent = `@${user.username}`;
-    statOwnSubs.textContent = user.own_subs;
-    statGiftedSubs.textContent = user.gifted_subs;
-    statAvailableTickets.textContent = user.available_tickets;
+    if (walletLoggedOut) walletLoggedOut.style.display = 'none';
+    if (walletLoggedIn) walletLoggedIn.style.display = 'flex';
+    if (walletAvatar) walletAvatar.src = user.avatar;
+    if (walletUsername) walletUsername.textContent = `@${user.username}`;
+    if (statOwnSubs) statOwnSubs.textContent = user.own_subs || 0;
+    if (statGiftedSubs) statGiftedSubs.textContent = user.gifted_subs || 0;
+    if (statAvailableTickets) statAvailableTickets.textContent = user.available_tickets || 0;
 
     // Renderizar Estado de Follower de Kick (@Caoz)
     const followBox = document.getElementById('followBox');
@@ -313,48 +313,56 @@ function renderUI() {
     if (seatsLockedBox) seatsLockedBox.style.display = 'none';
 
     // Botones de Admin
-    if (isAdmin) {
-      navAdminBtn.style.display = 'inline-flex';
-      navDrawBtn.style.display = 'inline-flex';
-      userRoleBadge.textContent = user.is_streamer ? '👑 Streamer' : '🛡️ Moderador';
-      userRoleBadge.className = 'tag-badge tag-green';
-    } else {
-      navAdminBtn.style.display = 'none';
-      navDrawBtn.style.display = 'none';
-      userRoleBadge.textContent = '⭐ Espectador';
-      userRoleBadge.className = 'tag-badge tag-cyan';
+    if (navAdminBtn) navAdminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    if (navDrawBtn) navDrawBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    if (userRoleBadge) {
+      if (isAdmin) {
+        userRoleBadge.textContent = user.is_streamer ? '👑 Streamer' : '🛡️ Moderador';
+        userRoleBadge.className = 'tag-badge tag-green';
+      } else {
+        userRoleBadge.textContent = '⭐ Espectador';
+        userRoleBadge.className = 'tag-badge tag-cyan';
+      }
     }
 
-    if (user.available_tickets > 0) {
-      autoPickBtn.disabled = false;
-      autoPickBtn.textContent = `🎲 Auto-Elegir (${user.available_tickets} Libres)`;
-      floatingBar.style.display = 'flex';
-      floatingAvailableCount.textContent = user.available_tickets;
-    } else {
-      autoPickBtn.disabled = true;
-      autoPickBtn.textContent = user.total_tickets > 0 
-        ? `🎲 Todos tus números elegidos (${user.my_seats.length}/${user.total_tickets})`
-        : `🎲 Sin Tickets Disponibles (0/0)`;
-      floatingBar.style.display = 'none';
+    if (autoPickBtn) {
+      if (user.available_tickets > 0) {
+        autoPickBtn.disabled = false;
+        autoPickBtn.textContent = `🎲 Auto-Elegir (${user.available_tickets} Libres)`;
+      } else {
+        autoPickBtn.disabled = true;
+        autoPickBtn.textContent = (user.total_tickets > 0) 
+          ? `🎲 Todos tus números elegidos (${user.my_seats.length}/${user.total_tickets})`
+          : `🎲 Sin Tickets Disponibles (0/0)`;
+      }
+    }
+
+    if (floatingBar) {
+      floatingBar.style.display = (user.available_tickets > 0) ? 'flex' : 'none';
+    }
+    if (floatingAvailableCount) {
+      floatingAvailableCount.textContent = user.available_tickets || 0;
     }
 
     // Contadores & Grid
-    countTotalSeats.textContent = stats.total_seats;
-    countFreeSeats.textContent = stats.available_seats;
-    countMySeats.textContent = user.my_seats.length;
-    countTakenSeats.textContent = Math.max(0, stats.occupied_seats - user.my_seats.length);
+    if (countTotalSeats) countTotalSeats.textContent = stats.total_seats || 200;
+    if (countFreeSeats) countFreeSeats.textContent = stats.available_seats || 0;
+    if (countMySeats) countMySeats.textContent = user.my_seats ? user.my_seats.length : 0;
+    if (countTakenSeats) countTakenSeats.textContent = Math.max(0, (stats.occupied_seats || 0) - (user.my_seats ? user.my_seats.length : 0));
 
-    renderSeatsGrid(stats.total_seats, seats, user, winner);
+    if (seatsGrid) {
+      renderSeatsGrid(stats.total_seats, seats, user, winner);
+    }
 
   } else {
-    navLoginBtn.style.display = 'inline-flex';
-    userPillBox.style.display = 'none';
-    navAdminBtn.style.display = 'none';
-    navDrawBtn.style.display = 'none';
+    if (navLoginBtn) navLoginBtn.style.display = 'inline-flex';
+    if (userPillBox) userPillBox.style.display = 'none';
+    if (navAdminBtn) navAdminBtn.style.display = 'none';
+    if (navDrawBtn) navDrawBtn.style.display = 'none';
 
-    walletLoggedOut.style.display = 'block';
-    walletLoggedIn.style.display = 'none';
-    floatingBar.style.display = 'none';
+    if (walletLoggedOut) walletLoggedOut.style.display = 'block';
+    if (walletLoggedIn) walletLoggedIn.style.display = 'none';
+    if (floatingBar) floatingBar.style.display = 'none';
 
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'none';
     if (seatsLockedBox) seatsLockedBox.style.display = 'block';
@@ -365,6 +373,7 @@ function renderUI() {
 // 4. Renderizado de Números
 // -------------------------------------------------------------------
 function renderSeatsGrid(totalSeats, seats, user, winner) {
+  if (!seatsGrid) return;
   seatsGrid.innerHTML = '';
   const currentUsername = (user.username || '').toLowerCase();
 
@@ -454,7 +463,7 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
 // 5. Selección Directa en Supabase (Garantizada con REST)
 // -------------------------------------------------------------------
 async function handleSeatClick(seatNumber, isMine, isOccupied) {
-  if (!state.user.is_logged_in) {
+  if (!state || !state.user || !state.user.is_logged_in) {
     window.soundFX?.playError();
     openLoginModal();
     return;
@@ -514,7 +523,7 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
 // 6. Auto-Pick Directo en Supabase
 // -------------------------------------------------------------------
 async function handleAutoPick() {
-  if (!state || !state.user.is_logged_in || state.user.available_tickets <= 0) {
+  if (!state || !state.user || !state.user.is_logged_in || state.user.available_tickets <= 0) {
     showToast('No tienes tickets disponibles para auto-elegir', true);
     return;
   }
@@ -595,17 +604,22 @@ async function handleVerifyFollow() {
 // 8. Autenticación Kick Manual de Respaldo
 // -------------------------------------------------------------------
 function openLoginModal() {
-  loginModal.style.display = 'flex';
-  kickUsernameInput.focus();
+  if (loginModal) {
+    loginModal.style.display = 'flex';
+    if (kickUsernameInput) kickUsernameInput.focus();
+  }
 }
 
 function closeModal() {
-  loginModal.style.display = 'none';
-  kickUsernameInput.value = '';
+  if (loginModal) {
+    loginModal.style.display = 'none';
+    if (kickUsernameInput) kickUsernameInput.value = '';
+  }
 }
 
 async function handleLoginSubmit(e) {
   e.preventDefault();
+  if (!kickUsernameInput) return;
   const username = kickUsernameInput.value.trim().replace(/^@/, '');
   if (!username) return;
 
@@ -680,6 +694,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (typeof confetti === 'function') {
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
       }
+      await loadState();
     }
   }
 
@@ -687,8 +702,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadState();
   initSupabaseRealtime();
 
-  autoPickBtn.addEventListener('click', handleAutoPick);
-  floatingAutoPickBtn.addEventListener('click', handleAutoPick);
+  if (autoPickBtn) autoPickBtn.addEventListener('click', handleAutoPick);
+  if (floatingAutoPickBtn) floatingAutoPickBtn.addEventListener('click', handleAutoPick);
 
   // Iniciar Kick OAuth 2.0 oficial directamente al hacer clic
   const handleKickLoginClick = () => {
@@ -727,10 +742,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  searchSeatInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value.trim();
-    renderUI();
-  });
+  if (searchSeatInput) {
+    searchSeatInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      renderUI();
+    });
+  }
 
   const toggleStreamBtn = document.getElementById('toggleStreamBtn');
   const streamPlayerBox = document.getElementById('streamPlayerBox');
