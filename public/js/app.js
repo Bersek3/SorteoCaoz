@@ -380,7 +380,7 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
     } else if (isOccupied) {
       seatEl.innerHTML = `
         <span class="seat-num">${i}</span>
-        <span class="seat-user-tag">@${seatData.username}</span>
+        <span class="seat-user-tag">OCUPADO</span>
       `;
     } else {
       seatEl.innerHTML = `
@@ -403,11 +403,8 @@ function renderSeatsGrid(totalSeats, seats, user, winner) {
       `;
     } else if (isOccupied) {
       tooltip.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <img src="${seatData.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=user'}" style="width: 20px; height: 20px; border-radius: 50%;">
-          <div>Número #${i}</div>
-          <strong style="color: #ff3366;">@${seatData.username}</strong>
-        </div>
+        <div style="font-weight: 700; color: #ff6688;">🔒 Número #${i} Ocupado</div>
+        <div style="color: var(--text-secondary); font-size: 0.75rem;">(No disponible)</div>
       `;
     } else {
       tooltip.innerHTML = `<strong>🟢 Número #${i} Disponible</strong> (Clic para elegir)`;
@@ -432,8 +429,7 @@ async function handleSeatClick(seatNumber, isMine, isOccupied) {
 
   if (isOccupied && !isMine) {
     window.soundFX?.playError();
-    const owner = state.seats[String(seatNumber)]?.username || 'otro viewer';
-    showToast(`El número #${seatNumber} ya pertenece a @${owner}`, true);
+    showToast(`El número #${seatNumber} ya está ocupado por otro participante.`, true);
     return;
   }
 
