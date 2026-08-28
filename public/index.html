@@ -4,15 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sorteo Oficial PlayStation 5 🎮 - Kick</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
   <!-- Navigation Bar -->
   <header class="navbar">
     <div class="container nav-content">
-      <a href="/" class="brand">
+      <a href="index.html" class="brand">
         <div class="brand-logo">K</div>
         <div class="brand-title">
           KICK RAFFLE
@@ -22,10 +23,10 @@
 
       <div class="nav-links">
         <!-- Botones de Administración (Solo visibles para Streamer y Moderadores) -->
-        <a href="/draw" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
+        <a href="draw.html" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
           🎰 OBS Live Draw
         </a>
-        <a href="/admin" class="nav-btn streamer-btn" id="navAdminBtn" style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
+        <a href="admin.html" class="nav-btn streamer-btn" id="navAdminBtn" style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
           👑 Panel Streamer
         </a>
 
@@ -230,7 +231,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="/static/js/audio.js"></script>
-  <script src="/static/js/app.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

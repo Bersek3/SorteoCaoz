@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Streamer - Control de Sorteo Kick</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .admin-grid {
       display: grid;
@@ -69,7 +70,7 @@
   <!-- Navigation Bar -->
   <header class="navbar">
     <div class="container nav-content">
-      <a href="/" class="brand">
+      <a href="index.html" class="brand">
         <div class="brand-logo">K</div>
         <div class="brand-title">
           PANEL STREAMER
@@ -78,10 +79,10 @@
       </a>
 
       <div class="nav-links">
-        <a href="/" class="nav-btn">
+        <a href="index.html" class="nav-btn">
           🎟️ Sala de Cine (Público)
         </a>
-        <a href="/draw" target="_blank" class="nav-btn streamer-btn">
+        <a href="draw.html" target="_blank" class="nav-btn streamer-btn">
           🎰 Pantalla OBS Sorteo
         </a>
       </div>
@@ -250,7 +251,7 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <!-- Scripts -->
-  <script src="/static/js/audio.js"></script>
-  <script src="/static/js/admin.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/admin.js"></script>
 </body>
 </html>

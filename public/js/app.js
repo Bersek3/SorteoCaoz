@@ -37,17 +37,111 @@ const countMySeats = document.getElementById('countMySeats');
 const countTakenSeats = document.getElementById('countTakenSeats');
 const searchSeatInput = document.getElementById('searchSeatInput');
 
+const SUPABASE_URL = window.SUPABASE_URL || "https://genlkmueekefyxmiyhjv.supabase.co";
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "";
+let supabaseClient = null;
+
+if (window.supabase && typeof window.supabase.createClient === 'function' && SUPABASE_ANON_KEY) {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
 // -------------------------------------------------------------------
-// 1. Cargar Estado desde la API
+// 1. Cargar Estado (API Local o Supabase Directo en GitHub Pages)
 // -------------------------------------------------------------------
 async function loadState() {
+  // Modo 1: API de Servidor (Local o Cloud)
   try {
     const res = await fetch('/api/state');
-    if (!res.ok) throw new Error('Error al cargar estado');
-    state = await res.json();
-    renderUI();
+    if (res.ok) {
+      state = await res.json();
+      renderUI();
+      return;
+    }
   } catch (err) {
-    console.error('Error fetching state:', err);
+    // Si falla, entrar al Modo 2 (Supabase Directo para GitHub Pages)
+  }
+
+  // Modo 2: Supabase Directo (GitHub Pages)
+  if (supabaseClient) {
+    try {
+      const [configRes, seatsRes, profilesRes] = await Promise.all([
+        supabaseClient.table('giveaway_config').select('*').eq('id', 'current').single(),
+        supabaseClient.table('seats').select('*'),
+        supabaseClient.table('profiles').select('*')
+      ]);
+
+      const configData = configRes.data || {
+        title: 'Sorteo Oficial PlayStation 5 🎮',
+        prize: 'PlayStation 5 Slim (Edición Disco)',
+        channel: 'Caoz',
+        total_seats: 200,
+        is_locked: false
+      };
+
+      const seatsMap = {};
+      if (seatsRes.data) {
+        seatsRes.data.forEach(s => {
+          seatsMap[String(s.seat_number)] = {
+            seat_number: s.seat_number,
+            username: s.username,
+            avatar: s.avatar_url,
+            claimed_at: s.claimed_at
+          };
+        });
+      }
+
+      // Leer usuario en localStorage / Cookie
+      const savedUser = localStorage.getItem('kick_user') || 'Bersek';
+      const currentUserProfile = (profilesRes.data || []).find(p => p.username.toLowerCase() === savedUser.toLowerCase()) || {
+        username: savedUser,
+        display_name: savedUser,
+        avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${savedUser}`,
+        own_subs: 1,
+        gifted_subs: 0,
+        bonus_tickets: 0,
+        total_tickets: 1
+      };
+
+      const isOwner = savedUser.toLowerCase() === 'caoz';
+      const isMod = savedUser.toLowerCase() === 'bersek';
+      const userSeats = Object.values(seatsMap).filter(s => s.username.toLowerCase() === savedUser.toLowerCase()).map(s => s.seat_number);
+
+      state = {
+        config: configData,
+        has_supabase: true,
+        has_kick_oauth: true,
+        stats: {
+          total_seats: configData.total_seats || 200,
+          occupied_seats: Object.keys(seatsMap).length,
+          available_seats: Math.max(0, (configData.total_seats || 200) - Object.keys(seatsMap).length),
+          occupancy_percent: Math.round((Object.keys(seatsMap).length / (configData.total_seats || 200)) * 100),
+          total_participants: new Set(Object.values(seatsMap).map(s => s.username)).size
+        },
+        user: {
+          username: currentUserProfile.username,
+          display_name: currentUserProfile.display_name || currentUserProfile.username,
+          avatar: currentUserProfile.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUserProfile.username}`,
+          own_subs: currentUserProfile.own_subs || 0,
+          gifted_subs: currentUserProfile.gifted_subs || 0,
+          total_tickets: currentUserProfile.total_tickets || 1,
+          used_tickets: userSeats.length,
+          available_tickets: Math.max(0, (currentUserProfile.total_tickets || 1) - userSeats.length),
+          my_seats: userSeats,
+          is_logged_in: true,
+          is_admin: isOwner || isMod,
+          is_streamer: isOwner,
+          is_moderator: isMod,
+          role: isOwner ? 'streamer' : (isMod ? 'moderator' : 'viewer')
+        },
+        seats: seatsMap,
+        winner: null,
+        all_users_list: profilesRes.data || []
+      };
+
+      renderUI();
+    } catch (e) {
+      console.error('Error fetching Supabase direct:', e);
+    }
   }
 }
 
