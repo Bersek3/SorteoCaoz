@@ -45,11 +45,13 @@
 }
 
 body {
-  background-color: var(--bg-main);
+  background-color: #07090e;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(83, 252, 24, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 10% 90%, rgba(138, 43, 226, 0.06) 0%, transparent 50%);
+    linear-gradient(180deg, rgba(7, 9, 14, 0.72) 0%, rgba(7, 9, 14, 0.88) 100%),
+    url('../images/bg_caoz.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-main);
