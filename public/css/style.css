@@ -83,15 +83,15 @@ body {
 }
 
 /* ------------------------------------------------------------------- */
-/* GTA VI ROCKSTAR STYLE PRELOADER SCREEN                             */
+/* OFFICIAL ROCKSTAR GAMES R* STYLE PRELOADER SCREEN                  */
 /* ------------------------------------------------------------------- */
-.gta-preloader {
+.rockstar-preloader {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: #05070c;
+  background: #000000;
   z-index: 99999;
   display: flex;
   align-items: center;
@@ -100,143 +100,89 @@ body {
   overflow: hidden;
 }
 
-.gta-preloader-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(circle at 50% 40%, rgba(255, 42, 122, 0.25) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(83, 252, 24, 0.15) 0%, transparent 50%),
-    url('../images/bg_caoz.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: blur(14px) brightness(0.32);
-  transform: scale(1.1);
-}
-
-.gta-loader-content {
-  position: relative;
-  z-index: 2;
+.rockstar-loader-content {
   text-align: center;
-  max-width: 440px;
+  max-width: 380px;
   width: 90%;
-  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
 }
 
-.gta-vi-logo-container {
-  margin-bottom: 28px;
+.rockstar-logo-wrapper {
+  animation: rockstarLogoPulse 2.2s ease-in-out infinite;
 }
 
-.gta-vi-glitch-badge {
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 4px;
-  color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 6px;
-  text-transform: uppercase;
+.rockstar-logo-svg {
+  display: block;
+  filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.75));
 }
 
-.gta-vi-logo {
-  font-size: 5.8rem;
-  font-weight: 900;
-  line-height: 1;
-  font-family: var(--font-main);
-  background: linear-gradient(180deg, #ffffff 0%, #ff2a7a 50%, #9333ea 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.8));
-  letter-spacing: 6px;
-  animation: gtaLogoPulse 2s ease-in-out infinite;
+@keyframes rockstarLogoPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.75));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 45px rgba(255, 122, 0, 0.95));
+  }
 }
 
-@keyframes gtaLogoPulse {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.8)); }
-  50% { transform: scale(1.04); filter: drop-shadow(0 0 40px rgba(83, 252, 24, 0.8)); }
-}
-
-.gta-vi-subtitle {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 3px;
-  color: var(--kick-green);
-  text-shadow: 0 0 10px var(--kick-green-glow);
-  margin-top: 8px;
-  text-transform: uppercase;
-}
-
-.gta-progress-container {
-  width: 100%;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.1);
+.rockstar-progress-container {
+  width: 220px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 12px;
   position: relative;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
 }
 
-.gta-progress-bar {
+.rockstar-progress-bar {
   width: 0%;
   height: 100%;
-  background: linear-gradient(90deg, #ff2a7a, #00f2fe, #53fc18);
-  box-shadow: 0 0 15px rgba(83, 252, 24, 0.9);
+  background: linear-gradient(90deg, #ff7a00, #ff2a7a, #53fc18);
+  box-shadow: 0 0 12px rgba(255, 42, 122, 0.9);
   transition: width 0.12s ease-out;
 }
 
-.gta-loader-status {
+.rockstar-loader-status {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  font-size: 0.76rem;
+  gap: 4px;
   font-family: var(--font-mono);
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
   font-weight: 700;
 }
 
-.gta-percent {
-  color: var(--kick-green);
-  font-size: 0.9rem;
+.rockstar-percent {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-.gta-scanlines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-  background-size: 100% 4px;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.6;
+.rockstar-status-msg {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  letter-spacing: 2.5px;
 }
 
 /* ------------------------------------------------------------------- */
-/* TOP NAVIGATION BAR (ROCKSTAR GTA VI AESTHETIC)                      */
+/* TOP NAVIGATION BAR (ORIGINAL CLEAN KICK STYLE)                     */
 /* ------------------------------------------------------------------- */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  background: rgba(7, 10, 16, 0.78);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 12px 0;
-  position: sticky;
-}
-
-.navbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, #ff2a7a 0%, #a855f7 35%, #00f2fe 70%, #53fc18 100%);
-  box-shadow: 0 0 12px rgba(255, 42, 122, 0.6), 0 0 16px rgba(83, 252, 24, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(10, 13, 20, 0.85);
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px 0;
 }
 
 .nav-content {
@@ -255,38 +201,24 @@ body {
 .brand-logo {
   width: 42px;
   height: 42px;
-  background: linear-gradient(135deg, #ff2a7a 0%, #53fc18 100%);
-  border-radius: 10px;
+  background: linear-gradient(135deg, var(--kick-green), var(--kick-green-dark));
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 900;
-  color: #ffffff;
-  box-shadow: 0 0 20px rgba(255, 42, 122, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  letter-spacing: 1px;
+  color: #051402;
+  box-shadow: 0 0 20px var(--kick-green-glow);
 }
 
 .brand-title {
-  font-size: 1.3rem;
-  font-weight: 900;
-  letter-spacing: 0.5px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   display: flex;
   align-items: center;
   gap: 8px;
-  text-transform: uppercase;
-}
-
-.brand-title .gta-vi-badge {
-  background: linear-gradient(135deg, #ff2a7a, #a855f7);
-  color: #ffffff;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-  box-shadow: 0 0 12px rgba(255, 42, 122, 0.6);
 }
 
 .brand-title span.kick-badge {
