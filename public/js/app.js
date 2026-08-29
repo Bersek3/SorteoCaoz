@@ -57,7 +57,7 @@ const seatsLockedBox = document.getElementById('seatsLockedBox');
 async function loadState() {
   try {
     const savedUser = localStorage.getItem('kick_user');
-    const roleInfo = (typeof checkUserRole === 'function') 
+    const roleInfo = (typeof checkUserRole === 'function')
       ? checkUserRole(savedUser)
       : { is_logged_in: !!savedUser, is_admin: false, is_streamer: false, is_moderator: false, role: 'viewer' };
 
@@ -292,7 +292,7 @@ function renderUI() {
         autoPickBtn.textContent = `🎲 Auto-Elegir (${user.available_tickets} Libres)`;
       } else {
         autoPickBtn.disabled = true;
-        autoPickBtn.textContent = (user.total_tickets > 0) 
+        autoPickBtn.textContent = (user.total_tickets > 0)
           ? `🎲 Todos tus números elegidos (${user.my_seats.length}/${user.total_tickets})`
           : `🎲 Sin Tickets Disponibles (0/0)`;
       }
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (typeof processKickOAuthCallback === 'function') {
     const oauthUser = await processKickOAuthCallback();
     if (oauthUser) {
-      showToast(`¡Autenticado con Kick OAuth como @${oauthUser.username}!`);
+      showToast(`¡Bienvenido @${oauthUser.username}!`);
       window.soundFX?.playSuccessChime();
       if (typeof confetti === 'function') {
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
