@@ -22,47 +22,69 @@
 }
 
 /* =================================================================== */
-/* GTA VI CAOZ HERO INTRO MASK SECTION                                */
+/* GTA VI CAOZ HERO INTRO (ZOOM INTO REAL WEBSITE)                     */
 /* =================================================================== */
-.seccion-principal {
+.caoz-intro-wrapper {
   position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.caoz-intro-pin-container {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: #000000;
-  z-index: 50;
+  pointer-events: auto;
+  z-index: 150;
 }
 
-.contenedor-mascara {
+.caoz-intro-svg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  mask-image: url("../images/big-hero-text.svg");
-  -webkit-mask-image: url("../images/big-hero-text.svg");
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-  mask-position: 50% 22%;
-  -webkit-mask-position: 50% 22%;
-  mask-size: 3500% 3500%;
-  -webkit-mask-size: 3500% 3500%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  will-change: mask-size, -webkit-mask-size, opacity;
+  display: block;
+  pointer-events: none;
 }
 
-.escalar-salida {
+.caoz-mask-dark-layer {
+  fill: #06080d;
+}
+
+.caoz-floating-vi-bg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.25);
-  will-change: transform;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.caoz-neon-vi-logo {
+  width: 320px;
+  max-width: 85vw;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 30px rgba(255, 122, 179, 0.45));
+  animation: viPulse 3s ease-in-out infinite;
+}
+
+@keyframes viPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 25px rgba(255, 122, 179, 0.4));
+  }
+  50% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 45px rgba(255, 42, 122, 0.7));
+  }
 }
 
 .intro-overlay {
@@ -73,6 +95,7 @@
   align-items: center;
   justify-content: center;
   z-index: 20;
+  pointer-events: none;
 }
 
 .img-reproducir {
@@ -88,6 +111,7 @@
   pointer-events: auto;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
   animation: playBtnPulse 2.5s infinite ease-in-out;
+  margin-top: 15px;
 }
 
 .img-reproducir:hover {
@@ -167,21 +191,12 @@
   50% { transform: scale(1.06); }
 }
 
-.contenedor-logo-falso {
-  position: absolute;
-  z-index: 45;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.logo-superpuesto {
-  width: 290px;
-  max-width: 82vw;
-  opacity: 0;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.95));
+.main-site-content {
+  position: relative;
+  z-index: 10;
+  transform-origin: center 20%;
+  will-change: transform, filter;
+  transition: filter 0.2s ease;
 }
 
 

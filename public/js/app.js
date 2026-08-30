@@ -596,38 +596,14 @@ function hashString(str) {
 // -------------------------------------------------------------------
 // 10. Event Listeners & Inicio OAuth 2.0 PKCE & GTA VI Preloader
 // -------------------------------------------------------------------
-function getCaozMaskSettings() {
-  const width = window.innerWidth;
-  if (width <= 768) {
-    return {
-      posInicialMascara: "50% -1500vh",
-      tamanoInicialMascara: "3100% 3100%",
-      posMascara: "50% 7vh",
-      tamanoMascara: "55% 55%",
-    };
-  }
-  if (width <= 1024) {
-    return {
-      posInicialMascara: "50% -1700vh",
-      tamanoInicialMascara: "3500% 3500%",
-      posMascara: "50% 17vh",
-      tamanoMascara: "35% 35%",
-    };
-  }
-  return {
-    posInicialMascara: "50% 22%",
-    tamanoInicialMascara: "3500% 3500%",
-    posMascara: "50% 22%",
-    tamanoMascara: "20% 20%",
-  };
-}
-
 let caozScrollTimeline = null;
 
 function initHeroScrollAnimation() {
-  const heroSection = document.getElementById('heroIntroSection');
-  const contenedorMascara = document.querySelector('.contenedor-mascara');
-  if (!heroSection || !contenedorMascara) return;
+  const introWrapper = document.getElementById('heroIntroSection');
+  const holeGroup = document.getElementById('caozHoleGroup');
+  const pinContainer = document.querySelector('.caoz-intro-pin-container');
+  const mainSite = document.getElementById('mainSiteContent');
+  if (!introWrapper || !holeGroup) return;
 
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
@@ -641,48 +617,69 @@ function initHeroScrollAnimation() {
       caozScrollTimeline.kill();
     }
 
-    const settings = getCaozMaskSettings();
-
-    // Establecer estado inicial de máscara
-    gsap.set(contenedorMascara, {
-      maskPosition: settings.posInicialMascara,
-      WebkitMaskPosition: settings.posInicialMascara,
-      maskSize: settings.tamanoInicialMascara,
-      WebkitMaskSize: settings.tamanoInicialMascara,
-      opacity: 1,
+    // Centrar y preparar el grupo SVG del recorte de CAOZ
+    gsap.set(holeGroup, {
+      transformOrigin: "112px 75px",
+      scale: 1,
     });
 
-    gsap.set('.escalar-salida', { scale: 1.25 });
+    gsap.set(pinContainer, {
+      opacity: 1,
+      pointerEvents: 'auto',
+      display: 'block'
+    });
     gsap.set('.desvanecer-salida', { opacity: 1 });
-    gsap.set('.logo-superpuesto', { opacity: 0 });
+    gsap.set('.caoz-mask-dark-layer', { opacity: 0.98 });
+    gsap.set(mainSite, {
+      scale: 0.94,
+      filter: 'brightness(0.7) blur(2.5px)',
+      transformOrigin: 'center 20%'
+    });
+
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth <= 1024 && !isMobile;
+    const targetScale = isMobile ? 55 : (isTablet ? 42 : 32);
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
-        trigger: '.seccion-principal',
+        trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=180%',
-        scrub: 1.5,
-        pin: true,
+        end: '+=160%',
+        scrub: 1.2,
+        pin: '.caoz-intro-pin-container',
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onLeave: () => {
+          gsap.set(pinContainer, { pointerEvents: 'none', display: 'none' });
+          gsap.set(mainSite, { scale: 1, filter: 'none' });
+        },
+        onEnterBack: () => {
+          gsap.set(pinContainer, { pointerEvents: 'auto', display: 'block' });
+        }
       }
     });
 
     caozScrollTimeline
-      .to('.desvanecer-salida', { opacity: 0, duration: 0.6, ease: 'power1.inOut' })
-      .to('.escalar-salida', { scale: 1, duration: 1.2, ease: 'power1.inOut' }, '<')
-      .to(contenedorMascara, {
-        maskSize: settings.tamanoMascara,
-        WebkitMaskSize: settings.tamanoMascara,
-        maskPosition: settings.posMascara,
-        WebkitMaskPosition: settings.posMascara,
+      .to('.desvanecer-salida', { opacity: 0, duration: 0.35, ease: 'power1.inOut' })
+      .to(mainSite, {
+        scale: 1,
+        filter: 'brightness(1) blur(0px)',
         duration: 1.2,
-        ease: 'power1.inOut'
+        ease: 'power2.out'
       }, '<')
-      .to('.logo-superpuesto', { opacity: 1, duration: 0.5, ease: 'power1.in' })
-      .to([contenedorMascara, '.logo-superpuesto'], {
+      .to(holeGroup, {
+        scale: targetScale,
+        duration: 1.2,
+        ease: 'power2.inOut'
+      }, '<')
+      .to('.caoz-mask-dark-layer', {
         opacity: 0,
-        duration: 0.5,
+        duration: 0.3,
+        ease: 'power2.out'
+      }, '-=0.2')
+      .to(pinContainer, {
+        opacity: 0,
+        duration: 0.25,
         ease: 'power2.out'
       });
   };
@@ -701,9 +698,8 @@ function initHeroScrollAnimation() {
 
   // Botón de play e indicador de scroll para saltar la intro suavemente
   const scrollToMain = () => {
-    const mainPos = heroSection.offsetHeight * 2.2;
     window.scrollTo({
-      top: mainPos,
+      top: window.innerHeight * 1.8,
       behavior: 'smooth'
     });
   };
