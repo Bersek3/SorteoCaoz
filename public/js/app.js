@@ -643,14 +643,19 @@ function initHeroScrollAnimation() {
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=160%',
+        end: '+=150%',
         scrub: 1.0,
         pin: '.caoz-intro-pin-container',
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onLeave: () => {
+          gsap.set(pinContainer, { autoAlpha: 0, pointerEvents: 'none' });
+        },
+        onEnterBack: () => {
+          gsap.set(pinContainer, { autoAlpha: 1, pointerEvents: 'auto' });
+        },
         onUpdate: (self) => {
-          // Cambiar interactividad de forma suave sin alterar el display
-          if (self.progress > 0.6) {
+          if (self.progress > 0.55) {
             gsap.set(pinContainer, { pointerEvents: 'none' });
           } else {
             gsap.set(pinContainer, { pointerEvents: 'auto' });
@@ -659,12 +664,12 @@ function initHeroScrollAnimation() {
       }
     });
 
-    // Construcción de la animación ultra suave y sin cortes
+    // Construcción de la animación ultra suave y sin cortes ni solapes
     caozScrollTimeline
-      // 1. Controles iniciales (botón play, flecha desliza) se desvanecen suavemente
+      // 1. Indicador desliza se desvanece suavemente
       .to('.desvanecer-salida', { 
         opacity: 0, 
-        duration: 0.25, 
+        duration: 0.2, 
         ease: 'power1.out' 
       }, 0)
 
@@ -678,23 +683,23 @@ function initHeroScrollAnimation() {
       // 3. La página web escala de 0.96 a 1.0 de forma continua
       .to(mainSite, {
         scale: 1,
-        duration: 0.85,
+        duration: 0.75,
         ease: 'power1.out'
       }, 0)
 
-      // 4. La máscara oscura se va difuminando gradualmente durante el zoom
+      // 4. La máscara oscura se va difuminando antes de que el scroll alcance el navbar
       .to('.caoz-mask-dark-layer', {
         opacity: 0,
-        duration: 0.85,
+        duration: 0.75,
         ease: 'power1.inOut'
-      }, 0.05)
+      }, 0)
 
-      // 5. El contenedor del overlay se desvanece por completo antes de terminar el scroll
+      // 5. El contenedor del overlay se desvanece completamente a autoAlpha 0
       .to(pinContainer, {
-        opacity: 0,
+        autoAlpha: 0,
         duration: 0.25,
         ease: 'power1.out'
-      }, 0.75);
+      }, 0.65);
   };
 
   setupAnimation();
@@ -709,19 +714,16 @@ function initHeroScrollAnimation() {
     }, 200);
   });
 
-  // Botón de play e indicador de scroll para saltar la intro suavemente
-  const scrollToMain = () => {
-    window.scrollTo({
-      top: window.innerHeight * 1.8,
-      behavior: 'smooth'
-    });
-  };
-
-  const playBtn = document.getElementById('heroPlayBtn');
+  // Indicador de scroll para entrar suavemente al hacer click
   const scrollIndicator = document.getElementById('heroScrollIndicator');
-
-  if (playBtn) playBtn.addEventListener('click', scrollToMain);
-  if (scrollIndicator) scrollIndicator.addEventListener('click', scrollToMain);
+  if (scrollIndicator) {
+    scrollIndicator.addEventListener('click', () => {
+      window.scrollTo({
+        top: window.innerHeight * 1.6,
+        behavior: 'smooth'
+      });
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

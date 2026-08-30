@@ -43,6 +43,11 @@
   overflow: hidden;
   pointer-events: auto;
   z-index: 150;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
 .caoz-intro-svg {
@@ -57,45 +62,6 @@
 
 .caoz-mask-dark-layer {
   fill: #06080d;
-}
-
-.intro-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.img-reproducir {
-  width: 105px;
-  height: 105px;
-  background: #ffffff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 35px rgba(255, 255, 255, 0.6), 0 0 70px rgba(83, 252, 24, 0.45);
-  cursor: pointer;
-  pointer-events: auto;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-  animation: playBtnPulse 2.5s infinite ease-in-out;
-  margin-top: 10px;
-}
-
-.img-reproducir:hover {
-  transform: scale(1.12);
-  box-shadow: 0 0 50px rgba(255, 255, 255, 0.85), 0 0 90px rgba(83, 252, 24, 0.7);
-}
-
-.img-reproducir .play-icon {
-  width: 30px;
-  height: 30px;
-  margin-left: 6px;
-  object-fit: contain;
 }
 
 .scroll-indicator {
@@ -137,11 +103,6 @@
 @keyframes arrowBounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(6px); }
-}
-
-@keyframes playBtnPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.06); }
 }
 
 .main-site-content {
