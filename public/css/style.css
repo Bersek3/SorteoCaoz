@@ -148,8 +148,7 @@
   position: relative;
   z-index: 10;
   transform-origin: center 20%;
-  will-change: transform, filter;
-  transition: filter 0.2s ease;
+  will-change: transform;
 }
 
 

@@ -626,62 +626,75 @@ function initHeroScrollAnimation() {
     gsap.set(pinContainer, {
       opacity: 1,
       pointerEvents: 'auto',
-      display: 'block'
+      visibility: 'visible',
     });
     gsap.set('.desvanecer-salida', { opacity: 1 });
     gsap.set('.caoz-mask-dark-layer', { opacity: 0.98 });
     gsap.set(mainSite, {
-      scale: 0.94,
-      filter: 'brightness(0.7) blur(2.5px)',
+      scale: 0.96,
       transformOrigin: 'center 20%'
     });
 
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
-    const targetScale = isMobile ? 55 : (isTablet ? 42 : 32);
+    const targetScale = isMobile ? 65 : (isTablet ? 52 : 44);
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
         end: '+=160%',
-        scrub: 1.2,
+        scrub: 1.0,
         pin: '.caoz-intro-pin-container',
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onLeave: () => {
-          gsap.set(pinContainer, { pointerEvents: 'none', display: 'none' });
-          gsap.set(mainSite, { scale: 1, filter: 'none' });
-        },
-        onEnterBack: () => {
-          gsap.set(pinContainer, { pointerEvents: 'auto', display: 'block' });
+        onUpdate: (self) => {
+          // Cambiar interactividad de forma suave sin alterar el display
+          if (self.progress > 0.6) {
+            gsap.set(pinContainer, { pointerEvents: 'none' });
+          } else {
+            gsap.set(pinContainer, { pointerEvents: 'auto' });
+          }
         }
       }
     });
 
+    // Construcción de la animación ultra suave y sin cortes
     caozScrollTimeline
-      .to('.desvanecer-salida', { opacity: 0, duration: 0.35, ease: 'power1.inOut' })
-      .to(mainSite, {
-        scale: 1,
-        filter: 'brightness(1) blur(0px)',
-        duration: 1.2,
-        ease: 'power2.out'
-      }, '<')
+      // 1. Controles iniciales (botón play, flecha desliza) se desvanecen suavemente
+      .to('.desvanecer-salida', { 
+        opacity: 0, 
+        duration: 0.25, 
+        ease: 'power1.out' 
+      }, 0)
+
+      // 2. Zoom progresivo entrando por el corte de las letras CAOZ
       .to(holeGroup, {
         scale: targetScale,
-        duration: 1.2,
+        duration: 1.0,
         ease: 'power2.inOut'
-      }, '<')
+      }, 0)
+
+      // 3. La página web escala de 0.96 a 1.0 de forma continua
+      .to(mainSite, {
+        scale: 1,
+        duration: 0.85,
+        ease: 'power1.out'
+      }, 0)
+
+      // 4. La máscara oscura se va difuminando gradualmente durante el zoom
       .to('.caoz-mask-dark-layer', {
         opacity: 0,
-        duration: 0.3,
-        ease: 'power2.out'
-      }, '-=0.2')
+        duration: 0.85,
+        ease: 'power1.inOut'
+      }, 0.05)
+
+      // 5. El contenedor del overlay se desvanece por completo antes de terminar el scroll
       .to(pinContainer, {
         opacity: 0,
         duration: 0.25,
-        ease: 'power2.out'
-      });
+        ease: 'power1.out'
+      }, 0.75);
   };
 
   setupAnimation();
