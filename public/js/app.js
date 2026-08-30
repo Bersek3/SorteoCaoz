@@ -705,51 +705,14 @@ function initHeroScrollAnimation() {
   };
 
   const playBtn = document.getElementById('heroPlayBtn');
-  const trailerBtn = document.getElementById('heroTrailerBtn');
   const scrollIndicator = document.getElementById('heroScrollIndicator');
 
   if (playBtn) playBtn.addEventListener('click', scrollToMain);
-  if (trailerBtn) trailerBtn.addEventListener('click', scrollToMain);
   if (scrollIndicator) scrollIndicator.addEventListener('click', scrollToMain);
 }
 
-function initGtaPreloader() {
-  const preloader = document.getElementById('gtaPreloader');
-  const progressBar = document.getElementById('gtaProgressBar');
-  const percentText = document.getElementById('gtaLoaderPercent');
-  if (!preloader) return;
-
-  let currentPercent = 0;
-  const interval = setInterval(() => {
-    currentPercent += Math.floor(Math.random() * 20) + 12;
-    if (currentPercent >= 100) {
-      currentPercent = 100;
-      clearInterval(interval);
-      if (progressBar) progressBar.style.width = '100%';
-      if (percentText) percentText.textContent = '100%';
-      setTimeout(() => {
-        preloader.style.opacity = '0';
-        preloader.style.transform = 'scale(1.04)';
-        preloader.style.pointerEvents = 'none';
-        setTimeout(() => {
-          preloader.remove();
-          if (typeof ScrollTrigger !== 'undefined') {
-            ScrollTrigger.refresh();
-          }
-        }, 700);
-      }, 350);
-    } else {
-      if (progressBar) progressBar.style.width = `${currentPercent}%`;
-      if (percentText) percentText.textContent = `${currentPercent}%`;
-    }
-  }, 50);
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
-  // Iniciar Intro Preloader GTA VI
-  initGtaPreloader();
-
-  // Iniciar Animación de Letras CAOZ GTA VI con ScrollTrigger
+  // Iniciar Animación de Letras CAOZ con ScrollTrigger
   initHeroScrollAnimation();
 
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...

@@ -13,57 +13,11 @@
 
 <body>
 
-  <!-- Rockstar Games Style Intro Preloader -->
-  <div id="gtaPreloader" class="rockstar-preloader">
-    <div class="rockstar-loader-content">
-      <div class="rockstar-logo-wrapper">
-        <svg class="rockstar-logo-svg" viewBox="0 0 200 200" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="rStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ff7a00" />
-              <stop offset="50%" stop-color="#ff2a7a" />
-              <stop offset="100%" stop-color="#ff0055" />
-            </linearGradient>
-            <filter id="rGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
-              <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-              </feMerge>
-            </filter>
-          </defs>
-          <!-- Rounded Square Logo Box -->
-          <rect x="15" y="15" width="170" height="170" rx="36" fill="url(#rStarGrad)" stroke="#ffffff" stroke-width="3" filter="url(#rGlow)" />
-          <!-- Letter R -->
-          <path d="M 52 48 L 104 48 C 124 48 138 60 138 78 C 138 94 125 105 107 107 L 148 152 L 120 152 L 82 110 L 76 110 L 76 152 L 52 152 Z M 76 68 L 76 92 L 102 92 C 112 92 116 86 116 80 C 116 74 112 68 102 68 Z" fill="#000000" />
-          <!-- Rockstar 5-Point Star -->
-          <polygon points="126,112 131,126 146,126 134,135 138,149 126,140 114,149 118,135 106,126 121,126" fill="#ffffff" />
-        </svg>
-      </div>
-      <div class="rockstar-progress-container">
-        <div class="rockstar-progress-bar" id="gtaProgressBar"></div>
-      </div>
-      <div class="rockstar-loader-status">
-        <span id="gtaLoaderPercent" class="rockstar-percent">0%</span>
-        <span class="rockstar-status-msg">ROCKSTAR GAMES • CAOZ LIVE</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- GTA VI Style CAOZ Mask Intro (Zoom into real website) -->
+  <!-- CAOZ Letters Cutout Mask Intro (Direct Zoom into real website) -->
   <section class="caoz-intro-wrapper" id="heroIntroSection">
     <div class="caoz-intro-pin-container">
       <svg class="caoz-intro-svg" viewBox="0 0 224 150" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <linearGradient id="gtaVIGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ff7eb3"/>
-            <stop offset="35%" stop-color="#ff758c"/>
-            <stop offset="70%" stop-color="#703b87"/>
-            <stop offset="100%" stop-color="#3c1d5a"/>
-          </linearGradient>
-          <filter id="caozTextGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.9"/>
-          </filter>
           <mask id="caozHoleMask">
             <!-- White solid backdrop -->
             <rect x="-2000" y="-2000" width="5000" height="5000" fill="#ffffff" />
@@ -74,21 +28,14 @@
           </mask>
         </defs>
 
-        <!-- Dark GTA VI backdrop masked with the CAOZ cutout -->
+        <!-- Dark backdrop masked with the CAOZ cutout -->
         <rect x="-2000" y="-2000" width="5000" height="5000" fill="#06080d" mask="url(#caozHoleMask)" class="caoz-mask-dark-layer" />
       </svg>
 
-      <!-- Floating GTA VI Overlay elements that fade out upon entering -->
+      <!-- Floating Controls that fade out upon entering -->
       <div class="intro-overlay desvanecer-salida">
-        <!-- Glowing VI in background of cutout text -->
-        <div class="caoz-floating-vi-bg">
-          <img src="images/logo.svg" alt="CAOZ VI" class="caoz-neon-vi-logo">
-        </div>
         <div class="img-reproducir" id="heroPlayBtn" title="Entrar al Sorteo">
           <img src="images/play.png" alt="Reproducir" class="play-icon">
-        </div>
-        <div class="badge-trailer" id="heroTrailerBtn">
-          <img src="images/watch-trailer.png" alt="Sorteo Oficial Caoz" class="logo-trailer">
         </div>
         <div class="scroll-indicator" id="heroScrollIndicator">
           <span class="scroll-text">DESLIZA PARA ENTRAR</span>

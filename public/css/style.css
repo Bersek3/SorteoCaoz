@@ -59,34 +59,6 @@
   fill: #06080d;
 }
 
-.caoz-floating-vi-bg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 10;
-}
-
-.caoz-neon-vi-logo {
-  width: 320px;
-  max-width: 85vw;
-  opacity: 0.85;
-  filter: drop-shadow(0 0 30px rgba(255, 122, 179, 0.45));
-  animation: viPulse 3s ease-in-out infinite;
-}
-
-@keyframes viPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 25px rgba(255, 122, 179, 0.4));
-  }
-  50% {
-    transform: scale(1.03);
-    filter: drop-shadow(0 0 45px rgba(255, 42, 122, 0.7));
-  }
-}
-
 .intro-overlay {
   position: absolute;
   inset: 0;
@@ -106,17 +78,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 35px rgba(255, 255, 255, 0.6), 0 0 70px rgba(255, 122, 0, 0.45);
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.6), 0 0 70px rgba(83, 252, 24, 0.45);
   cursor: pointer;
   pointer-events: auto;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
   animation: playBtnPulse 2.5s infinite ease-in-out;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .img-reproducir:hover {
   transform: scale(1.12);
-  box-shadow: 0 0 50px rgba(255, 255, 255, 0.85), 0 0 90px rgba(255, 42, 122, 0.7);
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.85), 0 0 90px rgba(83, 252, 24, 0.7);
 }
 
 .img-reproducir .play-icon {
@@ -124,25 +96,6 @@
   height: 30px;
   margin-left: 6px;
   object-fit: contain;
-}
-
-.badge-trailer {
-  position: absolute;
-  bottom: 85px;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: auto;
-  cursor: pointer;
-  transition: transform 0.25s ease;
-}
-
-.badge-trailer:hover {
-  transform: translateX(-50%) scale(1.05);
-}
-
-.logo-trailer {
-  width: 195px;
-  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.9));
 }
 
 .scroll-indicator {
@@ -280,95 +233,6 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
-}
-
-/* ------------------------------------------------------------------- */
-/* OFFICIAL ROCKSTAR GAMES R* STYLE PRELOADER SCREEN                  */
-/* ------------------------------------------------------------------- */
-.rockstar-preloader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000000;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-}
-
-.rockstar-loader-content {
-  text-align: center;
-  max-width: 380px;
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22px;
-}
-
-.rockstar-logo-wrapper {
-  animation: rockstarLogoPulse 2.2s ease-in-out infinite;
-}
-
-.rockstar-logo-svg {
-  display: block;
-  filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.75));
-}
-
-@keyframes rockstarLogoPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 25px rgba(255, 42, 122, 0.75));
-  }
-  50% {
-    transform: scale(1.06);
-    filter: drop-shadow(0 0 45px rgba(255, 122, 0, 0.95));
-  }
-}
-
-.rockstar-progress-container {
-  width: 220px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-
-.rockstar-progress-bar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #ff7a00, #ff2a7a, #53fc18);
-  box-shadow: 0 0 12px rgba(255, 42, 122, 0.9);
-  transition: width 0.12s ease-out;
-}
-
-.rockstar-loader-status {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 2px;
-  font-weight: 700;
-}
-
-.rockstar-percent {
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 900;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-.rockstar-status-msg {
-  color: var(--text-secondary);
-  font-size: 0.68rem;
-  letter-spacing: 2.5px;
 }
 
 /* ------------------------------------------------------------------- */
