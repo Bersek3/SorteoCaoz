@@ -23,25 +23,26 @@
             <rect x="-2000" y="-2000" width="5000" height="5000" fill="#ffffff" />
             <!-- Black cutout hole in the shape of CAOZ letters -->
             <g id="caozHoleGroup" transform="translate(112, 75) scale(1) translate(-112, -75)" fill="#000000">
-              <path d="M47.55 107C54.46 107 57.97 104.39 57.97 99.09L57.97 75.95L37.14 75.95L37.14 90.87C37.14 90.97 37.04 91.07 36.94 91.07L32.23 91.07C32.13 91.07 32.03 90.97 32.03 90.87L32.03 59.23C32.03 59.13 32.13 59.03 32.23 59.03L36.94 59.03C37.04 59.03 37.14 59.13 37.14 59.23L37.14 70.04L57.97 70.04L57.97 51.11C57.97 45.71 54.46 43 47.55 43L21.62 43C14.71 43 11.20 45.71 11.20 51.11L11.20 99.09C11.20 104.39 14.71 107 21.62 107M88.82 67.04L83.71 67.04L83.71 59.23C83.71 59.13 83.81 59.03 83.91 59.03L88.62 59.03C88.72 59.03 88.82 59.13 88.82 59.23M109.65 107L109.65 51.11C109.65 45.71 106.14 43 99.23 43L73.29 43C66.38 43 62.88 45.71 62.88 51.11L62.88 107L83.71 107L83.71 83.06L88.82 83.06L88.82 107M140.49 90.87C140.49 90.97 140.39 91.07 140.29 91.07L135.59 91.07C135.48 91.07 135.38 90.97 135.38 90.87L135.38 59.23C135.38 59.13 135.48 59.03 135.59 59.03L140.29 59.03C140.39 59.03 140.49 59.13 140.49 59.23M150.91 107C157.82 107 161.32 104.39 161.32 99.09L161.32 51.11C161.32 45.71 157.82 43 150.91 43L124.97 43C118.06 43 114.55 45.71 114.55 51.11L114.55 99.09C114.55 104.39 118.06 107 124.97 107M212.80 107L212.80 91.07L191.17 91.07L212.80 57.92L212.80 43L166.03 43L166.03 59.03L188.36 59.03L166.03 90.57L166.03 107"/>
+              <path
+                d="M47.55 107C54.46 107 57.97 104.39 57.97 99.09L57.97 75.95L37.14 75.95L37.14 90.87C37.14 90.97 37.04 91.07 36.94 91.07L32.23 91.07C32.13 91.07 32.03 90.97 32.03 90.87L32.03 59.23C32.03 59.13 32.13 59.03 32.23 59.03L36.94 59.03C37.04 59.03 37.14 59.13 37.14 59.23L37.14 70.04L57.97 70.04L57.97 51.11C57.97 45.71 54.46 43 47.55 43L21.62 43C14.71 43 11.20 45.71 11.20 51.11L11.20 99.09C11.20 104.39 14.71 107 21.62 107M88.82 67.04L83.71 67.04L83.71 59.23C83.71 59.13 83.81 59.03 83.91 59.03L88.62 59.03C88.72 59.03 88.82 59.13 88.82 59.23M109.65 107L109.65 51.11C109.65 45.71 106.14 43 99.23 43L73.29 43C66.38 43 62.88 45.71 62.88 51.11L62.88 107L83.71 107L83.71 83.06L88.82 83.06L88.82 107M140.49 90.87C140.49 90.97 140.39 91.07 140.29 91.07L135.59 91.07C135.48 91.07 135.38 90.97 135.38 90.87L135.38 59.23C135.38 59.13 135.48 59.03 135.59 59.03L140.29 59.03C140.39 59.03 140.49 59.13 140.49 59.23M150.91 107C157.82 107 161.32 104.39 161.32 99.09L161.32 51.11C161.32 45.71 157.82 43 150.91 43L124.97 43C118.06 43 114.55 45.71 114.55 51.11L114.55 99.09C114.55 104.39 118.06 107 124.97 107M212.80 107L212.80 91.07L191.17 91.07L212.80 57.92L212.80 43L166.03 43L166.03 59.03L188.36 59.03L166.03 90.57L166.03 107" />
             </g>
           </mask>
         </defs>
 
         <!-- Dark backdrop masked with the CAOZ cutout -->
-        <rect x="-2000" y="-2000" width="5000" height="5000" fill="#06080d" mask="url(#caozHoleMask)" class="caoz-mask-dark-layer" />
+        <rect x="-2000" y="-2000" width="5000" height="5000" fill="#06080d" mask="url(#caozHoleMask)"
+          class="caoz-mask-dark-layer" />
       </svg>
 
       <!-- Floating Controls that fade out upon entering -->
       <div class="intro-overlay desvanecer-salida">
-        <div class="img-reproducir" id="heroPlayBtn" title="Entrar al Sorteo">
-          <img src="images/play.png" alt="Reproducir" class="play-icon">
-        </div>
-        <div class="scroll-indicator" id="heroScrollIndicator">
-          <span class="scroll-text">DESLIZA PARA ENTRAR</span>
-          <span class="scroll-arrow">▼</span>
-        </div>
+        <img src="images/play.png" alt="Reproducir" class="play-icon">
       </div>
+      <div class="scroll-indicator" id="heroScrollIndicator">
+        <span class="scroll-text">DESLIZA PARA ENTRAR</span>
+        <span class="scroll-arrow">▼</span>
+      </div>
+    </div>
     </div>
   </section>
 
@@ -50,298 +51,301 @@
 
     <!-- Navigation Bar -->
     <header class="navbar">
-    <div class="container nav-content">
-      <a href="index.html" class="brand">
-        <div class="brand-logo">K</div>
-        <div class="brand-title">
-          SORTEO <span class="kick-badge">KICK</span>
-        </div>
-      </a>
-
-      <div class="nav-links">
-        <!-- Botones de Administración (Solo visibles para Streamer y Moderadores) -->
-        <a href="draw.html" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
-          🎰 OBS Live Draw
-        </a>
-        <a href="admin.html" class="nav-btn streamer-btn" id="navAdminBtn"
-          style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
-          👑 Panel Streamer
+      <div class="container nav-content">
+        <a href="index.html" class="brand">
+          <div class="brand-logo">K</div>
+          <div class="brand-title">
+            SORTEO <span class="kick-badge">KICK</span>
+          </div>
         </a>
 
-        <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
-        <div class="kick-login-group" id="navLoginBtn" title="Iniciar Sesión Oficial con Kick">
-          <div class="kick-logo-badge">
-            <img
-              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
-              alt="Kick Logo" class="kick-standalone-logo">
-          </div>
-          <button class="kick-text-btn">
-            Iniciar Sesión con Kick
-          </button>
-        </div>
+        <div class="nav-links">
+          <!-- Botones de Administración (Solo visibles para Streamer y Moderadores) -->
+          <a href="draw.html" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
+            🎰 OBS Live Draw
+          </a>
+          <a href="admin.html" class="nav-btn streamer-btn" id="navAdminBtn"
+            style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
+            👑 Panel Streamer
+          </a>
 
-        <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
-        <div class="user-pill" id="userPillBox" style="display: none; align-items: center; gap: 10px;">
-          <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
-          <div class="user-meta">
-            <span class="user-name" id="navUserName">@Usuario</span>
-            <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
-          </div>
-          <button id="logoutBtn" class="nav-btn"
-            style="padding: 6px 12px; font-size: 0.78rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
-            title="Cerrar Sesión de Kick">
-            🚪 Cerrar Sesión
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="container hero-grid">
-      <!-- Giveaway Info Card -->
-      <div class="hero-card">
-        <div>
-          <div class="hero-badge-tag">
-            <span style="color: var(--kick-green);">●</span> SORTEO OFICIAL EN VIVO
-          </div>
-          <h1 class="hero-title" id="giveawayTitle">Sorteo PlayStation 5 Slim 🎮</h1>
-          <p class="hero-desc">
-            ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el
-            canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte
-            automáticamente en <strong>1 Ticket</strong> para elegir tu número de la suerte.
-          </p>
-        </div>
-
-        <div class="rules-pills">
-          <div class="rule-pill">
-            <span>⭐</span> <strong>1 Sub Propia</strong> = 1 Ticket
-          </div>
-          <div class="rule-pill">
-            <span>🎁</span> <strong>1 Sub Regalada</strong> = 1 Ticket
-          </div>
-          <div class="rule-pill">
-            <span>🎟️</span> <strong>5 Subs Regaladas</strong> = 5 Tickets
-          </div>
-        </div>
-
-        <!-- Countdown Timer Component -->
-        <div class="countdown-box" id="countdownBox">
-          <div class="countdown-title">
-            <span>⏳</span> CUENTA REGRESIVA PARA EL SORTEO EN VIVO
-          </div>
-          <div class="countdown-grid">
-            <div class="countdown-segment">
-              <div class="countdown-num" id="cdDays">00</div>
-              <div class="countdown-label">Días</div>
-            </div>
-            <div class="countdown-divider">:</div>
-            <div class="countdown-segment">
-              <div class="countdown-num" id="cdHours">00</div>
-              <div class="countdown-label">Horas</div>
-            </div>
-            <div class="countdown-divider">:</div>
-            <div class="countdown-segment">
-              <div class="countdown-num" id="cdMinutes">00</div>
-              <div class="countdown-label">Minutos</div>
-            </div>
-            <div class="countdown-divider">:</div>
-            <div class="countdown-segment">
-              <div class="countdown-num" id="cdSeconds">00</div>
-              <div class="countdown-label">Segundos</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- User Wallet / Ticket HUD Card -->
-      <div class="wallet-card" id="walletCard">
-
-        <!-- Estado: Usuario NO logueado -->
-        <div id="walletLoggedOut" style="text-align: center; padding: 20px 0;">
-          <div style="font-size: 3rem; margin-bottom: 10px;">🎟️</div>
-          <h3 style="font-size: 1.2rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
-          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
-            Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus
-            números.
-          </p>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
-            <div class="kick-logo-badge-lg">
+          <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
+          <div class="kick-login-group" id="navLoginBtn" title="Iniciar Sesión Oficial con Kick">
+            <div class="kick-logo-badge">
               <img
                 src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
-                alt="Kick Logo" class="kick-standalone-logo-lg">
+                alt="Kick Logo" class="kick-standalone-logo">
             </div>
-            <button class="btn btn-primary" id="walletLoginBtn"
-              style="flex: 1; padding: 14px 20px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+            <button class="kick-text-btn">
               Iniciar Sesión con Kick
             </button>
           </div>
-        </div>
 
-        <!-- Estado: Usuario SÍ logueado -->
-        <div id="walletLoggedIn"
-          style="display: none; flex-direction: column; height: 100%; justify-content: space-between;">
-          <div class="wallet-header">
-            <div class="wallet-user-info">
-              <img src="" alt="Kick Avatar" class="wallet-avatar-big" id="walletAvatar">
-              <div>
-                <div class="wallet-user-name">
-                  <span id="walletUsername">@Usuario</span>
-                  <span class="verified-icon" title="Cuenta de Kick Verificada">✓</span>
-                </div>
-                <span style="font-size: 0.78rem; color: var(--kick-green);" id="walletSubStatus">Usuario
-                  Conectado</span>
-              </div>
+          <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
+          <div class="user-pill" id="userPillBox" style="display: none; align-items: center; gap: 10px;">
+            <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
+            <div class="user-meta">
+              <span class="user-name" id="navUserName">@Usuario</span>
+              <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
             </div>
-            <span class="tag-badge tag-green" id="userRoleBadge">Espectador</span>
-          </div>
-
-          <div class="wallet-stats-grid" style="margin-bottom: 12px;">
-            <div class="stat-box">
-              <div class="stat-num" id="statOwnSubs">0</div>
-              <div class="stat-label">Subs Propias</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-num" id="statGiftedSubs">0</div>
-              <div class="stat-label">Subs Regaladas</div>
-            </div>
-            <div class="stat-box highlight-box">
-              <div class="stat-num" id="statAvailableTickets">0</div>
-              <div class="stat-label">Tickets Libres</div>
-            </div>
-          </div>
-
-          <div class="wallet-actions" style="display: flex; gap: 10px;">
-            <button class="btn btn-primary" style="flex: 1;" id="autoPickBtn">
-              🎲 Elejir números al azar
-            </button>
-            <button class="btn btn-secondary" id="walletLogoutBtn"
-              style="padding: 10px 16px; border-color: rgba(255, 51, 102, 0.4); color: var(--danger-red);"
-              title="Cerrar Sesión">
-              🚪 Salir
+            <button id="logoutBtn" class="nav-btn"
+              style="padding: 6px 12px; font-size: 0.78rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+              title="Cerrar Sesión de Kick">
+              🚪 Cerrar Sesión
             </button>
           </div>
         </div>
-
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- Number Selection Section -->
-  <section class="cinema-section">
-    <div class="container">
-      <div class="cinema-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container hero-grid">
+        <!-- Giveaway Info Card -->
+        <div class="hero-card">
+          <div>
+            <div class="hero-badge-tag">
+              <span style="color: var(--kick-green);">●</span> SORTEO OFICIAL EN VIVO
+            </div>
+            <h1 class="hero-title" id="giveawayTitle">Sorteo PlayStation 5 Slim 🎮</h1>
+            <p class="hero-desc">
+              ¡Participa en el sorteo exclusivo para la comunidad de Kick! Cada suscripción que compres o regales en el
+              canal de <strong id="channelNameText" style="color: var(--kick-green);">Caoz</strong> se convierte
+              automáticamente en <strong>1 Ticket</strong> para elegir tu número de la suerte.
+            </p>
+          </div>
 
-        <!-- Live Stream Header -->
-        <div class="screen-wrapper">
-          <div class="cinema-screen-container">
-            <div class="screen-header-bar">
-              <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="stream-status-pill">
-                  <span class="live-dot"></span> EN VIVO EN KICK
+          <div class="rules-pills">
+            <div class="rule-pill">
+              <span>⭐</span> <strong>1 Sub Propia</strong> = 1 Ticket
+            </div>
+            <div class="rule-pill">
+              <span>🎁</span> <strong>1 Sub Regalada</strong> = 1 Ticket
+            </div>
+            <div class="rule-pill">
+              <span>🎟️</span> <strong>5 Subs Regaladas</strong> = 5 Tickets
+            </div>
+          </div>
+
+          <!-- Countdown Timer Component -->
+          <div class="countdown-box" id="countdownBox">
+            <div class="countdown-title">
+              <span>⏳</span> CUENTA REGRESIVA PARA EL SORTEO EN VIVO
+            </div>
+            <div class="countdown-grid">
+              <div class="countdown-segment">
+                <div class="countdown-num" id="cdDays">00</div>
+                <div class="countdown-label">Días</div>
+              </div>
+              <div class="countdown-divider">:</div>
+              <div class="countdown-segment">
+                <div class="countdown-num" id="cdHours">00</div>
+                <div class="countdown-label">Horas</div>
+              </div>
+              <div class="countdown-divider">:</div>
+              <div class="countdown-segment">
+                <div class="countdown-num" id="cdMinutes">00</div>
+                <div class="countdown-label">Minutos</div>
+              </div>
+              <div class="countdown-divider">:</div>
+              <div class="countdown-segment">
+                <div class="countdown-num" id="cdSeconds">00</div>
+                <div class="countdown-label">Segundos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Wallet / Ticket HUD Card -->
+        <div class="wallet-card" id="walletCard">
+
+          <!-- Estado: Usuario NO logueado -->
+          <div id="walletLoggedOut" style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🎟️</div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
+              Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir
+              tus
+              números.
+            </p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+              <div class="kick-logo-badge-lg">
+                <img
+                  src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+                  alt="Kick Logo" class="kick-standalone-logo-lg">
+              </div>
+              <button class="btn btn-primary" id="walletLoginBtn"
+                style="flex: 1; padding: 14px 20px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+                Iniciar Sesión con Kick
+              </button>
+            </div>
+          </div>
+
+          <!-- Estado: Usuario SÍ logueado -->
+          <div id="walletLoggedIn"
+            style="display: none; flex-direction: column; height: 100%; justify-content: space-between;">
+            <div class="wallet-header">
+              <div class="wallet-user-info">
+                <img src="" alt="Kick Avatar" class="wallet-avatar-big" id="walletAvatar">
+                <div>
+                  <div class="wallet-user-name">
+                    <span id="walletUsername">@Usuario</span>
+                    <span class="verified-icon" title="Cuenta de Kick Verificada">✓</span>
+                  </div>
+                  <span style="font-size: 0.78rem; color: var(--kick-green);" id="walletSubStatus">Usuario
+                    Conectado</span>
                 </div>
-                <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">
-                  Transmisión Oficial de <span style="color: var(--kick-green);">@Caoz</span>
-                </span>
               </div>
+              <span class="tag-badge tag-green" id="userRoleBadge">Espectador</span>
+            </div>
 
-              <div class="stream-header-actions" style="display: flex; gap: 10px; align-items: center;">
-                <button class="btn btn-secondary stream-toggle-btn" style="padding: 4px 12px; font-size: 0.75rem;"
-                  id="toggleStreamBtn">
-                  📺 Ocultar / Ver Stream
-                </button>
-                <a href="https://kick.com/caoz" target="_blank" class="nav-btn streamer-btn stream-kick-link"
-                  style="padding: 4px 12px; font-size: 0.75rem;">
-                  Ir a Kick.com/Caoz ↗
-                </a>
+            <div class="wallet-stats-grid" style="margin-bottom: 12px;">
+              <div class="stat-box">
+                <div class="stat-num" id="statOwnSubs">0</div>
+                <div class="stat-label">Subs Propias</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-num" id="statGiftedSubs">0</div>
+                <div class="stat-label">Subs Regaladas</div>
+              </div>
+              <div class="stat-box highlight-box">
+                <div class="stat-num" id="statAvailableTickets">0</div>
+                <div class="stat-label">Tickets Libres</div>
               </div>
             </div>
 
-            <!-- Kick Player Embed -->
-            <div class="kick-stream-iframe-wrapper" id="streamPlayerBox">
-              <iframe src="https://player.kick.com/caoz?autoplay=true&muted=true" frameborder="0" scrolling="no"
-                allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen="true">
-              </iframe>
+            <div class="wallet-actions" style="display: flex; gap: 10px;">
+              <button class="btn btn-primary" style="flex: 1;" id="autoPickBtn">
+                🎲 Elejir números al azar
+              </button>
+              <button class="btn btn-secondary" id="walletLogoutBtn"
+                style="padding: 10px 16px; border-color: rgba(255, 51, 102, 0.4); color: var(--danger-red);"
+                title="Cerrar Sesión">
+                🚪 Salir
+              </button>
             </div>
           </div>
-          <div class="screen-light-rays"></div>
+
         </div>
-
-        <!-- Bloque de Selección Bloqueada (Visible solo si NO está logueado) -->
-        <div id="seatsLockedBox"
-          style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
-          <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
-          <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
-            SELECCIÓN DE NÚMEROS BLOQUEADA
-          </h2>
-          <p
-            style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
-            Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar
-            sesión con tu cuenta de Kick.
-          </p>
-          <div style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto;">
-            <div class="kick-logo-badge-lg">
-              <img
-                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
-                alt="Kick Logo" class="kick-standalone-logo-lg">
-            </div>
-            <button class="btn btn-primary" id="lockedLoginBtn"
-              style="padding: 14px 28px; font-size: 1.05rem; font-weight: 800; border-radius: 12px;">
-              Iniciar Sesión con Kick para Elegir Números
-            </button>
-          </div>
-        </div>
-
-        <!-- Área de Selección de Números (Visible solo si ESTÁ logueado con Kick) -->
-        <div id="seatsSelectionArea" style="display: none;">
-          <!-- Toolbar & Legend -->
-          <div class="cinema-toolbar">
-            <div class="seat-legend">
-              <div class="legend-item">
-                <div class="legend-sample sample-free"></div>
-                <span>Disponible</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-sample sample-mine"></div>
-                <span>Mis Números</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-sample sample-taken"></div>
-                <span>Ocupado</span>
-              </div>
-            </div>
-
-            <div class="toolbar-filters">
-              <button class="filter-btn active" data-filter="all">Todos (<span id="countTotalSeats">200</span>)</button>
-              <button class="filter-btn" data-filter="free">🟢 Libres (<span id="countFreeSeats">0</span>)</button>
-              <button class="filter-btn" data-filter="mine">⚡ Míos (<span id="countMySeats">0</span>)</button>
-              <button class="filter-btn" data-filter="taken">🔒 Ocupados (<span id="countTakenSeats">0</span>)</button>
-              <input type="text" class="search-input" id="searchSeatInput" placeholder="Buscar número #...">
-            </div>
-          </div>
-
-          <!-- Interactive Numbers Grid -->
-          <div class="seats-grid-wrapper">
-            <div class="seats-grid" id="seatsGrid">
-              <!-- Números generados dinámicamente con JS -->
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Floating Ticket Counter Bar -->
-  <div class="floating-action-bar" id="floatingBar" style="display: none;">
-    <div class="action-bar-text">
-      Tienes <strong id="floatingAvailableCount">0</strong> tickets disponibles para elegir tus números.
+    <!-- Number Selection Section -->
+    <section class="cinema-section">
+      <div class="container">
+        <div class="cinema-container">
+
+          <!-- Live Stream Header -->
+          <div class="screen-wrapper">
+            <div class="cinema-screen-container">
+              <div class="screen-header-bar">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="stream-status-pill">
+                    <span class="live-dot"></span> EN VIVO EN KICK
+                  </div>
+                  <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">
+                    Transmisión Oficial de <span style="color: var(--kick-green);">@Caoz</span>
+                  </span>
+                </div>
+
+                <div class="stream-header-actions" style="display: flex; gap: 10px; align-items: center;">
+                  <button class="btn btn-secondary stream-toggle-btn" style="padding: 4px 12px; font-size: 0.75rem;"
+                    id="toggleStreamBtn">
+                    📺 Ocultar / Ver Stream
+                  </button>
+                  <a href="https://kick.com/caoz" target="_blank" class="nav-btn streamer-btn stream-kick-link"
+                    style="padding: 4px 12px; font-size: 0.75rem;">
+                    Ir a Kick.com/Caoz ↗
+                  </a>
+                </div>
+              </div>
+
+              <!-- Kick Player Embed -->
+              <div class="kick-stream-iframe-wrapper" id="streamPlayerBox">
+                <iframe src="https://player.kick.com/caoz?autoplay=true&muted=true" frameborder="0" scrolling="no"
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen="true">
+                </iframe>
+              </div>
+            </div>
+            <div class="screen-light-rays"></div>
+          </div>
+
+          <!-- Bloque de Selección Bloqueada (Visible solo si NO está logueado) -->
+          <div id="seatsLockedBox"
+            style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
+              SELECCIÓN DE NÚMEROS BLOQUEADA
+            </h2>
+            <p
+              style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
+              Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar
+              sesión con tu cuenta de Kick.
+            </p>
+            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto;">
+              <div class="kick-logo-badge-lg">
+                <img
+                  src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+                  alt="Kick Logo" class="kick-standalone-logo-lg">
+              </div>
+              <button class="btn btn-primary" id="lockedLoginBtn"
+                style="padding: 14px 28px; font-size: 1.05rem; font-weight: 800; border-radius: 12px;">
+                Iniciar Sesión con Kick para Elegir Números
+              </button>
+            </div>
+          </div>
+
+          <!-- Área de Selección de Números (Visible solo si ESTÁ logueado con Kick) -->
+          <div id="seatsSelectionArea" style="display: none;">
+            <!-- Toolbar & Legend -->
+            <div class="cinema-toolbar">
+              <div class="seat-legend">
+                <div class="legend-item">
+                  <div class="legend-sample sample-free"></div>
+                  <span>Disponible</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-sample sample-mine"></div>
+                  <span>Mis Números</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-sample sample-taken"></div>
+                  <span>Ocupado</span>
+                </div>
+              </div>
+
+              <div class="toolbar-filters">
+                <button class="filter-btn active" data-filter="all">Todos (<span
+                    id="countTotalSeats">200</span>)</button>
+                <button class="filter-btn" data-filter="free">🟢 Libres (<span id="countFreeSeats">0</span>)</button>
+                <button class="filter-btn" data-filter="mine">⚡ Míos (<span id="countMySeats">0</span>)</button>
+                <button class="filter-btn" data-filter="taken">🔒 Ocupados (<span
+                    id="countTakenSeats">0</span>)</button>
+                <input type="text" class="search-input" id="searchSeatInput" placeholder="Buscar número #...">
+              </div>
+            </div>
+
+            <!-- Interactive Numbers Grid -->
+            <div class="seats-grid-wrapper">
+              <div class="seats-grid" id="seatsGrid">
+                <!-- Números generados dinámicamente con JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Floating Ticket Counter Bar -->
+    <div class="floating-action-bar" id="floatingBar" style="display: none;">
+      <div class="action-bar-text">
+        Tienes <strong id="floatingAvailableCount">0</strong> tickets disponibles para elegir tus números.
+      </div>
+      <button class="btn btn-primary" id="floatingAutoPickBtn">
+        🎲 Elejir números al azar
+      </button>
     </div>
-    <button class="btn btn-primary" id="floatingAutoPickBtn">
-      🎲 Elejir números al azar
-    </button>
-  </div>
 
   </div> <!-- End #mainSiteContent -->
 
