@@ -596,6 +596,127 @@ function hashString(str) {
 // -------------------------------------------------------------------
 // 10. Event Listeners & Inicio OAuth 2.0 PKCE & GTA VI Preloader
 // -------------------------------------------------------------------
+function getCaozMaskSettings() {
+  const width = window.innerWidth;
+  if (width <= 768) {
+    return {
+      posInicialMascara: "50% -1500vh",
+      tamanoInicialMascara: "3100% 3100%",
+      posMascara: "50% 7vh",
+      tamanoMascara: "55% 55%",
+    };
+  }
+  if (width <= 1024) {
+    return {
+      posInicialMascara: "50% -1700vh",
+      tamanoInicialMascara: "3500% 3500%",
+      posMascara: "50% 17vh",
+      tamanoMascara: "35% 35%",
+    };
+  }
+  return {
+    posInicialMascara: "50% 22%",
+    tamanoInicialMascara: "3500% 3500%",
+    posMascara: "50% 22%",
+    tamanoMascara: "20% 20%",
+  };
+}
+
+let caozScrollTimeline = null;
+
+function initHeroScrollAnimation() {
+  const heroSection = document.getElementById('heroIntroSection');
+  const contenedorMascara = document.querySelector('.contenedor-mascara');
+  if (!heroSection || !contenedorMascara) return;
+
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const setupAnimation = () => {
+    if (caozScrollTimeline) {
+      caozScrollTimeline.kill();
+    }
+
+    const settings = getCaozMaskSettings();
+
+    // Establecer estado inicial de máscara
+    gsap.set(contenedorMascara, {
+      maskPosition: settings.posInicialMascara,
+      WebkitMaskPosition: settings.posInicialMascara,
+      maskSize: settings.tamanoInicialMascara,
+      WebkitMaskSize: settings.tamanoInicialMascara,
+      opacity: 1,
+    });
+
+    gsap.set('.escalar-salida', { scale: 1.25 });
+    gsap.set('.desvanecer-salida', { opacity: 1 });
+    gsap.set('.logo-superpuesto', { opacity: 0 });
+
+    caozScrollTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.seccion-principal',
+        start: 'top top',
+        end: '+=180%',
+        scrub: 1.5,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      }
+    });
+
+    caozScrollTimeline
+      .to('.desvanecer-salida', { opacity: 0, duration: 0.6, ease: 'power1.inOut' })
+      .to('.escalar-salida', { scale: 1, duration: 1.2, ease: 'power1.inOut' }, '<')
+      .to(contenedorMascara, {
+        maskSize: settings.tamanoMascara,
+        WebkitMaskSize: settings.tamanoMascara,
+        maskPosition: settings.posMascara,
+        WebkitMaskPosition: settings.posMascara,
+        duration: 1.2,
+        ease: 'power1.inOut'
+      }, '<')
+      .to('.logo-superpuesto', { opacity: 1, duration: 0.5, ease: 'power1.in' })
+      .to([contenedorMascara, '.logo-superpuesto'], {
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+      });
+  };
+
+  setupAnimation();
+
+  // Reajustar en cambio de tamaño de ventana con debounce
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      setupAnimation();
+      ScrollTrigger.refresh();
+    }, 200);
+  });
+
+  // Botón de play e indicador de scroll para saltar la intro suavemente
+  const scrollToMain = () => {
+    const mainPos = heroSection.offsetHeight * 2.2;
+    window.scrollTo({
+      top: mainPos,
+      behavior: 'smooth'
+    });
+  };
+
+  const playBtn = document.getElementById('heroPlayBtn');
+  const trailerBtn = document.getElementById('heroTrailerBtn');
+  const scrollIndicator = document.getElementById('heroScrollIndicator');
+
+  if (playBtn) playBtn.addEventListener('click', scrollToMain);
+  if (trailerBtn) trailerBtn.addEventListener('click', scrollToMain);
+  if (scrollIndicator) scrollIndicator.addEventListener('click', scrollToMain);
+}
+
 function initGtaPreloader() {
   const preloader = document.getElementById('gtaPreloader');
   const progressBar = document.getElementById('gtaProgressBar');
@@ -614,7 +735,12 @@ function initGtaPreloader() {
         preloader.style.opacity = '0';
         preloader.style.transform = 'scale(1.04)';
         preloader.style.pointerEvents = 'none';
-        setTimeout(() => preloader.remove(), 700);
+        setTimeout(() => {
+          preloader.remove();
+          if (typeof ScrollTrigger !== 'undefined') {
+            ScrollTrigger.refresh();
+          }
+        }, 700);
       }, 350);
     } else {
       if (progressBar) progressBar.style.width = `${currentPercent}%`;
@@ -626,6 +752,9 @@ function initGtaPreloader() {
 document.addEventListener('DOMContentLoaded', async () => {
   // Iniciar Intro Preloader GTA VI
   initGtaPreloader();
+
+  // Iniciar Animación de Letras CAOZ GTA VI con ScrollTrigger
+  initHeroScrollAnimation();
 
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
   if (typeof processKickOAuthCallback === 'function') {

@@ -16,3 +16,5 @@ env/
 # Archivos de Sistema
 .DS_Store
 Thumbs.db
+scratch/
+

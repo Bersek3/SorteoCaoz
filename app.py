@@ -536,6 +536,10 @@ if os.path.exists(os.path.join(PUBLIC_DIR, "css")):
     app.mount("/css", StaticFiles(directory=os.path.join(PUBLIC_DIR, "css")), name="css")
 if os.path.exists(os.path.join(PUBLIC_DIR, "js")):
     app.mount("/js", StaticFiles(directory=os.path.join(PUBLIC_DIR, "js")), name="js")
+if os.path.exists(os.path.join(PUBLIC_DIR, "images")):
+    app.mount("/images", StaticFiles(directory=os.path.join(PUBLIC_DIR, "images")), name="images")
+if os.path.exists(os.path.join(PUBLIC_DIR, "fonts")):
+    app.mount("/fonts", StaticFiles(directory=os.path.join(PUBLIC_DIR, "fonts")), name="fonts")
 app.mount("/static", StaticFiles(directory=PUBLIC_DIR), name="static")
 
 @app.get("/favicon.ico", include_in_schema=False)
