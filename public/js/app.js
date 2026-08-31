@@ -616,10 +616,13 @@ let caozScrollTimeline = null;
 
 function initHeroScrollAnimation() {
   const introWrapper = document.getElementById('heroIntroSection');
-  const holeGroup = document.getElementById('caozHoleGroup');
+  const desktopGroup = document.getElementById('caozHoleGroupDesktop');
+  const mobileGroup = document.getElementById('caozHoleGroupMobile');
+  const legacyGroup = document.getElementById('caozHoleGroup');
+  const introSvg = document.querySelector('.caoz-intro-svg');
   const pinContainer = document.querySelector('.caoz-intro-pin-container');
   const mainSite = document.getElementById('mainSiteContent');
-  if (!introWrapper || !holeGroup) return;
+  if (!introWrapper || (!desktopGroup && !legacyGroup && !mobileGroup)) return;
 
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
@@ -644,9 +647,35 @@ function initHeroScrollAnimation() {
       mainNavbar.classList.remove('navbar-solid');
     }
 
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth <= 1024 && !isMobile;
+
+    let activeHoleGroup;
+    let originX, originY;
+    let targetScale;
+
+    if (isMobile && mobileGroup) {
+      if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 256');
+      if (desktopGroup) desktopGroup.style.display = 'none';
+      if (legacyGroup) legacyGroup.style.display = 'none';
+      mobileGroup.style.display = 'block';
+      activeHoleGroup = mobileGroup;
+      originX = 112;
+      originY = 128;
+      targetScale = 52;
+    } else {
+      if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 150');
+      if (mobileGroup) mobileGroup.style.display = 'none';
+      if (desktopGroup) desktopGroup.style.display = 'block';
+      activeHoleGroup = desktopGroup || legacyGroup;
+      originX = 112;
+      originY = 75;
+      targetScale = isTablet ? 52 : 44;
+    }
+
     // Centrar y preparar el grupo SVG del recorte de CAOZ
-    gsap.set(holeGroup, {
-      transformOrigin: "112px 75px",
+    gsap.set(activeHoleGroup, {
+      transformOrigin: `${originX}px ${originY}px`,
       scale: 1,
     });
 
@@ -661,10 +690,6 @@ function initHeroScrollAnimation() {
       scale: 0.96,
       transformOrigin: 'center 20%'
     });
-
-    const isMobile = window.innerWidth <= 768;
-    const isTablet = window.innerWidth <= 1024 && !isMobile;
-    const targetScale = isMobile ? 65 : (isTablet ? 52 : 44);
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
@@ -711,7 +736,7 @@ function initHeroScrollAnimation() {
       }, 0)
 
       // 2. Zoom progresivo entrando por el corte de las letras CAOZ
-      .to(holeGroup, {
+      .to(activeHoleGroup, {
         scale: targetScale,
         duration: 1.0,
         ease: 'power2.inOut'
