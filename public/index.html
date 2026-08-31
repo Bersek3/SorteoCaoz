@@ -163,22 +163,19 @@
         <div class="wallet-card" id="walletCard">
 
           <!-- Estado: Usuario NO logueado -->
-          <div id="walletLoggedOut" style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 3rem; margin-bottom: 10px;">🎟️</div>
-            <h3 style="font-size: 1.2rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
-            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
-              Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir
-              tus
-              números.
+          <div id="walletLoggedOut" class="wallet-cta-box">
+            <div style="font-size: 2.8rem; margin-bottom: 8px;">🎟️</div>
+            <h3 style="font-size: 1.3rem; margin-bottom: 8px;">¿Quieres participar en el Sorteo?</h3>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 18px; line-height: 1.5;">
+              Inicia sesión con tu cuenta oficial de Kick para consultar tus suscripciones, saldo de tickets y elegir tus números de la suerte.
             </p>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;">
+            <div class="wallet-cta-actions">
               <div class="kick-logo-badge-lg">
                 <img
                   src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
                   alt="Kick Logo" class="kick-standalone-logo-lg">
               </div>
-              <button class="btn btn-primary" id="walletLoginBtn"
-                style="flex: 1; padding: 14px 20px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+              <button class="btn btn-primary" id="walletLoginBtn" style="flex: 1;">
                 Iniciar Sesión con Kick
               </button>
             </div>
@@ -242,22 +239,22 @@
           <div class="screen-wrapper">
             <div class="cinema-screen-container">
               <div class="screen-header-bar">
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <div class="stream-status-pill">
                     <span class="live-dot"></span> EN VIVO EN KICK
                   </div>
-                  <span style="font-weight: 800; font-size: 0.88rem; color: #ffffff;">
+                  <span style="font-family: var(--font-gta-sub); font-weight: 800; font-size: 0.88rem; color: #ffffff;">
                     Transmisión Oficial de <span style="color: var(--kick-green);">@Caoz</span>
                   </span>
                 </div>
 
                 <div class="stream-header-actions" style="display: flex; gap: 10px; align-items: center;">
-                  <button class="btn btn-secondary stream-toggle-btn" style="padding: 4px 12px; font-size: 0.75rem;"
+                  <button class="btn btn-secondary stream-toggle-btn" style="padding: 6px 12px; font-size: 0.78rem;"
                     id="toggleStreamBtn">
                     📺 Ocultar / Ver Stream
                   </button>
                   <a href="https://kick.com/caoz" target="_blank" class="nav-btn streamer-btn stream-kick-link"
-                    style="padding: 4px 12px; font-size: 0.75rem;">
+                    style="padding: 6px 12px; font-size: 0.78rem;">
                     Ir a Kick.com/Caoz ↗
                   </a>
                 </div>
@@ -274,25 +271,21 @@
           </div>
 
           <!-- Bloque de Selección Bloqueada (Visible solo si NO está logueado) -->
-          <div id="seatsLockedBox"
-            style="background: rgba(12, 17, 28, 0.95); border: 2px dashed rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px;">
-            <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
-            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 8px; color: #ffffff;">
+          <div id="seatsLockedBox" class="seats-locked-box">
+            <div style="font-size: 2.8rem; margin-bottom: 10px;">🔒</div>
+            <h2 style="font-size: 1.6rem; margin-bottom: 8px; color: #ffffff;">
               SELECCIÓN DE NÚMEROS BLOQUEADA
             </h2>
-            <p
-              style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.5;">
-              Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar
-              sesión con tu cuenta de Kick.
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 20px; font-size: 0.95rem; line-height: 1.55;">
+              Para ver el mapa interactivo y elegir tus números para la <strong>PlayStation 5</strong>, debes iniciar sesión con tu cuenta de Kick.
             </p>
-            <div style="display: inline-flex; align-items: center; justify-content: center; gap: 12px; margin: 0 auto;">
+            <div class="seats-locked-actions">
               <div class="kick-logo-badge-lg">
                 <img
                   src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
                   alt="Kick Logo" class="kick-standalone-logo-lg">
               </div>
-              <button class="btn btn-primary" id="lockedLoginBtn"
-                style="padding: 14px 28px; font-size: 1.05rem; font-weight: 800; border-radius: 12px;">
+              <button class="btn btn-primary" id="lockedLoginBtn">
                 Iniciar Sesión con Kick para Elegir Números
               </button>
             </div>
@@ -353,36 +346,31 @@
   </div> <!-- End #mainSiteContent -->
 
   <!-- Kick Login Modal -->
-  <div id="loginModal"
-    style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
-    <div
-      style="background: var(--bg-card); border: 2px solid var(--kick-green); box-shadow: 0 0 40px var(--kick-green-glow), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 32px; width: 100%; max-width: 440px; position: relative; text-align: center; animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-      <button id="closeLoginModal"
-        style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
+  <div id="loginModal" class="gta-modal-overlay" style="display: none;">
+    <div class="gta-modal-card">
+      <button id="closeLoginModal" class="gta-modal-close" title="Cerrar">✕</button>
 
-      <div
-        style="display: inline-block; background: #080c14; border: 2px solid rgba(83, 252, 24, 0.4); border-radius: 20px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(83, 252, 24, 0.25);">
+      <div class="gta-modal-logo-wrapper">
         <img
           src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
-          alt="Kick Logo"
-          style="width: 48px; height: 48px; display: block; filter: drop-shadow(0 0 12px rgba(83, 252, 24, 0.9));">
+          alt="Kick Logo" class="gta-modal-logo">
       </div>
-      <h3 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 6px;">Iniciar Sesión con Kick</h3>
-      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 24px;">
+      <h3 style="font-size: 1.5rem; margin-bottom: 6px;">Iniciar Sesión con Kick</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 22px; line-height: 1.5;">
         Ingresa tu nombre de usuario oficial de <strong>Kick</strong> para sincronizar tus tickets y elegir tus números.
       </p>
 
       <form id="loginForm" onsubmit="return false;">
-        <div style="position: relative; margin-bottom: 20px;">
+        <div style="position: relative; margin-bottom: 18px;">
           <span
-            style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--kick-green); font-weight: 800; font-size: 1.1rem;">@</span>
+            style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--kick-green); font-family: var(--font-gta); font-size: 1.2rem;">@</span>
           <input type="text" id="kickUsernameInput" placeholder="TuUsuarioDeKick"
-            style="width: 100%; padding: 14px 16px 14px 38px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 1rem; font-weight: 700; outline: none;"
+            style="width: 100%; padding: 13px 16px 13px 38px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 0.95rem; font-weight: 700; outline: none;"
             required autocomplete="off">
         </div>
 
         <button type="submit" class="btn btn-primary" id="submitLoginBtn"
-          style="width: 100%; padding: 14px; font-size: 1rem; font-weight: 800; border-radius: 12px;">
+          style="width: 100%; padding: 14px; font-size: 1rem;">
           🚀 Entrar a la Sala del Sorteo
         </button>
       </form>
