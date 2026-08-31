@@ -633,9 +633,15 @@ function initHeroScrollAnimation() {
   }
   window.scrollTo(0, 0);
 
+  const mainNavbar = document.getElementById('mainNavbar') || document.querySelector('.navbar');
+
   const setupAnimation = () => {
     if (caozScrollTimeline) {
       caozScrollTimeline.kill();
+    }
+
+    if (mainNavbar) {
+      mainNavbar.classList.remove('navbar-solid');
     }
 
     // Centrar y preparar el grupo SVG del recorte de CAOZ
@@ -671,15 +677,25 @@ function initHeroScrollAnimation() {
         invalidateOnRefresh: true,
         onLeave: () => {
           gsap.set(pinContainer, { autoAlpha: 0, pointerEvents: 'none' });
+          if (mainNavbar) mainNavbar.classList.add('navbar-solid');
         },
         onEnterBack: () => {
           gsap.set(pinContainer, { autoAlpha: 1, pointerEvents: 'auto' });
+          if (mainNavbar) mainNavbar.classList.remove('navbar-solid');
         },
         onUpdate: (self) => {
           if (self.progress > 0.55) {
             gsap.set(pinContainer, { pointerEvents: 'none' });
           } else {
             gsap.set(pinContainer, { pointerEvents: 'auto' });
+          }
+
+          if (mainNavbar) {
+            if (self.progress >= 0.82) {
+              mainNavbar.classList.add('navbar-solid');
+            } else {
+              mainNavbar.classList.remove('navbar-solid');
+            }
           }
         }
       }

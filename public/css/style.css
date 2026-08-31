@@ -245,12 +245,35 @@ h1, h2, h3, h4, .modal-title, .draw-title {
   position: sticky;
   top: 0;
   z-index: 100;
+  padding: 10px 0;
+  background: rgba(8, 11, 18, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  background: rgba(8, 11, 18, 0.92);
   border-bottom: 2px solid rgba(255, 42, 122, 0.25);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 42, 122, 0.1);
-  padding: 10px 0;
+  transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              -webkit-backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Transparente por defecto mientras transcurre la animación de letras CAOZ */
+.has-hero-intro .navbar {
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Aplica el fondo sólido del navbar cuando termina el slide de la animación */
+.has-hero-intro .navbar.navbar-solid {
+  background: rgba(8, 11, 18, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 2px solid rgba(255, 42, 122, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 42, 122, 0.1);
 }
 
 .nav-content {
