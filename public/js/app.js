@@ -654,18 +654,22 @@ function initHeroScrollAnimation() {
     let originX, originY;
     let targetScale;
 
+    const mobileLogoBorder = document.getElementById('caozMobileLogoBorder');
+
     if (isMobile && mobileGroup) {
       if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 256');
       if (desktopGroup) desktopGroup.style.display = 'none';
       if (legacyGroup) legacyGroup.style.display = 'none';
       mobileGroup.style.display = 'block';
+      if (mobileLogoBorder) mobileLogoBorder.style.display = 'block';
       activeHoleGroup = mobileGroup;
       originX = 112;
       originY = 128;
-      targetScale = 52;
+      targetScale = 46;
     } else {
       if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 150');
       if (mobileGroup) mobileGroup.style.display = 'none';
+      if (mobileLogoBorder) mobileLogoBorder.style.display = 'none';
       if (desktopGroup) desktopGroup.style.display = 'block';
       activeHoleGroup = desktopGroup || legacyGroup;
       originX = 112;
@@ -678,6 +682,14 @@ function initHeroScrollAnimation() {
       transformOrigin: `${originX}px ${originY}px`,
       scale: 1,
     });
+
+    if (mobileLogoBorder && isMobile) {
+      gsap.set(mobileLogoBorder, {
+        transformOrigin: `${originX}px ${originY}px`,
+        scale: 1,
+        opacity: 1
+      });
+    }
 
     gsap.set(pinContainer, {
       opacity: 1,
@@ -735,13 +747,23 @@ function initHeroScrollAnimation() {
         ease: 'power1.out' 
       }, 0)
 
-      // 2. Zoom progresivo entrando por el corte de las letras CAOZ
+      // 2. Zoom progresivo entrando por el corte del logo CAOZ
       .to(activeHoleGroup, {
         scale: targetScale,
         duration: 1.0,
         ease: 'power2.inOut'
-      }, 0)
+      }, 0);
 
+    if (mobileLogoBorder && isMobile) {
+      caozScrollTimeline.to(mobileLogoBorder, {
+        scale: targetScale,
+        opacity: 0,
+        duration: 0.85,
+        ease: 'power2.inOut'
+      }, 0);
+    }
+
+    caozScrollTimeline
       // 3. La página web escala de 0.96 a 1.0 de forma continua
       .to(mainSite, {
         scale: 1,
