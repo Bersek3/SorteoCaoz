@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-KICK_CHANNEL = os.getenv("KICK_CHANNEL_SLUG", "CaozLive").strip()
+KICK_CHANNEL = os.getenv("KICK_CHANNEL_SLUG", "Caoz").strip()
 PUSHER_KEY = "eb1d5f283081a78b932c"
 PUSHER_CLUSTER = "us2"
 PUSHER_URL = f"wss://ws-{PUSHER_CLUSTER}.pusher.com/app/{PUSHER_KEY}?protocol=7&client=js&version=7.6.0&flash=false&cluster={PUSHER_CLUSTER}"

@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS giveaway_config (
     id TEXT PRIMARY KEY DEFAULT 'current',
     title TEXT DEFAULT 'Sorteo Oficial PlayStation 5 🎮',
     prize TEXT DEFAULT 'PlayStation 5 Slim (Edición Disco)',
-    channel_slug TEXT DEFAULT 'CaozLive',
+    channel_slug TEXT DEFAULT 'Caoz',
     broadcaster_id TEXT,
     total_seats INTEGER DEFAULT 200,
     is_locked BOOLEAN DEFAULT FALSE,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS giveaway_config (
 
 -- Insertar configuración inicial por defecto si no existe
 INSERT INTO giveaway_config (id, title, prize, channel_slug, total_seats, is_locked)
-VALUES ('current', 'Sorteo Oficial PlayStation 5 🎮', 'PlayStation 5 Slim (Edición Disco)', 'CaozLive', 200, FALSE)
+VALUES ('current', 'Sorteo Oficial PlayStation 5 🎮', 'PlayStation 5 Slim (Edición Disco)', 'Caoz', 200, FALSE)
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. Tabla de Asientos de Cine Reservados (Anti-Colisión con UNIQUE)

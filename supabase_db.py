@@ -74,7 +74,7 @@ class SupabaseDataLayer:
                     return {
                         "title": c.get("title", "Sorteo PlayStation 5"),
                         "prize": c.get("prize", "PlayStation 5 Slim"),
-                        "channel": c.get("channel_slug", "CaozLive"),
+                        "channel": c.get("channel_slug", "Caoz"),
                         "total_seats": c.get("total_seats", 200),
                         "is_locked": c.get("is_locked", False),
                         "updated_at": c.get("updated_at")
