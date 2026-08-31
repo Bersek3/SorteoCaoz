@@ -663,8 +663,8 @@ function initHeroScrollAnimation() {
       mobileGroup.style.display = 'block';
       if (mobileLogoBorder) mobileLogoBorder.style.display = 'block';
       activeHoleGroup = mobileGroup;
-      originX = 118;
-      originY = 122;
+      originX = 76.4;
+      originY = 125.5;
       targetScale = 90;
     } else {
       if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 150');
