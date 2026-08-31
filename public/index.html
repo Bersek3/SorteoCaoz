@@ -3,13 +3,14 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sorteo Oficial PlayStation 5 🎮 - Kick</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
+
 
 <body>
 
@@ -78,16 +79,16 @@
           </div>
 
           <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
-          <div class="user-pill" id="userPillBox" style="display: none; align-items: center; gap: 10px;">
+          <div class="user-pill" id="userPillBox" style="display: none;">
             <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
             <div class="user-meta">
               <span class="user-name" id="navUserName">@Usuario</span>
               <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
             </div>
             <button id="logoutBtn" class="nav-btn"
-              style="padding: 6px 12px; font-size: 0.78rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+              style="padding: 5px 10px; font-size: 0.76rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;"
               title="Cerrar Sesión de Kick">
-              🚪 Cerrar Sesión
+              🚪 Salir
             </button>
           </div>
         </div>

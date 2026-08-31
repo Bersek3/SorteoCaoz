@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Panel de Streamer - Control de Sorteo Kick</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
@@ -16,6 +16,7 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 14px;
+      min-width: 680px;
     }
     .admin-table th {
       text-align: left;
@@ -26,11 +27,13 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
     }
     .admin-table td {
       padding: 12px 14px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       font-size: 0.88rem;
+      white-space: nowrap;
     }
     .user-cell {
       display: flex;
@@ -61,6 +64,82 @@
       background: rgba(0, 242, 254, 0.15);
       color: var(--cyan-accent);
       border: 1px solid rgba(0, 242, 254, 0.3);
+    }
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .config-date-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 10px;
+    }
+    .config-row-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .drive-sync-grid {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+    .admin-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .admin-header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 1024px) {
+      .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .admin-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+    }
+    @media (max-width: 768px) {
+      .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .config-date-grid {
+        grid-template-columns: 1fr;
+      }
+      .config-row-grid {
+        grid-template-columns: 1fr;
+      }
+      .drive-sync-grid {
+        grid-template-columns: 1fr;
+      }
+      .drive-sync-grid button {
+        width: 100%;
+      }
+      .admin-header-actions {
+        width: 100%;
+      }
+      .admin-header-actions .search-input {
+        width: 100% !important;
+      }
+      .admin-header-actions button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    @media (max-width: 480px) {
+      .admin-stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
 </head>
@@ -94,7 +173,7 @@
   <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
     
     <!-- Top Metrics Overview -->
-    <div class="wallet-stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+    <div class="admin-stats-grid">
       <div class="stat-box">
         <div class="stat-num" id="adminTotalSeats">200</div>
         <div class="stat-label">Total de Números</div>
@@ -173,7 +252,7 @@
 
           <div class="form-group">
             <label class="form-label">📅 Fecha y Hora Oficial del Sorteo (Para la cuenta regresiva):</label>
-            <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px;">
+            <div class="config-date-grid">
               <div>
                 <label style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Seleccionar Día (Calendario):</label>
                 <input type="date" class="form-input" id="configDateOnly" style="width: 100%; cursor: pointer;" onkeydown="return false;" onclick="try{this.showPicker()}catch(e){}">
@@ -188,7 +267,7 @@
             </small>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="config-row-grid">
             <div class="form-group">
               <label class="form-label">Total de Números:</label>
               <select class="form-select" id="configTotalSeats">
@@ -241,7 +320,7 @@
         </button>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;">
+      <div class="drive-sync-grid">
         <input type="url" class="form-input" id="googleSheetWebhookUrl" placeholder="Pega aquí la URL de tu Google Apps Script (https://script.google.com/macros/s/.../exec)" style="width: 100%;">
         <button class="btn btn-secondary" id="saveSheetUrlBtn" style="white-space: nowrap; padding: 12px 18px; font-size: 0.9rem; cursor: pointer; border-radius: 10px;">
           💾 Guardar URL
@@ -259,7 +338,7 @@
           👥 Lista de Participantes & Asignación de Tickets
         </h3>
         
-        <div style="display: flex; gap: 12px; align-items: center;">
+        <div class="admin-header-actions">
           <button class="btn btn-secondary" id="exportExcelBtn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(83, 252, 24, 0.1); border-color: var(--kick-green); color: var(--kick-green); display: inline-flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; border-radius: 10px;" title="Descargar planilla compatible con Excel y Google Sheets">
             📊 Exportar a Excel (.csv)
           </button>
@@ -267,7 +346,7 @@
         </div>
       </div>
 
-      <div style="overflow-x: auto;">
+      <div class="admin-table-wrapper">
         <table class="admin-table">
           <thead>
             <tr>
