@@ -29,32 +29,35 @@
     }
 
     .draw-title {
-      font-size: clamp(1.5rem, 5vw, 2.6rem);
-      font-weight: 900;
-      letter-spacing: -0.5px;
+      font-family: var(--font-gta);
+      font-size: clamp(2rem, 6vw, 3.4rem);
+      letter-spacing: 1px;
       margin-bottom: 8px;
-      background: linear-gradient(135deg, #ffffff 30%, var(--kick-green) 100%);
+      background: linear-gradient(135deg, #ffffff 30%, var(--gta-pink) 75%, var(--gta-orange) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-transform: uppercase;
-      line-height: 1.2;
+      line-height: 1.1;
+      text-shadow: 0 0 30px rgba(255, 42, 122, 0.4);
     }
 
     .draw-subtitle {
-      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      font-family: var(--font-gta-sub);
+      font-size: clamp(0.9rem, 2.5vw, 1.15rem);
       color: var(--text-secondary);
       margin-bottom: clamp(16px, 3vw, 30px);
+      letter-spacing: 0.5px;
     }
 
     /* Cinematic Number Tumbler Box */
     .tumbler-container {
-      background: linear-gradient(180deg, #101624 0%, #0a0d16 100%);
-      border: 2px solid var(--border-glow);
+      background: linear-gradient(180deg, #101626 0%, #06080e 100%);
+      border: 2px solid rgba(255, 42, 122, 0.4);
       border-radius: clamp(18px, 3vw, 28px);
       padding: clamp(20px, 4vw, 40px) 16px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(83, 252, 24, 0.15);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 45px rgba(255, 42, 122, 0.2);
       margin-bottom: 24px;
     }
 
@@ -62,7 +65,7 @@
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg, var(--kick-green), var(--cyan-accent), var(--kick-green));
+      background: linear-gradient(90deg, var(--gta-orange), var(--gta-pink), var(--kick-green), var(--gta-cyan));
     }
 
     .rolling-display {
@@ -74,13 +77,13 @@
     }
 
     .rolling-number {
-      font-size: clamp(3.8rem, 12vw, 7.5rem);
-      font-weight: 900;
-      font-family: var(--font-mono);
+      font-size: clamp(4.5rem, 15vw, 8.5rem);
+      font-weight: normal;
+      font-family: var(--font-gta);
       color: var(--kick-green);
-      text-shadow: 0 0 35px var(--kick-green-glow);
+      text-shadow: 0 0 35px var(--kick-green-glow), 0 0 60px rgba(83, 252, 24, 0.4);
       line-height: 1;
-      letter-spacing: -2px;
+      letter-spacing: 1px;
       transition: transform 0.05s ease;
     }
 
@@ -90,9 +93,10 @@
       gap: 10px;
       margin-top: 15px;
       background: rgba(255, 255, 255, 0.05);
-      padding: 6px 16px;
+      padding: 6px 18px;
       border-radius: 40px;
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--gta-pink);
+      box-shadow: 0 0 15px rgba(255, 42, 122, 0.3);
       max-width: 90%;
     }
 
@@ -105,21 +109,22 @@
     }
 
     .rolling-username {
-      font-size: clamp(1rem, 3vw, 1.25rem);
-      font-weight: 800;
+      font-family: var(--font-gta);
+      font-size: clamp(1.2rem, 3.5vw, 1.5rem);
       color: var(--text-primary);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      letter-spacing: 0.5px;
     }
 
     /* Winner Revealed Card */
     .winner-card {
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(83, 252, 24, 0.12));
-      border: 2px solid #ffd700;
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 42, 122, 0.15));
+      border: 2.5px solid #ffd700;
       border-radius: clamp(16px, 3vw, 24px);
       padding: clamp(18px, 4vw, 30px);
-      box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 0 60px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 42, 122, 0.3);
       display: none;
       animation: pop-winner 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
       margin-bottom: 20px;
@@ -131,40 +136,45 @@
     }
 
     .winner-badge-top {
-      background: #ffd700;
+      background: linear-gradient(135deg, #ffd700, #ff7a00);
       color: #000;
+      font-family: var(--font-gta-sub);
       font-weight: 900;
-      font-size: clamp(0.75rem, 2vw, 0.9rem);
-      padding: 4px 14px;
+      font-size: clamp(0.78rem, 2vw, 0.94rem);
+      padding: 5px 16px;
       border-radius: 20px;
       display: inline-block;
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-bottom: 14px;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
     }
 
     .winner-avatar-big {
-      width: clamp(65px, 12vw, 90px);
-      height: clamp(65px, 12vw, 90px);
+      width: clamp(70px, 14vw, 96px);
+      height: clamp(70px, 14vw, 96px);
       border-radius: 50%;
       border: 4px solid #ffd700;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.7);
       margin-bottom: 12px;
     }
 
     .winner-name-text {
-      font-size: clamp(1.4rem, 4.5vw, 2.2rem);
-      font-weight: 900;
+      font-family: var(--font-gta);
+      font-size: clamp(1.8rem, 5.5vw, 2.8rem);
       color: #ffffff;
       margin-bottom: 6px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
     }
 
     .winner-seat-number {
-      font-size: clamp(1.2rem, 3.5vw, 1.6rem);
-      font-family: var(--font-mono);
-      font-weight: 800;
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
+      font-family: var(--font-gta);
+      letter-spacing: 0.5px;
       color: var(--kick-green);
       margin-bottom: 16px;
+      text-shadow: 0 0 15px var(--kick-green-glow);
     }
 
     .stats-pill-row {

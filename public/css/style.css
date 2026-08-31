@@ -1,24 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700;900&display=swap');
 
 /* =================================================================== */
-/* FUENTES GTA VI & CAOZ                                               */
+/* FUENTES OFICIALES GTA (PRICEDOWN, ROUND BOLD, ROUND, LONG)          */
 /* =================================================================== */
 @font-face {
   font-family: "Pricedown";
   src: url("../fonts/pricedown.otf") format("opentype");
+  font-display: swap;
 }
 @font-face {
   font-family: "Round";
   src: url("../fonts/round.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: "Round Bold";
   font-weight: bold;
   src: url("../fonts/round-bold.woff") format("woff");
+  font-display: swap;
 }
 @font-face {
   font-family: "Long";
   src: url("../fonts/long.woff") format("woff");
+  font-display: swap;
 }
 
 /* =================================================================== */
@@ -66,7 +70,7 @@
 
 .scroll-indicator {
   position: absolute;
-  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  bottom: max(22px, env(safe-area-inset-bottom, 22px));
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -75,29 +79,30 @@
   gap: 6px;
   pointer-events: auto;
   cursor: pointer;
-  opacity: 0.9;
+  opacity: 0.95;
   transition: opacity 0.3s ease, transform 0.3s ease;
   z-index: 10;
 }
 
 .scroll-indicator:hover {
   opacity: 1;
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateX(-50%) translateY(-3px);
 }
 
 .scroll-indicator .scroll-text {
-  font-family: "Round Bold", var(--font-main);
-  font-size: clamp(0.68rem, 1.8vw, 0.78rem);
-  letter-spacing: 3px;
+  font-family: "Pricedown", "Round Bold", var(--font-main);
+  font-size: clamp(0.85rem, 2.2vw, 1.05rem);
+  letter-spacing: 2px;
   color: #fff9cb;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.95), 0 0 10px rgba(255, 122, 0, 0.6);
   text-transform: uppercase;
 }
 
 .scroll-indicator .scroll-arrow {
-  color: #ffb0c4;
-  font-size: 1.25rem;
+  color: #ff2a7a;
+  font-size: 1.3rem;
   line-height: 1;
+  filter: drop-shadow(0 0 8px rgba(255, 42, 122, 0.8));
   animation: arrowBounce 1.5s infinite;
 }
 
@@ -114,43 +119,53 @@
 }
 
 /* =================================================================== */
-/* DESIGN TOKENS & SYSTEM VARIABLES                                    */
+/* DESIGN TOKENS & GTA VI VICE CITY COLOR SYSTEM                       */
 /* =================================================================== */
 :root {
-  --bg-main: #07090e;
-  --bg-card: rgba(14, 18, 28, 0.82);
-  --bg-card-hover: rgba(22, 28, 44, 0.9);
-  --bg-glass: rgba(10, 14, 24, 0.85);
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glow: rgba(83, 252, 24, 0.3);
+  --bg-main: #06080d;
+  --bg-card: rgba(12, 16, 26, 0.82);
+  --bg-card-hover: rgba(20, 26, 42, 0.9);
+  --bg-glass: rgba(8, 12, 20, 0.88);
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-glow: rgba(255, 42, 122, 0.35);
 
-  /* Kick Brand & Cyberpunk Colors */
+  /* GTA VI & Vice City Neon Palette */
+  --gta-pink: #ff2a7a;
+  --gta-pink-glow: rgba(255, 42, 122, 0.6);
+  --gta-orange: #ff7a00;
+  --gta-orange-glow: rgba(255, 122, 0, 0.6);
+  --gta-cyan: #00f2fe;
+  --gta-cyan-glow: rgba(0, 242, 254, 0.5);
+  --gta-gold: #ffd700;
+  --gta-purple: #8a2be2;
+  
+  /* Kick Brand & Cyberpunk */
   --kick-green: #53fc18;
   --kick-green-glow: rgba(83, 252, 24, 0.5);
   --kick-green-dark: #37b80e;
-  --cyan-accent: #00f2fe;
-  --purple-accent: #8a2be2;
-  --gold-accent: #ffd700;
   --danger-red: #ff3366;
   --danger-glow: rgba(255, 51, 102, 0.4);
 
-  /* Cinema Seat Colors */
-  --seat-free-bg: #141c2b;
-  --seat-free-border: #23334d;
-  --seat-free-hover: #1f304d;
+  /* Cinema / Number Seat Colors */
+  --seat-free-bg: #111624;
+  --seat-free-border: #1e293b;
+  --seat-free-hover: #1e263d;
   --seat-mine-bg: #53fc18;
   --seat-mine-text: #051402;
-  --seat-mine-glow: 0 0 16px rgba(83, 252, 24, 0.7), 0 0 30px rgba(83, 252, 24, 0.3);
-  --seat-taken-bg: #1c1d24;
-  --seat-taken-border: #ff3366;
-  --seat-taken-text: #6b7280;
+  --seat-mine-glow: 0 0 16px rgba(83, 252, 24, 0.75), 0 0 30px rgba(83, 252, 24, 0.35);
+  --seat-taken-bg: #1a121d;
+  --seat-taken-border: #ff2a7a;
+  --seat-taken-text: #8892b0;
 
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
   
-  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'Space Grotesk', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-gta: 'Pricedown', 'Impact', sans-serif;
+  --font-gta-sub: 'Round Bold', 'Round', 'Outfit', sans-serif;
+  --font-main: 'Round', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Pricedown', 'Space Grotesk', monospace;
+
   --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
@@ -173,9 +188,9 @@ html {
 }
 
 body {
-  background-color: #07090e;
+  background-color: #06080d;
   background-image: 
-    linear-gradient(180deg, rgba(7, 9, 14, 0.75) 0%, rgba(7, 9, 14, 0.92) 100%),
+    linear-gradient(180deg, rgba(6, 8, 13, 0.76) 0%, rgba(6, 8, 13, 0.94) 100%),
     url('../images/bg_caoz.jpg');
   background-size: cover;
   background-position: center top;
@@ -192,16 +207,23 @@ body {
   touch-action: manipulation;
 }
 
-/* Custom Scrollbar */
+/* Typography Headings */
+h1, h2, h3, h4, .modal-title, .draw-title {
+  font-family: var(--font-gta);
+  letter-spacing: 0.5px;
+  font-weight: normal;
+}
+
+/* Custom GTA Styled Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #06080d;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2b40;
+  background: linear-gradient(180deg, var(--gta-orange), var(--gta-pink));
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -217,7 +239,7 @@ body {
 }
 
 /* ------------------------------------------------------------------- */
-/* TOP NAVIGATION BAR                                                  */
+/* TOP NAVIGATION BAR (GTA VICE CITY CLEAN STYLE)                      */
 /* ------------------------------------------------------------------- */
 .navbar {
   position: sticky;
@@ -225,9 +247,10 @@ body {
   z-index: 100;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  background: rgba(10, 13, 20, 0.88);
-  border-bottom: 1px solid var(--border-color);
-  padding: 12px 0;
+  background: rgba(8, 11, 18, 0.92);
+  border-bottom: 2px solid rgba(255, 42, 122, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 42, 122, 0.1);
+  padding: 10px 0;
 }
 
 .nav-content {
@@ -246,40 +269,44 @@ body {
 }
 
 .brand-logo {
-  width: clamp(34px, 4vw, 42px);
-  height: clamp(34px, 4vw, 42px);
-  background: linear-gradient(135deg, var(--kick-green), var(--kick-green-dark));
-  border-radius: 10px;
+  width: clamp(36px, 4.5vw, 44px);
+  height: clamp(36px, 4.5vw, 44px);
+  background: linear-gradient(135deg, var(--gta-orange) 0%, var(--gta-pink) 50%, var(--kick-green) 100%);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(16px, 2.5vw, 22px);
-  font-weight: 900;
-  color: #051402;
-  box-shadow: 0 0 18px var(--kick-green-glow);
+  font-family: var(--font-gta);
+  font-size: clamp(20px, 3vw, 26px);
+  color: #000000;
+  box-shadow: 0 0 20px rgba(255, 42, 122, 0.6);
   flex-shrink: 0;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.4);
 }
 
 .brand-title {
-  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-family: var(--font-gta);
+  font-size: clamp(1.25rem, 3vw, 1.65rem);
+  letter-spacing: 1px;
   display: flex;
   align-items: center;
   gap: 8px;
   color: #ffffff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.3), 0 2px 4px rgba(0, 0, 0, 0.8);
   white-space: nowrap;
 }
 
 .brand-title span.kick-badge {
-  background: rgba(83, 252, 24, 0.15);
+  font-family: var(--font-gta-sub);
+  background: linear-gradient(135deg, rgba(83, 252, 24, 0.2), rgba(0, 242, 254, 0.2));
   color: var(--kick-green);
-  border: 1px solid rgba(83, 252, 24, 0.4);
-  padding: 2px 7px;
+  border: 1px solid rgba(83, 252, 24, 0.5);
+  padding: 2px 8px;
   border-radius: 6px;
   font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.8px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  box-shadow: 0 0 10px rgba(83, 252, 24, 0.3);
 }
 
 .nav-links {
@@ -294,13 +321,14 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
+  padding: 8px 14px;
   border-radius: 10px;
+  font-family: var(--font-gta-sub);
   font-size: 0.85rem;
   font-weight: 700;
   text-decoration: none;
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-color);
   transition: var(--transition-smooth);
   white-space: nowrap;
@@ -308,19 +336,20 @@ body {
 
 .nav-btn:hover, .nav-btn.active {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 42, 122, 0.15);
+  border-color: var(--gta-pink);
+  box-shadow: 0 0 15px rgba(255, 42, 122, 0.3);
 }
 
 .nav-btn.streamer-btn {
   color: var(--kick-green);
   background: rgba(83, 252, 24, 0.08);
-  border-color: rgba(83, 252, 24, 0.3);
+  border-color: rgba(83, 252, 24, 0.35);
 }
 
 .nav-btn.streamer-btn:hover {
-  background: rgba(83, 252, 24, 0.18);
-  box-shadow: 0 0 15px rgba(83, 252, 24, 0.3);
+  background: rgba(83, 252, 24, 0.2);
+  box-shadow: 0 0 18px rgba(83, 252, 24, 0.4);
 }
 
 /* Hybrid Kick Login Group with Dark Standalone Logo */
@@ -328,20 +357,20 @@ body {
   display: inline-flex;
   align-items: center;
   background: #080c14;
-  border: 1px solid rgba(83, 252, 24, 0.4);
+  border: 1.5px solid var(--kick-green);
   border-radius: 12px;
   padding: 4px;
   gap: 6px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 15px rgba(83, 252, 24, 0.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 15px var(--kick-green-glow);
   transition: var(--transition-smooth);
   user-select: none;
   text-decoration: none;
 }
 
 .kick-login-group:hover {
-  border-color: var(--kick-green);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 25px rgba(83, 252, 24, 0.35);
+  border-color: #ffffff;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.7), 0 0 25px var(--kick-green-glow);
   transform: translateY(-2px);
 }
 
@@ -350,7 +379,7 @@ body {
   align-items: center;
   justify-content: center;
   background: #0d1422;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 9px;
   padding: 5px 8px;
   flex-shrink: 0;
@@ -368,10 +397,10 @@ body {
   align-items: center;
   justify-content: center;
   background: #080c14;
-  border: 1px solid rgba(83, 252, 24, 0.4);
+  border: 1.5px solid var(--kick-green);
   border-radius: 14px;
   padding: 10px 14px;
-  box-shadow: 0 0 20px rgba(83, 252, 24, 0.2);
+  box-shadow: 0 0 20px rgba(83, 252, 24, 0.3);
   flex-shrink: 0;
 }
 
@@ -383,10 +412,11 @@ body {
 }
 
 .kick-text-btn {
-  background: var(--kick-green);
+  background: linear-gradient(135deg, var(--kick-green) 0%, var(--kick-green-dark) 100%);
   color: #040d01;
-  font-weight: 800;
-  font-size: clamp(0.78rem, 2vw, 0.88rem);
+  font-family: var(--font-gta-sub);
+  font-weight: 900;
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
   padding: 7px 14px;
   border-radius: 8px;
   border: none;
@@ -394,11 +424,12 @@ body {
   white-space: nowrap;
   transition: all 0.2s ease;
   box-shadow: 0 0 15px var(--kick-green-glow);
+  text-transform: uppercase;
 }
 
 .kick-text-btn:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 0 22px var(--kick-green-glow);
+  filter: brightness(1.15);
+  box-shadow: 0 0 24px var(--kick-green-glow);
 }
 
 /* User Profile Pill */
@@ -406,16 +437,17 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg-card);
-  border: 1px solid rgba(83, 252, 24, 0.3);
+  background: rgba(14, 18, 28, 0.92);
+  border: 1.5px solid rgba(83, 252, 24, 0.4);
   padding: 4px 10px 4px 6px;
   border-radius: 30px;
   transition: var(--transition-smooth);
+  box-shadow: 0 0 15px rgba(83, 252, 24, 0.15);
 }
 
 .user-pill:hover {
   border-color: var(--kick-green);
-  box-shadow: 0 0 15px rgba(83, 252, 24, 0.2);
+  box-shadow: 0 0 20px rgba(83, 252, 24, 0.35);
 }
 
 .user-avatar {
@@ -423,7 +455,7 @@ body {
   height: 28px;
   border-radius: 50%;
   border: 2px solid var(--kick-green);
-  background: #1a2233;
+  background: #141c2b;
   flex-shrink: 0;
 }
 
@@ -435,8 +467,9 @@ body {
 }
 
 .user-name {
+  font-family: var(--font-gta-sub);
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -444,14 +477,15 @@ body {
 }
 
 .user-tickets-badge {
-  font-size: 0.7rem;
+  font-family: var(--font-gta-sub);
+  font-size: 0.72rem;
   color: var(--kick-green);
-  font-weight: 700;
+  font-weight: 800;
   white-space: nowrap;
 }
 
 /* ------------------------------------------------------------------- */
-/* HERO BANNER & PS5 PRIZE SHOWCASE                                    */
+/* HERO BANNER & PS5 PRIZE SHOWCASE (GTA VI STYLE)                     */
 /* ------------------------------------------------------------------- */
 .hero-section {
   padding: clamp(16px, 3vw, 32px) 0 clamp(16px, 2.5vw, 24px);
@@ -465,10 +499,10 @@ body {
 }
 
 .hero-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--border-color);
+  background: linear-gradient(145deg, rgba(16, 20, 32, 0.9), rgba(8, 10, 18, 0.95));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 42, 122, 0.3);
   border-radius: clamp(16px, 2.5vw, 24px);
   padding: clamp(18px, 3.5vw, 30px);
   position: relative;
@@ -476,7 +510,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 42, 122, 0.15);
 }
 
 .hero-card::before {
@@ -485,41 +519,47 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--kick-green), var(--cyan-accent), var(--purple-accent));
+  height: 4px;
+  background: linear-gradient(90deg, var(--gta-orange), var(--gta-pink), var(--kick-green), var(--gta-cyan));
+  box-shadow: 0 0 15px rgba(255, 42, 122, 0.8);
 }
 
 .hero-badge-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(83, 252, 24, 0.12);
-  color: var(--kick-green);
-  border: 1px solid rgba(83, 252, 24, 0.3);
-  padding: 4px 12px;
+  background: linear-gradient(90deg, rgba(255, 122, 0, 0.18), rgba(255, 42, 122, 0.18));
+  color: #ff9500;
+  border: 1px solid rgba(255, 122, 0, 0.5);
+  padding: 4px 14px;
   border-radius: 30px;
-  font-size: clamp(0.72rem, 1.8vw, 0.8rem);
-  font-weight: 800;
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.72rem, 1.8vw, 0.82rem);
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   margin-bottom: 12px;
+  box-shadow: 0 0 15px rgba(255, 122, 0, 0.2);
 }
 
 .hero-title {
-  font-size: clamp(1.45rem, 3.8vw, 2.3rem);
-  font-weight: 900;
-  line-height: 1.18;
+  font-family: var(--font-gta);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: 1px;
+  line-height: 1.08;
   margin-bottom: 12px;
-  background: linear-gradient(135deg, #ffffff 40%, var(--kick-green) 100%);
+  background: linear-gradient(135deg, #ffffff 40%, var(--gta-pink) 80%, var(--gta-orange) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 42, 122, 0.4);
   word-break: break-word;
 }
 
 .hero-desc {
+  font-family: var(--font-main);
   color: var(--text-secondary);
-  font-size: clamp(0.85rem, 2vw, 0.95rem);
-  line-height: 1.55;
+  font-size: clamp(0.88rem, 2vw, 0.98rem);
+  line-height: 1.6;
   margin-bottom: 18px;
 }
 
@@ -532,34 +572,43 @@ body {
 
 .rule-pill {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-color);
-  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 14px;
   border-radius: 10px;
-  font-size: clamp(0.75rem, 1.8vw, 0.84rem);
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.78rem, 1.8vw, 0.86rem);
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: var(--text-secondary);
   flex-grow: 1;
   justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.rule-pill:hover {
+  background: rgba(255, 42, 122, 0.1);
+  border-color: var(--gta-pink);
+  color: #ffffff;
 }
 
 .rule-pill strong {
-  color: var(--text-primary);
+  color: #ffffff;
+  font-weight: 900;
 }
 
-/* User Wallet & HUD Card */
+/* User Wallet & HUD Card (GTA Vice City Neon Glass) */
 .wallet-card {
-  background: linear-gradient(145deg, rgba(20, 27, 42, 0.92), rgba(12, 16, 26, 0.96));
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(83, 252, 24, 0.25);
+  background: linear-gradient(145deg, rgba(16, 22, 36, 0.94), rgba(8, 11, 20, 0.98));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(83, 252, 24, 0.3);
   border-radius: clamp(16px, 2.5vw, 24px);
   padding: clamp(18px, 3vw, 26px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 30px rgba(83, 252, 24, 0.15);
   position: relative;
 }
 
@@ -581,17 +630,19 @@ body {
 }
 
 .wallet-avatar-big {
-  width: clamp(40px, 8vw, 48px);
-  height: clamp(40px, 8vw, 48px);
+  width: clamp(42px, 8vw, 50px);
+  height: clamp(42px, 8vw, 50px);
   border-radius: 50%;
   border: 2px solid var(--kick-green);
+  box-shadow: 0 0 15px var(--kick-green-glow);
   background: #141c2b;
   flex-shrink: 0;
 }
 
 .wallet-user-name {
-  font-size: clamp(0.95rem, 2.5vw, 1.15rem);
-  font-weight: 800;
+  font-family: var(--font-gta);
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -614,35 +665,43 @@ body {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: clamp(8px, 2vw, 14px) clamp(4px, 1.5vw, 8px);
+  padding: clamp(10px, 2vw, 16px) clamp(4px, 1.5vw, 8px);
   text-align: center;
+  transition: var(--transition-smooth);
+}
+
+.stat-box:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .stat-box.highlight-box {
-  background: rgba(83, 252, 24, 0.08);
-  border-color: rgba(83, 252, 24, 0.4);
+  background: linear-gradient(180deg, rgba(83, 252, 24, 0.12) 0%, rgba(8, 12, 20, 0.8) 100%);
+  border-color: var(--kick-green);
+  box-shadow: 0 0 20px rgba(83, 252, 24, 0.25);
 }
 
 .stat-num {
-  font-size: clamp(1.2rem, 3.2vw, 1.65rem);
-  font-weight: 900;
-  font-family: var(--font-mono);
+  font-size: clamp(1.4rem, 3.8vw, 2rem);
+  font-family: var(--font-gta);
+  letter-spacing: 1px;
   color: var(--text-primary);
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .highlight-box .stat-num {
   color: var(--kick-green);
-  text-shadow: 0 0 12px var(--kick-green-glow);
+  text-shadow: 0 0 15px var(--kick-green-glow);
 }
 
 .stat-label {
-  font-size: clamp(0.62rem, 1.5vw, 0.72rem);
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.65rem, 1.5vw, 0.74rem);
   color: var(--text-secondary);
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
   margin-top: 4px;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
 }
 
 .wallet-actions {
@@ -651,31 +710,37 @@ body {
   flex-wrap: wrap;
 }
 
+/* GTA Styled Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: 12px;
-  font-size: clamp(0.85rem, 2vw, 0.94rem);
-  font-weight: 700;
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.85rem, 2vw, 0.96rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   cursor: pointer;
   border: none;
   transition: var(--transition-smooth);
   user-select: none;
-  min-height: 44px;
+  min-height: 46px;
 }
 
 .btn-primary {
-  background: var(--kick-green);
+  background: linear-gradient(135deg, var(--kick-green) 0%, #2bb806 100%);
   color: #051402;
-  box-shadow: 0 0 20px var(--kick-green-glow);
+  box-shadow: 0 4px 18px var(--kick-green-glow), 0 0 30px rgba(83, 252, 24, 0.3);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(83, 252, 24, 0.8);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(83, 252, 24, 0.8), 0 0 40px rgba(83, 252, 24, 0.5);
+  filter: brightness(1.1);
 }
 
 .btn-secondary {
@@ -685,8 +750,9 @@ body {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 42, 122, 0.15);
+  border-color: var(--gta-pink);
+  box-shadow: 0 0 18px rgba(255, 42, 122, 0.35);
 }
 
 .btn:disabled {
@@ -698,35 +764,39 @@ body {
 /* Tag Badge */
 .tag-badge {
   display: inline-block;
-  padding: 3px 8px;
+  padding: 3px 10px;
   border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 700;
-  font-family: var(--font-mono);
+  font-weight: 800;
+  font-family: var(--font-gta-sub);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .tag-green {
   background: rgba(83, 252, 24, 0.15);
   color: var(--kick-green);
-  border: 1px solid rgba(83, 252, 24, 0.3);
+  border: 1px solid rgba(83, 252, 24, 0.4);
+  box-shadow: 0 0 10px rgba(83, 252, 24, 0.2);
 }
 
 .tag-cyan {
   background: rgba(0, 242, 254, 0.15);
-  color: var(--cyan-accent);
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: var(--gta-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
 }
 
 /* ------------------------------------------------------------------- */
 /* FORM INPUTS & CONTROLS                                              */
 /* ------------------------------------------------------------------- */
 input, select, textarea, .form-control {
-  background: #0d131f !important;
+  background: #0a0e1a !important;
   color: #ffffff !important;
-  border: 1px solid rgba(83, 252, 24, 0.3) !important;
+  border: 1.5px solid rgba(255, 42, 122, 0.3) !important;
   border-radius: 12px !important;
   padding: 11px 14px !important;
-  font-size: 0.92rem !important;
+  font-size: 0.95rem !important;
   outline: none !important;
   transition: var(--transition-smooth);
   font-family: var(--font-main);
@@ -735,11 +805,11 @@ input, select, textarea, .form-control {
 
 input:focus, select:focus, textarea:focus, .form-control:focus {
   border-color: var(--kick-green) !important;
-  box-shadow: 0 0 15px rgba(83, 252, 24, 0.35) !important;
+  box-shadow: 0 0 18px rgba(83, 252, 24, 0.4) !important;
 }
 
 select option {
-  background: #0d131f !important;
+  background: #0a0e1a !important;
   color: #ffffff !important;
   padding: 10px !important;
 }
@@ -750,17 +820,19 @@ select option {
 
 .form-label {
   display: block;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-family: var(--font-gta-sub);
+  font-size: 0.84rem;
+  font-weight: 800;
   color: var(--text-secondary);
   margin-bottom: 6px;
+  letter-spacing: 0.5px;
 }
 
-/* Countdown HUD Clock Component */
+/* Countdown HUD Clock Component (GTA Digital Style) */
 .countdown-box {
-  background: rgba(10, 15, 26, 0.92);
-  border: 1px solid rgba(83, 252, 24, 0.35);
-  box-shadow: 0 0 30px rgba(83, 252, 24, 0.12), 0 10px 30px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(180deg, rgba(14, 18, 30, 0.95) 0%, rgba(6, 8, 14, 0.98) 100%);
+  border: 1.5px solid rgba(255, 122, 0, 0.4);
+  box-shadow: 0 0 35px rgba(255, 122, 0, 0.18), 0 10px 30px rgba(0, 0, 0, 0.7);
   border-radius: clamp(14px, 2.5vw, 20px);
   padding: clamp(14px, 2.5vw, 18px) clamp(10px, 2vw, 20px);
   margin-top: 16px;
@@ -768,16 +840,17 @@ select option {
 }
 
 .countdown-title {
-  font-size: clamp(0.68rem, 1.8vw, 0.78rem);
-  font-weight: 800;
-  color: var(--kick-green);
+  font-family: var(--font-gta);
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  letter-spacing: 1px;
+  color: #ff9500;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  text-shadow: 0 0 12px rgba(255, 122, 0, 0.5);
 }
 
 .countdown-grid {
@@ -795,36 +868,38 @@ select option {
 
 .countdown-num {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   padding: clamp(6px, 1.5vw, 8px) clamp(8px, 1.8vw, 14px);
-  font-size: clamp(1.15rem, 3.2vw, 1.7rem);
-  font-weight: 900;
-  font-family: var(--font-mono);
+  font-size: clamp(1.4rem, 3.8vw, 2.1rem);
+  font-family: var(--font-gta);
+  letter-spacing: 1px;
   color: #ffffff;
-  min-width: clamp(40px, 10vw, 56px);
-  text-shadow: 0 0 12px rgba(83, 252, 24, 0.5);
+  min-width: clamp(40px, 10vw, 58px);
+  text-shadow: 0 0 15px rgba(255, 42, 122, 0.7), 0 0 30px rgba(255, 122, 0, 0.4);
   text-align: center;
 }
 
 .countdown-label {
-  font-size: clamp(0.58rem, 1.4vw, 0.68rem);
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.6rem, 1.4vw, 0.72rem);
   color: var(--text-secondary);
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   margin-top: 4px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .countdown-divider {
-  font-size: clamp(1.1rem, 3vw, 1.6rem);
-  font-weight: 900;
-  color: var(--kick-green);
+  font-family: var(--font-gta);
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  color: var(--gta-pink);
+  text-shadow: 0 0 10px var(--gta-pink-glow);
   margin-top: -12px;
 }
 
 /* ------------------------------------------------------------------- */
-/* CINEMA & NUMBER SELECTION SECTION                                  */
+/* CINEMA & NUMBER SELECTION SECTION (GTA THEMED)                      */
 /* ------------------------------------------------------------------- */
 .cinema-section {
   padding: clamp(12px, 2.5vw, 20px) 0 clamp(40px, 5vw, 70px);
@@ -834,14 +909,14 @@ select option {
   background: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 42, 122, 0.25);
   border-radius: clamp(16px, 2.5vw, 24px);
   padding: clamp(16px, 3vw, 28px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 42, 122, 0.1);
   position: relative;
 }
 
-/* Cinema Curved Screen & Kick Live Stream Embed */
+/* Screen Wrapper */
 .screen-wrapper {
   margin-bottom: 24px;
   text-align: center;
@@ -849,16 +924,16 @@ select option {
 }
 
 .cinema-screen-container {
-  background: #080c14;
-  border: 2px solid rgba(83, 252, 24, 0.4);
+  background: #06080d;
+  border: 2px solid rgba(255, 42, 122, 0.4);
   border-radius: clamp(14px, 2vw, 20px);
   overflow: hidden;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(83, 252, 24, 0.2);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 42, 122, 0.2);
   transition: var(--transition-smooth);
 }
 
 .screen-header-bar {
-  background: rgba(14, 20, 32, 0.92);
+  background: rgba(10, 14, 24, 0.95);
   padding: 10px 16px;
   display: flex;
   justify-content: space-between;
@@ -872,23 +947,25 @@ select option {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 51, 102, 0.15);
-  border: 1px solid rgba(255, 51, 102, 0.4);
-  color: #ff3366;
-  padding: 3px 10px;
+  background: rgba(255, 42, 122, 0.18);
+  border: 1px solid var(--gta-pink);
+  color: var(--gta-pink);
+  padding: 3px 12px;
   border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-family: var(--font-gta-sub);
+  font-size: 0.76rem;
+  font-weight: 900;
   letter-spacing: 0.5px;
   flex-shrink: 0;
+  box-shadow: 0 0 12px var(--gta-pink-glow);
 }
 
 .stream-status-pill .live-dot {
   width: 8px;
   height: 8px;
-  background: #ff3366;
+  background: var(--gta-pink);
   border-radius: 50%;
-  box-shadow: 0 0 8px #ff3366;
+  box-shadow: 0 0 8px var(--gta-pink);
   animation: pulse-dot 1.2s infinite;
 }
 
@@ -921,8 +998,8 @@ select option {
   left: 5%;
   right: 5%;
   height: 60px;
-  background: linear-gradient(180deg, rgba(83, 252, 24, 0.15) 0%, rgba(0, 242, 254, 0.04) 50%, transparent 100%);
-  filter: blur(14px);
+  background: linear-gradient(180deg, rgba(255, 42, 122, 0.2) 0%, rgba(255, 122, 0, 0.08) 50%, transparent 100%);
+  filter: blur(16px);
   pointer-events: none;
 }
 
@@ -933,8 +1010,8 @@ select option {
   align-items: center;
   flex-wrap: wrap;
   gap: 14px;
-  background: rgba(13, 20, 34, 0.85);
-  border: 1px solid rgba(83, 252, 24, 0.2);
+  background: rgba(10, 14, 24, 0.88);
+  border: 1px solid rgba(255, 42, 122, 0.25);
   border-radius: 16px;
   padding: 12px 18px;
   margin-bottom: 18px;
@@ -952,8 +1029,9 @@ select option {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: clamp(0.75rem, 1.8vw, 0.82rem);
-  font-weight: 600;
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.76rem, 1.8vw, 0.84rem);
+  font-weight: 700;
   color: var(--text-secondary);
 }
 
@@ -970,14 +1048,15 @@ select option {
 }
 
 .sample-mine {
-  background: rgba(83, 252, 24, 0.3);
+  background: rgba(83, 252, 24, 0.35);
   border: 1.5px solid var(--kick-green);
   box-shadow: 0 0 10px var(--kick-green-glow);
 }
 
 .sample-taken {
-  background: rgba(255, 51, 102, 0.2);
-  border: 1.5px solid rgba(255, 51, 102, 0.6);
+  background: rgba(255, 42, 122, 0.25);
+  border: 1.5px solid var(--gta-pink);
+  box-shadow: 0 0 10px var(--gta-pink-glow);
 }
 
 .toolbar-filters {
@@ -991,33 +1070,35 @@ select option {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--text-secondary);
-  padding: 7px 13px;
+  padding: 8px 14px;
   border-radius: 10px;
-  font-size: clamp(0.74rem, 1.8vw, 0.82rem);
-  font-weight: 700;
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.76rem, 1.8vw, 0.84rem);
+  font-weight: 800;
   cursor: pointer;
   transition: var(--transition-smooth);
   white-space: nowrap;
 }
 
 .filter-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 42, 122, 0.12);
+  border-color: var(--gta-pink);
   color: #ffffff;
 }
 
 .filter-btn.active {
-  background: rgba(83, 252, 24, 0.15);
-  border-color: var(--kick-green);
-  color: var(--kick-green);
-  box-shadow: 0 0 12px var(--kick-green-glow);
+  background: linear-gradient(135deg, rgba(255, 42, 122, 0.25), rgba(255, 122, 0, 0.25));
+  border-color: var(--gta-pink);
+  color: #ffffff;
+  box-shadow: 0 0 14px var(--gta-pink-glow);
 }
 
 .search-input {
-  background: #080c14 !important;
+  background: #06080d !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 10px !important;
   padding: 8px 12px !important;
-  font-size: 0.85rem !important;
+  font-size: 0.88rem !important;
   color: #ffffff !important;
   width: 170px;
   font-family: var(--font-main);
@@ -1025,18 +1106,18 @@ select option {
 }
 
 .search-input:focus {
-  border-color: var(--kick-green) !important;
-  box-shadow: 0 0 12px var(--kick-green-glow) !important;
+  border-color: var(--gta-pink) !important;
+  box-shadow: 0 0 14px var(--gta-pink-glow) !important;
   width: 200px;
 }
 
 /* Seats Grid Wrapper */
 .seats-grid-wrapper {
-  background: rgba(8, 12, 20, 0.9);
-  border: 1px solid rgba(83, 252, 24, 0.2);
+  background: rgba(6, 8, 14, 0.94);
+  border: 1px solid rgba(255, 42, 122, 0.25);
   border-radius: clamp(14px, 2vw, 20px);
   padding: clamp(12px, 2.5vw, 22px);
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9), 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 .seats-grid {
@@ -1052,15 +1133,15 @@ select option {
   width: 6px;
 }
 .seats-grid::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   border-radius: 4px;
 }
 .seats-grid::-webkit-scrollbar-thumb {
-  background: rgba(83, 252, 24, 0.4);
+  background: var(--gta-pink);
   border-radius: 4px;
 }
 
-/* Individual Seat / Ticket Item */
+/* Individual GTA Number Tile / Seat Item */
 .seat-item {
   position: relative;
   min-height: 56px;
@@ -1078,15 +1159,16 @@ select option {
 }
 
 .seat-item .seat-num {
-  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-  font-weight: 800;
-  font-family: var(--font-mono);
-  line-height: 1.1;
+  font-size: clamp(1.15rem, 2.8vw, 1.45rem);
+  font-family: var(--font-gta);
+  letter-spacing: 0.5px;
+  line-height: 1;
 }
 
 .seat-item .seat-user-tag {
+  font-family: var(--font-gta-sub);
   font-size: clamp(0.55rem, 1.2vw, 0.65rem);
-  font-weight: 700;
+  font-weight: 800;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
@@ -1097,30 +1179,30 @@ select option {
 
 /* Estado: Libre */
 .seat-item.free {
-  background: rgba(16, 24, 40, 0.75);
+  background: rgba(14, 18, 30, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
 }
 
 .seat-item.free:hover, .seat-item.free:active {
-  background: rgba(83, 252, 24, 0.16);
-  border-color: var(--kick-green);
-  transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 8px 20px rgba(83, 252, 24, 0.3);
-  color: var(--kick-green);
+  background: rgba(255, 42, 122, 0.2);
+  border-color: var(--gta-pink);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 22px rgba(255, 42, 122, 0.4);
+  color: #ffffff;
 }
 
 /* Estado: Mi Número */
 .seat-item.mine {
-  background: linear-gradient(135deg, rgba(83, 252, 24, 0.28) 0%, rgba(13, 24, 18, 0.92) 100%);
-  border: 1.5px solid var(--kick-green);
-  box-shadow: 0 0 16px rgba(83, 252, 24, 0.4);
+  background: linear-gradient(135deg, rgba(83, 252, 24, 0.35) 0%, rgba(10, 24, 14, 0.95) 100%);
+  border: 2px solid var(--kick-green);
+  box-shadow: 0 0 20px rgba(83, 252, 24, 0.5);
   color: #ffffff;
 }
 
 .seat-item.mine .seat-num {
   color: var(--kick-green);
-  text-shadow: 0 0 8px var(--kick-green-glow);
+  text-shadow: 0 0 10px var(--kick-green-glow);
 }
 
 .seat-item.mine .seat-user-tag {
@@ -1133,44 +1215,44 @@ select option {
 }
 
 .seat-item.mine:hover, .seat-item.mine:active {
-  background: rgba(255, 51, 102, 0.2);
-  border-color: #ff3366;
-  box-shadow: 0 0 20px rgba(255, 51, 102, 0.4);
+  background: rgba(255, 42, 122, 0.25);
+  border-color: var(--gta-pink);
+  box-shadow: 0 0 22px rgba(255, 42, 122, 0.5);
   transform: translateY(-2px);
 }
 
 .seat-item.mine:hover .seat-user-tag, .seat-item.mine:active .seat-user-tag {
-  background: #ff3366;
+  background: var(--gta-pink);
   color: #ffffff;
 }
 
 /* Estado: Ocupado */
 .seat-item.taken {
-  background: rgba(24, 14, 26, 0.65);
-  border: 1px solid rgba(255, 51, 102, 0.25);
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.seat-item.taken .seat-num {
+  background: rgba(24, 12, 22, 0.7);
+  border: 1px solid rgba(255, 42, 122, 0.35);
   color: rgba(255, 255, 255, 0.7);
 }
 
+.seat-item.taken .seat-num {
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .seat-item.taken .seat-user-tag {
-  color: #ff6688;
-  font-weight: 600;
+  color: #ff6699;
+  font-weight: 700;
 }
 
 .seat-item.taken:hover, .seat-item.taken:active {
-  border-color: rgba(255, 51, 102, 0.6);
-  background: rgba(36, 16, 32, 0.85);
+  border-color: var(--gta-pink);
+  background: rgba(38, 14, 32, 0.9);
   transform: translateY(-2px);
 }
 
 /* Estado: Ganador */
 .seat-item.winner-seat {
-  background: linear-gradient(135deg, #ffd700 0%, #ff9900 100%) !important;
-  border: 2px solid #ffffff !important;
-  box-shadow: 0 0 35px rgba(255, 215, 0, 0.9) !important;
+  background: linear-gradient(135deg, #ffd700 0%, #ff7a00 100%) !important;
+  border: 2.5px solid #ffffff !important;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.95) !important;
   animation: winnerPulse 1.5s infinite;
   color: #000000 !important;
 }
@@ -1187,29 +1269,31 @@ select option {
 
 @keyframes winnerPulse {
   0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
-  50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(255, 215, 0, 1); }
+  50% { transform: scale(1.08); box-shadow: 0 0 50px rgba(255, 215, 0, 1); }
 }
 
-/* Tooltip on Seat Hover (Desktop only) */
+/* Tooltip on Seat Hover */
 @media (hover: hover) and (pointer: fine) {
   .seat-tooltip {
     position: absolute;
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%) translateY(4px);
-    background: rgba(6, 10, 18, 0.96);
-    border: 1px solid rgba(83, 252, 24, 0.4);
+    background: rgba(6, 8, 14, 0.98);
+    border: 1.5px solid var(--gta-pink);
     backdrop-filter: blur(10px);
     padding: 6px 12px;
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-family: var(--font-gta-sub);
+    font-size: 0.78rem;
+    font-weight: 800;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 42, 122, 0.35);
   }
 
   .seat-item:hover .seat-tooltip {
@@ -1226,7 +1310,7 @@ select option {
 }
 
 /* ------------------------------------------------------------------- */
-/* FLOATING TICKETS ACTION BAR                                         */
+/* FLOATING TICKETS ACTION BAR (GTA NEON STYLE)                        */
 /* ------------------------------------------------------------------- */
 .floating-action-bar {
   position: fixed;
@@ -1234,9 +1318,9 @@ select option {
   left: 50%;
   transform: translateX(-50%);
   width: min(calc(100% - 24px), 520px);
-  background: rgba(10, 15, 28, 0.96);
+  background: rgba(8, 11, 20, 0.96);
   border: 1.5px solid var(--kick-green);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(83, 252, 24, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(83, 252, 24, 0.35);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   padding: 12px 20px;
@@ -1250,13 +1334,16 @@ select option {
 }
 
 .floating-action-bar .action-bar-text {
-  font-size: clamp(0.82rem, 2vw, 0.92rem);
+  font-family: var(--font-gta-sub);
+  font-size: clamp(0.84rem, 2vw, 0.94rem);
   color: #ffffff;
 }
 
 .floating-action-bar .action-bar-text strong {
+  font-family: var(--font-gta);
   color: var(--kick-green);
-  font-size: 1.05rem;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
 }
 
 .floating-action-bar .btn {
@@ -1284,27 +1371,28 @@ select option {
 }
 
 .toast {
-  background: rgba(18, 24, 38, 0.96);
+  background: rgba(12, 16, 26, 0.98);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(83, 252, 24, 0.4);
+  border: 1.5px solid var(--gta-pink);
   padding: 12px 18px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 15px rgba(83, 252, 24, 0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 20px var(--gta-pink-glow);
   animation: slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   pointer-events: auto;
   min-width: 260px;
   max-width: 420px;
   color: #ffffff;
+  font-family: var(--font-gta-sub);
   font-size: 0.88rem;
 }
 
 .toast.toast-error {
   border-color: var(--danger-red);
-  box-shadow: 0 0 15px var(--danger-glow);
+  box-shadow: 0 0 20px var(--danger-glow);
 }
 
 @keyframes slide-in {
@@ -1380,7 +1468,7 @@ select option {
   }
 
   .brand-title {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
   }
 
   .kick-text-btn {
@@ -1575,7 +1663,7 @@ select option {
   }
 
   .seat-item .seat-num {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
   }
 
   .seat-item .seat-user-tag {
@@ -1600,7 +1688,7 @@ select option {
   }
 
   .hero-title {
-    font-size: 1.35rem;
+    font-size: 1.6rem;
   }
 
   .countdown-grid {
@@ -1609,7 +1697,7 @@ select option {
 
   .countdown-num {
     min-width: 36px;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
     padding: 4px 4px;
   }
 
@@ -1627,6 +1715,6 @@ select option {
   }
 
   .seat-item .seat-num {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
   }
 }
