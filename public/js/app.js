@@ -1,4 +1,20 @@
 // Lógica Principal de la Aplicación del Sorteo - Integrada con Supabase Cloud REST y Kick OAuth
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
+window.addEventListener('beforeunload', () => {
+  window.scrollTo(0, 0);
+});
+
+window.addEventListener('load', () => {
+  window.scrollTo(0, 0);
+  if (typeof ScrollTrigger !== 'undefined') {
+    ScrollTrigger.refresh();
+  }
+});
+
 let state = null;
 let currentFilter = 'all';
 let searchQuery = '';
@@ -611,6 +627,11 @@ function initHeroScrollAnimation() {
   }
 
   gsap.registerPlugin(ScrollTrigger);
+
+  if (typeof ScrollTrigger.clearScrollMemory === 'function') {
+    ScrollTrigger.clearScrollMemory('manual');
+  }
+  window.scrollTo(0, 0);
 
   const setupAnimation = () => {
     if (caozScrollTimeline) {
