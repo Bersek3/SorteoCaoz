@@ -610,8 +610,148 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 10. Navegación Inteligente (100% Transparente, Auto-Ocultar al Bajar, Mostrar al Subir)
+// 10. Animación de Zoom Out de la Máscara y Navegación Inteligente
 // -------------------------------------------------------------------
+let caozScrollTimeline = null;
+
+function initHeroScrollAnimation() {
+  const introSection = document.getElementById('heroIntroSection');
+  const maskWrapper = document.getElementById('caozMaskWrapper');
+  const ambientBackdrop = document.getElementById('caozAmbientBackdrop');
+  const mainSite = document.getElementById('mainSiteContent');
+  if (!introSection || !maskWrapper) return;
+
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (typeof ScrollTrigger.clearScrollMemory === 'function') {
+    ScrollTrigger.clearScrollMemory('manual');
+  }
+  window.scrollTo(0, 0);
+
+  const setupAnimation = () => {
+    if (caozScrollTimeline) {
+      caozScrollTimeline.kill();
+    }
+
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth <= 1024 && !isMobile;
+
+    const maskUrl = isMobile ? 'url("images/mask-caoz-mobile.svg")' : 'url("images/mask-caoz-desktop.svg")';
+    maskWrapper.style.webkitMaskImage = maskUrl;
+    maskWrapper.style.maskImage = maskUrl;
+
+    const initialPosX = isMobile ? 35.7 : 38.5;
+    const initialPosY = 50.0;
+    const initialSize = isMobile ? 3100 : 3500;
+
+    const targetPosX = 50.0;
+    const targetPosY = isMobile ? 48.0 : 50.0;
+    const targetSize = isMobile ? 52 : (isTablet ? 34 : 24);
+
+    const maskState = {
+      size: initialSize,
+      posX: initialPosX,
+      posY: initialPosY
+    };
+
+    const updateMask = () => {
+      const sizeVal = `${maskState.size}% ${maskState.size}%`;
+      const posVal = `${maskState.posX}% ${maskState.posY}%`;
+      maskWrapper.style.webkitMaskSize = sizeVal;
+      maskWrapper.style.maskSize = sizeVal;
+      maskWrapper.style.webkitMaskPosition = posVal;
+      maskWrapper.style.maskPosition = posVal;
+    };
+    updateMask();
+
+    gsap.set(maskWrapper, { opacity: 1 });
+    gsap.set('.fade-out', { opacity: 1 });
+    gsap.set('.scale-out', { scale: 1.12 });
+    if (ambientBackdrop) gsap.set(ambientBackdrop, { opacity: 0.85 });
+
+    caozScrollTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#heroIntroSection',
+        start: 'top top',
+        end: '+=120%',
+        scrub: 1.0,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      }
+    });
+
+    // 1. Flecha de scroll se desvanece
+    caozScrollTimeline.to('.fade-out', {
+      opacity: 0,
+      duration: 0.15,
+      ease: 'power1.out'
+    }, 0);
+
+    // 2. Imagen de fondo escala suavemente
+    caozScrollTimeline.to('.scale-out', {
+      scale: 1.0,
+      duration: 0.6,
+      ease: 'power1.inOut'
+    }, 0);
+
+    // 3. Zoom OUT de la máscara: sale desde el interior de la letra hacia el logo completo en el centro (0.0 -> 0.60)
+    caozScrollTimeline.to(maskState, {
+      size: targetSize,
+      posX: targetPosX,
+      posY: targetPosY,
+      duration: 0.60,
+      ease: 'power1.inOut',
+      onUpdate: updateMask
+    }, 0);
+
+    // 4. Transición continua y suave a la web: se disuelven la máscara y el fondo ambiental sin paneles negros (0.60 -> 1.0)
+    const heroElementsToFade = [maskWrapper];
+    if (ambientBackdrop) heroElementsToFade.push(ambientBackdrop);
+
+    caozScrollTimeline.to(heroElementsToFade, {
+      opacity: 0,
+      duration: 0.40,
+      ease: 'power1.out'
+    }, 0.60);
+
+    // 5. El contenido de la web emerge suavemente en paralelo
+    if (mainSite) {
+      caozScrollTimeline.fromTo(mainSite, 
+        { opacity: 0.4, y: 25 },
+        { opacity: 1, y: 0, duration: 0.40, ease: 'power1.out' },
+        0.60
+      );
+    }
+  };
+
+  setupAnimation();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      setupAnimation();
+      ScrollTrigger.refresh();
+    }, 200);
+  });
+
+  const scrollIndicator = document.getElementById('heroScrollIndicator');
+  if (scrollIndicator) {
+    scrollIndicator.addEventListener('click', () => {
+      window.scrollTo({
+        top: window.innerHeight * 1.3,
+        behavior: 'smooth'
+      });
+    });
+  }
+}
+
 function initSmartNavbar() {
   const navbar = document.getElementById('mainNavbar');
   if (!navbar) return;
@@ -646,7 +786,8 @@ function initSmartNavbar() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Iniciar Barra de Navegación Inteligente Transparente
+  // Iniciar Animación de Zoom Out de la Máscara y Navbar Inteligente
+  initHeroScrollAnimation();
   initSmartNavbar();
 
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
