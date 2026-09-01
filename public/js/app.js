@@ -709,55 +709,94 @@ function initHeroScrollAnimation() {
       }
     });
 
-    const overlayLogoWrapper = document.getElementById('caozOverlayLogoWrapper');
-    if (overlayLogoWrapper) {
-      gsap.set(overlayLogoWrapper, { opacity: 0 });
+    const flyingLogoWrapper = document.getElementById('caozFlyingLogoWrapper');
+    const flyingLogoSvg = document.getElementById('caozFlyingLogoSvg');
+    const brandLogo = document.getElementById('mainBrandLogo');
+
+    // Calcular desplazamiento exacto desde el centro de la pantalla hacia la esquina del navbar
+    let deltaX = -window.innerWidth * 0.42;
+    let deltaY = -window.innerHeight * 0.44;
+    let targetScale = 0.22;
+
+    if (brandLogo && flyingLogoSvg) {
+      const brandRect = brandLogo.getBoundingClientRect();
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const targetCenterX = brandRect.left + brandRect.width / 2;
+      const targetCenterY = brandRect.top + brandRect.height / 2;
+
+      deltaX = targetCenterX - centerX;
+      deltaY = targetCenterY - centerY;
+
+      const flyWidth = flyingLogoSvg.getBoundingClientRect().width || (isMobile ? 160 : 220);
+      targetScale = (brandRect.width || 42) / flyWidth;
     }
 
-    // 1. Textos iniciales y flecha se desvanecen
+    if (flyingLogoWrapper) {
+      gsap.set(flyingLogoWrapper, {
+        x: 0,
+        y: 0,
+        scale: 1,
+        opacity: 0
+      });
+    }
+
+    // 1. Flecha de scroll se desvanece al comenzar
     caozScrollTimeline.to('.fade-out', {
       opacity: 0,
-      duration: 0.25,
+      duration: 0.15,
       ease: 'power1.out'
     }, 0);
 
     // 2. Imagen de fondo original (bg_caoz.jpg) escala sutilmente a 1.0
     caozScrollTimeline.to('.scale-out', {
       scale: 1.0,
-      duration: 1.0,
+      duration: 0.6,
       ease: 'power1.inOut'
     }, 0);
 
-    // 3. Zoom OUT saliendo desde el interior de la letra hacia el logo completo
+    // 3. Zoom OUT saliendo desde el interior de la letra hacia el logo completo en el centro (0.0 -> 0.55)
     caozScrollTimeline.to(maskState, {
       size: targetSize,
       posX: targetPosX,
       posY: targetPosY,
-      duration: 1.0,
+      duration: 0.55,
       ease: 'power1.inOut',
       onUpdate: updateMask
     }, 0);
 
-    // 4. El contorno de neón resplandece al formarse el logo
-    if (overlayLogoWrapper) {
-      caozScrollTimeline.to(overlayLogoWrapper, {
+    // 4. El logo SVG brillante aparece en el centro y se despliega suavemente hacia la esquina del navbar
+    if (flyingLogoWrapper) {
+      // Aparece iluminado en el centro al formarse
+      caozScrollTimeline.to(flyingLogoWrapper, {
         opacity: 1,
-        duration: 0.25,
-        ease: 'power1.inOut'
-      }, 0.7);
-      caozScrollTimeline.to(overlayLogoWrapper, {
-        opacity: 0,
-        duration: 0.3,
+        duration: 0.12,
         ease: 'power1.out'
-      }, 0.85);
+      }, 0.45);
+
+      // Desplazamiento ultra suave hacia la esquina del navbar (brand-logo)
+      caozScrollTimeline.to(flyingLogoWrapper, {
+        x: deltaX,
+        y: deltaY,
+        scale: targetScale,
+        duration: 0.42,
+        ease: 'power2.inOut'
+      }, 0.55);
+
+      // Desvanece al posarse exactamente dentro del navbar
+      caozScrollTimeline.to(flyingLogoWrapper, {
+        opacity: 0,
+        duration: 0.08,
+        ease: 'power1.out'
+      }, 0.92);
     }
 
-    // 5. Se desvanece suavemente al final para dar paso al contenido del sorteo
+    // 5. La máscara del hero se desvanece suavemente dando paso a la web
     caozScrollTimeline.to(maskWrapper, {
       opacity: 0,
       duration: 0.35,
       ease: 'power1.out'
-    }, 0.85);
+    }, 0.65);
   };
 
   setupAnimation();
