@@ -678,14 +678,32 @@ function initHeroScrollAnimation() {
     gsap.set('.fade-out', { opacity: 1 });
     gsap.set('.scale-out', { scale: 1.0 });
 
+    let targetTime = 0;
+    let isSeeking = false;
+
+    // Decodificación por hardware no bloqueante para móviles (evita saturar el decodificador de iOS y Android)
+    const onSeekFrame = () => {
+      if (bgVideo && isFinite(targetTime) && !isSeeking) {
+        const threshold = isMobile ? 0.035 : 0.015;
+        if (Math.abs(bgVideo.currentTime - targetTime) > threshold) {
+          isSeeking = true;
+          bgVideo.currentTime = targetTime;
+        }
+      }
+    };
+
+    bgVideo.onseeked = () => {
+      isSeeking = false;
+    };
+
     const totalDur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 3.0;
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=200%',
-        scrub: 1.0,
+        end: isMobile ? '+=160%' : '+=200%',
+        scrub: isMobile ? 0.8 : 1.0,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
@@ -693,10 +711,8 @@ function initHeroScrollAnimation() {
           // El video avanza frame a frame en la primera parte del scroll (0% -> 60%)
           const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : totalDur;
           const videoProgress = Math.min(1, self.progress / 0.60);
-          const targetTime = Math.min(Math.max(0, dur - 0.03), videoProgress * dur);
-          if (bgVideo && isFinite(targetTime) && Math.abs(bgVideo.currentTime - targetTime) > 0.01) {
-            bgVideo.currentTime = targetTime;
-          }
+          targetTime = Math.min(Math.max(0, dur - 0.03), videoProgress * dur);
+          requestAnimationFrame(onSeekFrame);
         }
       }
     });

@@ -101,8 +101,17 @@
     -webkit-mask-image: url("../images/mask-caoz-mobile.svg") !important;
     mask-position: 35.7% 50%;
     -webkit-mask-position: 35.7% 50%;
-    mask-size: 1000% 1000%;
-    -webkit-mask-size: 1000% 1000%;
+    mask-size: 850% 850%;
+    -webkit-mask-size: 850% 850%;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: mask-size, -webkit-mask-size, transform;
+  }
+
+  .caoz-hero-bg {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
   }
 }
 
