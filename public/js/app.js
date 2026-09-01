@@ -615,14 +615,11 @@ function hashString(str) {
 let caozScrollTimeline = null;
 
 function initHeroScrollAnimation() {
-  const introWrapper = document.getElementById('heroIntroSection');
-  const desktopGroup = document.getElementById('caozHoleGroupDesktop');
-  const mobileGroup = document.getElementById('caozHoleGroupMobile');
-  const legacyGroup = document.getElementById('caozHoleGroup');
-  const introSvg = document.querySelector('.caoz-intro-svg');
-  const pinContainer = document.querySelector('.caoz-intro-pin-container');
-  const mainSite = document.getElementById('mainSiteContent');
-  if (!introWrapper || (!desktopGroup && !legacyGroup && !mobileGroup)) return;
+  const introSection = document.getElementById('heroIntroSection');
+  const maskWrapper = document.getElementById('caozMaskWrapper');
+  const mainNavbar = document.getElementById('mainNavbar') || document.querySelector('.navbar');
+
+  if (!introSection || !maskWrapper) return;
 
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
@@ -636,8 +633,6 @@ function initHeroScrollAnimation() {
   }
   window.scrollTo(0, 0);
 
-  const mainNavbar = document.getElementById('mainNavbar') || document.querySelector('.navbar');
-
   const setupAnimation = () => {
     if (caozScrollTimeline) {
       caozScrollTimeline.kill();
@@ -650,85 +645,48 @@ function initHeroScrollAnimation() {
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
 
-    let activeHoleGroup;
-    let originX, originY;
-    let targetScale;
+    // Seleccionar máscara según dispositivo: Móvil (Logo C Relámpago) o Escritorio (CAOZ texto)
+    const maskUrl = isMobile ? 'url("images/mask-caoz-mobile.svg")' : 'url("images/mask-caoz-desktop.svg")';
+    maskWrapper.style.webkitMaskImage = maskUrl;
+    maskWrapper.style.maskImage = maskUrl;
 
-    const mobileLogoBorder = document.getElementById('caozMobileLogoBorder');
+    const initialSize = isMobile ? 3100 : 3500;
+    const targetSize = isMobile ? 52 : (isTablet ? 34 : 24);
+    const maskPos = isMobile ? '50% 48%' : '50% 50%';
 
-    if (isMobile && mobileGroup) {
-      if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 256');
-      if (desktopGroup) desktopGroup.style.display = 'none';
-      if (legacyGroup) legacyGroup.style.display = 'none';
-      mobileGroup.style.display = 'block';
-      if (mobileLogoBorder) mobileLogoBorder.style.display = 'block';
-      activeHoleGroup = mobileGroup;
-      originX = 110.3;
-      originY = 135;
-      targetScale = 105;
-    } else {
-      if (introSvg) introSvg.setAttribute('viewBox', '0 0 224 150');
-      if (mobileGroup) mobileGroup.style.display = 'none';
-      if (mobileLogoBorder) mobileLogoBorder.style.display = 'none';
-      if (desktopGroup) desktopGroup.style.display = 'block';
-      activeHoleGroup = desktopGroup || legacyGroup;
-      originX = 112;
-      originY = 75;
-      targetScale = isTablet ? 52 : 44;
-    }
+    maskWrapper.style.webkitMaskPosition = maskPos;
+    maskWrapper.style.maskPosition = maskPos;
 
-    // Centrar y preparar el grupo SVG del recorte de CAOZ
-    gsap.set(activeHoleGroup, {
-      transformOrigin: `${originX}px ${originY}px`,
-      scale: 1,
-    });
+    const maskState = { size: initialSize };
+    const updateMask = () => {
+      const val = `${maskState.size}% ${maskState.size}%`;
+      maskWrapper.style.webkitMaskSize = val;
+      maskWrapper.style.maskSize = val;
+    };
+    updateMask();
 
-    if (mobileLogoBorder && isMobile) {
-      gsap.set(mobileLogoBorder, {
-        transformOrigin: `${originX}px ${originY}px`,
-        scale: 1,
-        opacity: 1
-      });
-    }
-
-    gsap.set(pinContainer, {
-      opacity: 1,
-      pointerEvents: 'auto',
-      visibility: 'visible',
-    });
-    gsap.set('.desvanecer-salida', { opacity: 1 });
-    gsap.set('.caoz-mask-dark-layer', { opacity: 0.98 });
-    gsap.set(mainSite, {
-      scale: 0.96,
-      transformOrigin: 'center 20%'
-    });
+    gsap.set(maskWrapper, { opacity: 1 });
+    gsap.set('.fade-out', { opacity: 1 });
+    gsap.set('.scale-out', { scale: 1.15 });
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=150%',
-        scrub: 1.0,
-        pin: '.caoz-intro-pin-container',
+        end: '+=180%',
+        scrub: 1.5,
+        pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onLeave: () => {
-          gsap.set(pinContainer, { autoAlpha: 0, pointerEvents: 'none' });
           if (mainNavbar) mainNavbar.classList.add('navbar-solid');
         },
         onEnterBack: () => {
-          gsap.set(pinContainer, { autoAlpha: 1, pointerEvents: 'auto' });
           if (mainNavbar) mainNavbar.classList.remove('navbar-solid');
         },
         onUpdate: (self) => {
-          if (self.progress > 0.55) {
-            gsap.set(pinContainer, { pointerEvents: 'none' });
-          } else {
-            gsap.set(pinContainer, { pointerEvents: 'auto' });
-          }
-
           if (mainNavbar) {
-            if (self.progress >= 0.82) {
+            if (self.progress >= 0.85) {
               mainNavbar.classList.add('navbar-solid');
             } else {
               mainNavbar.classList.remove('navbar-solid');
@@ -738,55 +696,44 @@ function initHeroScrollAnimation() {
       }
     });
 
-    // Construcción de la animación ultra suave y sin cortes ni solapes
-    caozScrollTimeline
-      // 1. Indicador desliza se desvanece suavemente
-      .to('.desvanecer-salida', { 
-        opacity: 0, 
-        duration: 0.2, 
-        ease: 'power1.out' 
-      }, 0)
+    // 1. Textos iniciales y flecha se desvanecen
+    caozScrollTimeline.to('.fade-out', {
+      opacity: 0,
+      duration: 0.25,
+      ease: 'power1.out'
+    }, 0);
 
-      // 2. Zoom progresivo entrando por el corte del logo CAOZ
-      .to(activeHoleGroup, {
-        scale: targetScale,
-        duration: 1.0,
-        ease: 'power2.inOut'
-      }, 0);
+    // 2. Imagen de fondo escala sutilmente a 1.0
+    caozScrollTimeline.to('.scale-out', {
+      scale: 1.0,
+      duration: 1.0,
+      ease: 'power1.inOut'
+    }, 0);
 
-    if (mobileLogoBorder && isMobile) {
-      caozScrollTimeline.to(mobileLogoBorder, {
-        scale: targetScale,
-        opacity: 0,
-        duration: 0.85,
-        ease: 'power2.inOut'
-      }, 0);
-    }
+    // 3. La máscara se contrae revelando el logo a partir de la imagen completa
+    caozScrollTimeline.to(maskState, {
+      size: targetSize,
+      duration: 1.0,
+      ease: 'power1.inOut',
+      onUpdate: updateMask
+    }, 0);
 
-    caozScrollTimeline
-      // 3. La página web escala de 0.96 a 1.0 de forma continua
-      .to(mainSite, {
-        scale: 1,
-        duration: 0.75,
-        ease: 'power1.out'
-      }, 0)
-
-      // 4. La máscara oscura se va difuminando antes de que el scroll alcance el navbar
-      .to('.caoz-mask-dark-layer', {
-        opacity: 0,
-        duration: 0.75,
-        ease: 'power1.inOut'
-      }, 0)
-
-      // 5. El contenedor del overlay se desvanece completamente a autoAlpha 0
-      .to(pinContainer, {
-        autoAlpha: 0,
-        duration: 0.25,
-        ease: 'power1.out'
-      }, 0.65);
+    // 4. Se desvanece suavemente al final para dar paso al contenido del sorteo
+    caozScrollTimeline.to(maskWrapper, {
+      opacity: 0,
+      duration: 0.35,
+      ease: 'power1.out'
+    }, 0.85);
   };
 
   setupAnimation();
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(setupAnimation, 250);
+  });
+}
 
   // Reajustar en cambio de tamaño de ventana con debounce
   let resizeTimeout;
