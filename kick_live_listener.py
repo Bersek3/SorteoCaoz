@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 KICK_CHANNEL = os.getenv("KICK_CHANNEL_SLUG", "Caoz").strip()
-PUSHER_KEY = "eb1d5f283081a78b932c"
+PUSHER_KEY = "32cbd69e4b950bf97679"
 PUSHER_CLUSTER = "us2"
-PUSHER_URL = f"wss://ws-{PUSHER_CLUSTER}.pusher.com/app/{PUSHER_KEY}?protocol=7&client=js&version=7.6.0&flash=false&cluster={PUSHER_CLUSTER}"
+PUSHER_URL = f"wss://ws-{PUSHER_CLUSTER}.pusher.com/app/{PUSHER_KEY}?protocol=7&client=js&version=8.4.0-rc2&flash=false"
 
 class KickLiveListener:
     """
