@@ -617,11 +617,9 @@ let caozScrollTimeline = null;
 function initHeroScrollAnimation() {
   const introSection = document.getElementById('heroIntroSection');
   const maskWrapper = document.getElementById('caozMaskWrapper');
-  const ambientBackdrop = document.getElementById('caozAmbientBackdrop');
   const mainSite = document.getElementById('mainSiteContent');
   const bgVideo = document.getElementById('heroBgVideo');
-  const ambientVideo = document.getElementById('heroAmbientVideo');
-  if (!introSection || !maskWrapper) return;
+  if (!introSection || !maskWrapper || !bgVideo) return;
 
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
@@ -643,10 +641,6 @@ function initHeroScrollAnimation() {
     if (bgVideo) {
       bgVideo.pause();
       bgVideo.currentTime = 0;
-    }
-    if (ambientVideo) {
-      ambientVideo.pause();
-      ambientVideo.currentTime = 0;
     }
 
     const isMobile = window.innerWidth <= 768;
@@ -683,75 +677,70 @@ function initHeroScrollAnimation() {
     gsap.set(maskWrapper, { opacity: 1 });
     gsap.set('.fade-out', { opacity: 1 });
     gsap.set('.scale-out', { scale: 1.0 });
-    if (ambientBackdrop) gsap.set(ambientBackdrop, { opacity: 0.85 });
+
+    const totalDur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 3.0;
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=180%',
-        scrub: true,
+        end: '+=200%',
+        scrub: 1.0,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          // El video avanza frame a frame en la primera parte del scroll (0% -> 60%)
+          const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : totalDur;
+          const videoProgress = Math.min(1, self.progress / 0.60);
+          const targetTime = Math.min(Math.max(0, dur - 0.03), videoProgress * dur);
+          if (bgVideo && isFinite(targetTime) && Math.abs(bgVideo.currentTime - targetTime) > 0.01) {
+            bgVideo.currentTime = targetTime;
+          }
+        }
       }
     });
 
-    // 1. Flecha de scroll se desvanece suavemente
+    // 1. Flecha de scroll se desvanece
     caozScrollTimeline.to('.fade-out', {
       opacity: 0,
-      duration: 0.2,
+      duration: 0.25,
       ease: 'power1.out'
     }, 0);
 
-    // 2. Zoom OUT de la máscara: sale desde el interior de la letra hacia el logo completo en el centro
+    // 2. Zoom OUT de la máscara CAOZ: se despliega suavemente hacia la vista completa del logo (0.50 -> 0.85)
     caozScrollTimeline.to(maskState, {
       size: targetSize,
       posX: targetPosX,
       posY: targetPosY,
-      duration: 2.0,
+      duration: 0.35,
       ease: 'power1.inOut',
       onUpdate: updateMask
-    }, 0);
+    }, 0.50);
 
-    // 3. Reproducción exacta del video controlada por GSAP scroll
-    const vidDur = () => (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 3.0;
-    if (bgVideo) {
-      caozScrollTimeline.to(bgVideo, {
-        currentTime: vidDur,
-        duration: 2.0,
-        ease: 'none'
-      }, 0);
-    }
-    if (ambientVideo) {
-      caozScrollTimeline.to(ambientVideo, {
-        currentTime: vidDur,
-        duration: 2.0,
-        ease: 'none'
-      }, 0);
-    }
-
-    // 4. Transición continua y suave a la web: disuelve máscara y fondo ambiental hacia el contenido
-    const heroElementsToFade = [maskWrapper];
-    if (ambientBackdrop) heroElementsToFade.push(ambientBackdrop);
-
-    caozScrollTimeline.to(heroElementsToFade, {
+    // 3. Transición suave a la web: disuelve la máscara hacia el contenido (0.80 -> 1.0)
+    caozScrollTimeline.to(maskWrapper, {
       opacity: 0,
-      duration: 0.8,
+      duration: 0.20,
       ease: 'power1.inOut'
-    }, 1.6);
+    }, 0.80);
 
-    // 5. El contenido de la web emerge en paralelo
+    // 4. El contenido de la web emerge en paralelo
     if (mainSite) {
       caozScrollTimeline.fromTo(mainSite, 
-        { opacity: 0.4, y: 25 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power1.inOut' },
-        1.6
+        { opacity: 0.4, y: 15 },
+        { opacity: 1, y: 0, duration: 0.20, ease: 'power1.inOut' },
+        0.80
       );
     }
   };
 
-  setupAnimation();
+  if (bgVideo.readyState >= 1) {
+    setupAnimation();
+  } else {
+    bgVideo.addEventListener('loadedmetadata', setupAnimation, { once: true });
+    setTimeout(setupAnimation, 200);
+  }
 
   let resizeTimer;
   window.addEventListener('resize', () => {

@@ -97,12 +97,12 @@
 
 @media (max-width: 768px) {
   .caoz-mask-wrapper {
-    mask-image: url("../images/mask-caoz-mobile.svg");
-    -webkit-mask-image: url("../images/mask-caoz-mobile.svg");
+    mask-image: url("../images/mask-caoz-mobile.svg") !important;
+    -webkit-mask-image: url("../images/mask-caoz-mobile.svg") !important;
     mask-position: 35.7% 50%;
     -webkit-mask-position: 35.7% 50%;
-    mask-size: 1100% 1100%;
-    -webkit-mask-size: 1100% 1100%;
+    mask-size: 1000% 1000%;
+    -webkit-mask-size: 1000% 1000%;
   }
 }
 
@@ -114,8 +114,11 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.0);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .scroll-indicator {
@@ -162,6 +165,9 @@
 .main-site-content {
   position: relative;
   z-index: 10;
+  will-change: opacity, transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 
 /* =================================================================== */
