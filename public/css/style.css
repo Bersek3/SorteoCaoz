@@ -710,6 +710,14 @@ body.admin-page .navbar,
   background: rgba(255, 215, 0, 0.16) !important;
 }
 
+.streamer-menu-item {
+  color: var(--kick-green) !important;
+}
+
+.streamer-menu-item:hover {
+  background: rgba(83, 252, 24, 0.16) !important;
+}
+
 .logout-menu-item {
   color: var(--danger-red) !important;
   font-family: inherit;

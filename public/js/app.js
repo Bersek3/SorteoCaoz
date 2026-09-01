@@ -304,7 +304,7 @@ function renderUI() {
 
     // Botones de Admin
     if (navAdminBtn) navAdminBtn.style.display = isAdmin ? 'flex' : 'none';
-    if (navDrawBtn) navDrawBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    if (navDrawBtn) navDrawBtn.style.display = isAdmin ? 'flex' : 'none';
     if (userRoleBadge) {
       if (isAdmin) {
         userRoleBadge.textContent = user.is_streamer ? '👑 Streamer' : '🛡️ Moderador';
