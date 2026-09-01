@@ -610,9 +610,33 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 10. Animación de Zoom Out de la Máscara y Navegación Inteligente
+// 10. Lenis Smooth Scroll & Animación de Máscara Fluida (Estilo GTA VI)
 // -------------------------------------------------------------------
 let caozScrollTimeline = null;
+let lenisInstance = null;
+
+function initSmoothScroll() {
+  if (typeof Lenis === 'undefined') return;
+
+  try {
+    lenisInstance = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+    });
+
+    lenisInstance.on('scroll', ScrollTrigger.update);
+
+    gsap.ticker.add((time) => {
+      lenisInstance.raf(time * 1000);
+    });
+
+    gsap.ticker.lagSmoothing(0);
+  } catch (err) {
+    console.warn('Lenis scroll error:', err);
+  }
+}
 
 function initHeroScrollAnimation() {
   const introSection = document.getElementById('heroIntroSection');
@@ -638,20 +662,12 @@ function initHeroScrollAnimation() {
       caozScrollTimeline.kill();
     }
 
-    const bgVideo = document.getElementById('heroBgVideo');
-    const ambientVideo = document.getElementById('heroAmbientVideo');
-
-    // Pausar video para que avance únicamente con el scroll
-    if (bgVideo) {
-      bgVideo.pause();
-      bgVideo.currentTime = 0;
-    }
-    if (ambientVideo) {
-      ambientVideo.pause();
-      ambientVideo.currentTime = 0;
-    }
-
-    const videoDuration = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 4.0;
+    // Asegurar que los videos se reproduzcan a 60fps continuos sin tirones
+    const bgVideos = document.querySelectorAll('#heroIntroSection video');
+    bgVideos.forEach(v => {
+      v.muted = true;
+      v.play().catch(() => {});
+    });
 
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
@@ -693,37 +709,22 @@ function initHeroScrollAnimation() {
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=150%',
-        scrub: 0.8,
+        end: '+=120%',
+        scrub: 1.0,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          // Control frame por frame según dirección del scroll:
-          // Scroll hacia abajo: avanza frame x frame hacia adelante
-          // Scroll hacia arriba: retrocede frame x frame
-          const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : videoDuration;
-          const targetTime = self.progress * dur;
-          if (isFinite(targetTime)) {
-            if (bgVideo && Math.abs(bgVideo.currentTime - targetTime) > 0.02) {
-              bgVideo.currentTime = targetTime;
-            }
-            if (ambientVideo && Math.abs(ambientVideo.currentTime - targetTime) > 0.02) {
-              ambientVideo.currentTime = targetTime;
-            }
-          }
-        }
       }
     });
 
-    // 1. Flecha de scroll se desvanece
+    // 1. Flecha de scroll se desvanece suavemente
     caozScrollTimeline.to('.fade-out', {
       opacity: 0,
       duration: 0.15,
       ease: 'power1.out'
     }, 0);
 
-    // 2. Escala sutil del video
+    // 2. Escala sutil del video para sensación de profundidad
     caozScrollTimeline.to('.scale-out', {
       scale: 1.0,
       duration: 0.6,
@@ -791,6 +792,9 @@ function initHeroScrollAnimation() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Iniciar Lenis Smooth Scroll para fluidez total a 60fps
+  initSmoothScroll();
+
   // Iniciar Animación de Zoom Out de la Máscara
   initHeroScrollAnimation();
 
