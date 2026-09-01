@@ -650,18 +650,31 @@ function initHeroScrollAnimation() {
     maskWrapper.style.webkitMaskImage = maskUrl;
     maskWrapper.style.maskImage = maskUrl;
 
+    // Posición inicial: EXACTAMENTE DENTRO DEL TRAZO DE LA LETRA (al igual que JSM GTA VI)
+    // Móvil: dentro de la columna sólida del logo 'C' (35.7% 50.0%)
+    // Desktop: dentro de la letra 'A' de CAOZ (38.5% 50.0%)
+    const initialPosX = isMobile ? 35.7 : 38.5;
+    const initialPosY = 50.0;
     const initialSize = isMobile ? 3100 : 3500;
+
+    // Posición final: centrado perfecto mostrando el logo completo
+    const targetPosX = 50.0;
+    const targetPosY = isMobile ? 48.0 : 50.0;
     const targetSize = isMobile ? 52 : (isTablet ? 34 : 24);
-    const maskPos = isMobile ? '50% 48%' : '50% 50%';
 
-    maskWrapper.style.webkitMaskPosition = maskPos;
-    maskWrapper.style.maskPosition = maskPos;
+    const maskState = {
+      size: initialSize,
+      posX: initialPosX,
+      posY: initialPosY
+    };
 
-    const maskState = { size: initialSize };
     const updateMask = () => {
-      const val = `${maskState.size}% ${maskState.size}%`;
-      maskWrapper.style.webkitMaskSize = val;
-      maskWrapper.style.maskSize = val;
+      const sizeVal = `${maskState.size}% ${maskState.size}%`;
+      const posVal = `${maskState.posX}% ${maskState.posY}%`;
+      maskWrapper.style.webkitMaskSize = sizeVal;
+      maskWrapper.style.maskSize = sizeVal;
+      maskWrapper.style.webkitMaskPosition = posVal;
+      maskWrapper.style.maskPosition = posVal;
     };
     updateMask();
 
@@ -696,28 +709,6 @@ function initHeroScrollAnimation() {
       }
     });
 
-    // 1. Textos iniciales y flecha se desvanecen
-    caozScrollTimeline.to('.fade-out', {
-      opacity: 0,
-      duration: 0.25,
-      ease: 'power1.out'
-    }, 0);
-
-    // 2. Imagen de fondo escala sutilmente a 1.0
-    caozScrollTimeline.to('.scale-out', {
-      scale: 1.0,
-      duration: 1.0,
-      ease: 'power1.inOut'
-    }, 0);
-
-    // 3. La máscara se contrae revelando el logo a partir de la imagen completa
-    caozScrollTimeline.to(maskState, {
-      size: targetSize,
-      duration: 1.0,
-      ease: 'power1.inOut',
-      onUpdate: updateMask
-    }, 0);
-
     const overlayLogoWrapper = document.getElementById('caozOverlayLogoWrapper');
     if (overlayLogoWrapper) {
       gsap.set(overlayLogoWrapper, { opacity: 0 });
@@ -737,9 +728,11 @@ function initHeroScrollAnimation() {
       ease: 'power1.inOut'
     }, 0);
 
-    // 3. La máscara se contrae revelando el logo a partir de la imagen completa
+    // 3. Zoom OUT saliendo desde el interior de la letra hacia el logo completo
     caozScrollTimeline.to(maskState, {
       size: targetSize,
+      posX: targetPosX,
+      posY: targetPosY,
       duration: 1.0,
       ease: 'power1.inOut',
       onUpdate: updateMask

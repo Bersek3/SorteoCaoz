@@ -62,19 +62,19 @@
   -webkit-mask-image: url("../images/mask-caoz-desktop.svg");
   mask-repeat: no-repeat;
   -webkit-mask-repeat: no-repeat;
-  mask-position: 50% 50%;
-  -webkit-mask-position: 50% 50%;
+  mask-position: 38.5% 50%;
+  -webkit-mask-position: 38.5% 50%;
   mask-size: 3500% 3500%;
   -webkit-mask-size: 3500% 3500%;
-  will-change: mask-size, -webkit-mask-size, opacity;
+  will-change: mask-size, -webkit-mask-size, mask-position, -webkit-mask-position, opacity;
 }
 
 @media (max-width: 768px) {
   .caoz-mask-wrapper {
     mask-image: url("../images/mask-caoz-mobile.svg");
     -webkit-mask-image: url("../images/mask-caoz-mobile.svg");
-    mask-position: 50% 48%;
-    -webkit-mask-position: 50% 48%;
+    mask-position: 35.7% 50%;
+    -webkit-mask-position: 35.7% 50%;
     mask-size: 3100% 3100%;
     -webkit-mask-size: 3100% 3100%;
   }
