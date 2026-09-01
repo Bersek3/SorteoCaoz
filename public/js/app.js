@@ -610,40 +610,17 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 10. Lenis Smooth Scroll & Animación de Máscara Fluida (Estilo GTA VI)
+// 10. Animación de Máscara y Video al Scroll (GSAP ScrollTrigger)
 // -------------------------------------------------------------------
 let caozScrollTimeline = null;
-let lenisInstance = null;
-let videoLerpTicker = null;
-
-function initSmoothScroll() {
-  if (typeof Lenis === 'undefined') return;
-
-  try {
-    lenisInstance = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    });
-
-    lenisInstance.on('scroll', ScrollTrigger.update);
-
-    gsap.ticker.add((time) => {
-      lenisInstance.raf(time * 1000);
-    });
-
-    gsap.ticker.lagSmoothing(0);
-  } catch (err) {
-    console.warn('Lenis scroll error:', err);
-  }
-}
 
 function initHeroScrollAnimation() {
   const introSection = document.getElementById('heroIntroSection');
   const maskWrapper = document.getElementById('caozMaskWrapper');
   const ambientBackdrop = document.getElementById('caozAmbientBackdrop');
   const mainSite = document.getElementById('mainSiteContent');
+  const bgVideo = document.getElementById('heroBgVideo');
+  const ambientVideo = document.getElementById('heroAmbientVideo');
   if (!introSection || !maskWrapper) return;
 
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
@@ -662,14 +639,7 @@ function initHeroScrollAnimation() {
     if (caozScrollTimeline) {
       caozScrollTimeline.kill();
     }
-    if (videoLerpTicker) {
-      gsap.ticker.remove(videoLerpTicker);
-    }
 
-    const bgVideo = document.getElementById('heroBgVideo');
-    const ambientVideo = document.getElementById('heroAmbientVideo');
-
-    // Al cargar o pulsar F5, el video queda estrictamente en pausa a tiempo 0
     if (bgVideo) {
       bgVideo.pause();
       bgVideo.currentTime = 0;
@@ -678,23 +648,6 @@ function initHeroScrollAnimation() {
       ambientVideo.pause();
       ambientVideo.currentTime = 0;
     }
-
-    let targetVideoTime = 0;
-    let currentVideoTime = 0;
-
-    // Interpolación LERP para avance y retroceso frame por frame ultra-fluido
-    videoLerpTicker = () => {
-      if (bgVideo && bgVideo.duration) {
-        currentVideoTime += (targetVideoTime - currentVideoTime) * 0.2;
-        if (Math.abs(bgVideo.currentTime - currentVideoTime) > 0.005) {
-          bgVideo.currentTime = currentVideoTime;
-        }
-        if (ambientVideo && Math.abs(ambientVideo.currentTime - currentVideoTime) > 0.005) {
-          ambientVideo.currentTime = currentVideoTime;
-        }
-      }
-    };
-    gsap.ticker.add(videoLerpTicker);
 
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
@@ -705,11 +658,11 @@ function initHeroScrollAnimation() {
 
     const initialPosX = isMobile ? 35.7 : 38.5;
     const initialPosY = 50.0;
-    const initialSize = isMobile ? 3100 : 3500;
+    const initialSize = isMobile ? 1000 : 1300;
 
     const targetPosX = 50.0;
     const targetPosY = isMobile ? 48.0 : 50.0;
-    const targetSize = isMobile ? 52 : (isTablet ? 34 : 24);
+    const targetSize = isMobile ? 46 : (isTablet ? 34 : 24);
 
     const maskState = {
       size: initialSize,
@@ -729,87 +682,76 @@ function initHeroScrollAnimation() {
 
     gsap.set(maskWrapper, { opacity: 1 });
     gsap.set('.fade-out', { opacity: 1 });
-    gsap.set('.scale-out', { scale: 1.12 });
+    gsap.set('.scale-out', { scale: 1.0 });
     if (ambientBackdrop) gsap.set(ambientBackdrop, { opacity: 0.85 });
 
     caozScrollTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=150%',
-        scrub: 1.0,
+        end: '+=180%',
+        scrub: true,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          // El video avanza frame a frame hacia adelante o atras con el scroll
-          const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 4.0;
-          targetVideoTime = self.progress * dur;
-        }
       }
     });
 
     // 1. Flecha de scroll se desvanece suavemente
     caozScrollTimeline.to('.fade-out', {
       opacity: 0,
-      duration: 0.15,
+      duration: 0.2,
       ease: 'power1.out'
     }, 0);
 
-    // 2. Escala sutil del video para sensación de profundidad
-    caozScrollTimeline.to('.scale-out', {
-      scale: 1.0,
-      duration: 0.6,
-      ease: 'power1.inOut'
-    }, 0);
-
-    // 3. Zoom OUT de la máscara: sale desde el interior de la letra hacia el logo completo en el centro (0.0 -> 0.60)
+    // 2. Zoom OUT de la máscara: sale desde el interior de la letra hacia el logo completo en el centro
     caozScrollTimeline.to(maskState, {
       size: targetSize,
       posX: targetPosX,
       posY: targetPosY,
-      duration: 0.60,
+      duration: 2.0,
       ease: 'power1.inOut',
       onUpdate: updateMask
     }, 0);
 
-    // 4. Transición continua y suave a la web: se disuelven la máscara y el fondo ambiental sin paneles negros (0.60 -> 1.0)
+    // 3. Reproducción exacta del video controlada por GSAP scroll
+    const vidDur = () => (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 3.0;
+    if (bgVideo) {
+      caozScrollTimeline.to(bgVideo, {
+        currentTime: vidDur,
+        duration: 2.0,
+        ease: 'none'
+      }, 0);
+    }
+    if (ambientVideo) {
+      caozScrollTimeline.to(ambientVideo, {
+        currentTime: vidDur,
+        duration: 2.0,
+        ease: 'none'
+      }, 0);
+    }
+
+    // 4. Transición continua y suave a la web: disuelve máscara y fondo ambiental hacia el contenido
     const heroElementsToFade = [maskWrapper];
     if (ambientBackdrop) heroElementsToFade.push(ambientBackdrop);
 
     caozScrollTimeline.to(heroElementsToFade, {
       opacity: 0,
-      duration: 0.40,
-      ease: 'power1.out'
-    }, 0.60);
+      duration: 0.8,
+      ease: 'power1.inOut'
+    }, 1.6);
 
-    // 5. El contenido de la web emerge suavemente en paralelo
+    // 5. El contenido de la web emerge en paralelo
     if (mainSite) {
       caozScrollTimeline.fromTo(mainSite, 
         { opacity: 0.4, y: 25 },
-        { opacity: 1, y: 0, duration: 0.40, ease: 'power1.out' },
-        0.60
+        { opacity: 1, y: 0, duration: 0.8, ease: 'power1.inOut' },
+        1.6
       );
     }
   };
 
   setupAnimation();
-
-  // Si los metadatos del video cargan después, reajustar con la duración precisa
-  const bgVidElem = document.getElementById('heroBgVideo');
-  if (bgVidElem) {
-    bgVidElem.addEventListener('loadedmetadata', () => {
-      setupAnimation();
-    }, { once: true });
-  }
-
-  // Si los metadatos del video cargan después, reajustar con la duración precisa
-  const bgVidElem = document.getElementById('heroBgVideo');
-  if (bgVidElem) {
-    bgVidElem.addEventListener('loadedmetadata', () => {
-      setupAnimation();
-    }, { once: true });
-  }
 
   let resizeTimer;
   window.addEventListener('resize', () => {
@@ -824,7 +766,7 @@ function initHeroScrollAnimation() {
   if (scrollIndicator) {
     scrollIndicator.addEventListener('click', () => {
       window.scrollTo({
-        top: window.innerHeight * 1.3,
+        top: window.innerHeight * 1.5,
         behavior: 'smooth'
       });
     });
@@ -832,10 +774,7 @@ function initHeroScrollAnimation() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Iniciar Lenis Smooth Scroll para fluidez total a 60fps
-  initSmoothScroll();
-
-  // Iniciar Animación de Zoom Out de la Máscara
+  // Iniciar Animación de Zoom Out de la Máscara y Video Scroll
   initHeroScrollAnimation();
 
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
