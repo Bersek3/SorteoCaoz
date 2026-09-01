@@ -718,7 +718,48 @@ function initHeroScrollAnimation() {
       onUpdate: updateMask
     }, 0);
 
-    // 4. Se desvanece suavemente al final para dar paso al contenido del sorteo
+    const overlayLogoWrapper = document.getElementById('caozOverlayLogoWrapper');
+    if (overlayLogoWrapper) {
+      gsap.set(overlayLogoWrapper, { opacity: 0 });
+    }
+
+    // 1. Textos iniciales y flecha se desvanecen
+    caozScrollTimeline.to('.fade-out', {
+      opacity: 0,
+      duration: 0.25,
+      ease: 'power1.out'
+    }, 0);
+
+    // 2. Imagen de fondo original (bg_caoz.jpg) escala sutilmente a 1.0
+    caozScrollTimeline.to('.scale-out', {
+      scale: 1.0,
+      duration: 1.0,
+      ease: 'power1.inOut'
+    }, 0);
+
+    // 3. La máscara se contrae revelando el logo a partir de la imagen completa
+    caozScrollTimeline.to(maskState, {
+      size: targetSize,
+      duration: 1.0,
+      ease: 'power1.inOut',
+      onUpdate: updateMask
+    }, 0);
+
+    // 4. El contorno de neón resplandece al formarse el logo
+    if (overlayLogoWrapper) {
+      caozScrollTimeline.to(overlayLogoWrapper, {
+        opacity: 1,
+        duration: 0.25,
+        ease: 'power1.inOut'
+      }, 0.7);
+      caozScrollTimeline.to(overlayLogoWrapper, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power1.out'
+      }, 0.85);
+    }
+
+    // 5. Se desvanece suavemente al final para dar paso al contenido del sorteo
     caozScrollTimeline.to(maskWrapper, {
       opacity: 0,
       duration: 0.35,
@@ -728,18 +769,11 @@ function initHeroScrollAnimation() {
 
   setupAnimation();
 
+  // Reajustar en cambio de tamaño de ventana con debounce
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(setupAnimation, 250);
-  });
-}
-
-  // Reajustar en cambio de tamaño de ventana con debounce
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
+    resizeTimer = setTimeout(() => {
       setupAnimation();
       ScrollTrigger.refresh();
     }, 200);

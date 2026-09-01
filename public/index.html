@@ -24,7 +24,7 @@
   <section class="caoz-hero-section" id="heroIntroSection">
     <div class="caoz-mask-pin-container">
       <div class="caoz-mask-wrapper" id="caozMaskWrapper">
-        <img src="images/hero-bg.webp" alt="GTA VI Background" class="caoz-hero-bg scale-out" id="heroBgImg" />
+        <img src="images/bg_caoz.jpg" alt="CAOZ Background" class="caoz-hero-bg scale-out" id="heroBgImg" />
         <div class="hero-overlay-content fade-out">
           <div class="hero-center-badge">
             <span class="hero-pulse-dot"></span>
@@ -33,6 +33,30 @@
           <h1 class="hero-grand-title">SORTEO CAOZ</h1>
           <p class="hero-grand-subtitle">PLAYSTATION 5 SLIM (EDICIÓN DISCO)</p>
         </div>
+      </div>
+
+      <!-- Overlay Logo Border that lights up as the logo forms -->
+      <div class="caoz-overlay-logo-wrapper" id="caozOverlayLogoWrapper">
+        <svg class="caoz-overlay-logo-svg" viewBox="0 0 224 256" id="caozOverlayLogoSvg">
+          <defs>
+            <linearGradient id="caozLogoNeonGlowHero" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff7a00" />
+              <stop offset="50%" stop-color="#ff2a7a" />
+              <stop offset="100%" stop-color="#53fc18" />
+            </linearGradient>
+            <filter id="neonGlowFilterHero" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path id="heroOverlayLogoPath"
+            d="M 76.8 88.3 L 159.8 71.6 L 154.2 98.0 L 98.4 107.8 L 90.1 141.3 L 168.4 127.0 L 95.0 190.6 L 112.9 152.7 L 61.5 166.3 Z"
+            fill="none" stroke="url(#caozLogoNeonGlowHero)" stroke-width="3.5" stroke-linejoin="round"
+            stroke-linecap="round" filter="url(#neonGlowFilterHero)" />
+        </svg>
       </div>
 
       <!-- Floating Scroll Indicator -->
