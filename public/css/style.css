@@ -36,7 +36,8 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background-color: #06080d;
+  background: transparent;
+  pointer-events: none;
 }
 
 .caoz-mask-pin-container {
@@ -45,8 +46,27 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background-color: #06080d;
+  background: transparent;
   z-index: 120;
+  pointer-events: auto;
+  will-change: opacity;
+}
+
+.caoz-ambient-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(180deg, rgba(6, 8, 13, 0.45) 0%, rgba(6, 8, 13, 0.85) 100%),
+    url('../images/bg_caoz.jpg');
+  background-size: cover;
+  background-position: center 25%;
+  filter: blur(14px) brightness(0.65);
+  transform: scale(1.12);
+  opacity: 0.85;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 .caoz-mask-wrapper {

@@ -686,8 +686,8 @@ function initHeroScrollAnimation() {
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=180%',
-        scrub: 1.5,
+        end: '+=130%',
+        scrub: 1.0,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
@@ -712,6 +712,8 @@ function initHeroScrollAnimation() {
     const flyingLogoWrapper = document.getElementById('caozFlyingLogoWrapper');
     const flyingLogoSvg = document.getElementById('caozFlyingLogoSvg');
     const brandLogo = document.getElementById('mainBrandLogo');
+    const ambientBackdrop = document.getElementById('caozAmbientBackdrop');
+    const mainSite = document.getElementById('mainSiteContent');
 
     // Calcular desplazamiento exacto desde el centro de la pantalla hacia la esquina del navbar
     let deltaX = -window.innerWidth * 0.42;
@@ -741,26 +743,34 @@ function initHeroScrollAnimation() {
       });
     }
 
-    // 1. Flecha de scroll se desvanece al comenzar
+    if (ambientBackdrop) {
+      gsap.set(ambientBackdrop, { opacity: 0.85 });
+    }
+
+    if (mainSite) {
+      gsap.set(mainSite, { opacity: 1, y: 0 });
+    }
+
+    // 1. Flecha de scroll se desvanece al comenzar a deslizar
     caozScrollTimeline.to('.fade-out', {
       opacity: 0,
       duration: 0.15,
       ease: 'power1.out'
     }, 0);
 
-    // 2. Imagen de fondo original (bg_caoz.jpg) escala sutilmente a 1.0
+    // 2. Imagen de fondo original (bg_caoz.jpg) escala suavemente
     caozScrollTimeline.to('.scale-out', {
       scale: 1.0,
       duration: 0.6,
       ease: 'power1.inOut'
     }, 0);
 
-    // 3. Zoom OUT saliendo desde el interior de la letra hacia el logo completo en el centro (0.0 -> 0.55)
+    // 3. Zoom OUT de la máscara: sale desde el interior de la letra hacia el logo completo (0.0 -> 0.52)
     caozScrollTimeline.to(maskState, {
       size: targetSize,
       posX: targetPosX,
       posY: targetPosY,
-      duration: 0.55,
+      duration: 0.52,
       ease: 'power1.inOut',
       onUpdate: updateMask
     }, 0);
@@ -770,18 +780,18 @@ function initHeroScrollAnimation() {
       // Aparece iluminado en el centro al formarse
       caozScrollTimeline.to(flyingLogoWrapper, {
         opacity: 1,
-        duration: 0.12,
+        duration: 0.14,
         ease: 'power1.out'
-      }, 0.45);
+      }, 0.42);
 
       // Desplazamiento ultra suave hacia la esquina del navbar (brand-logo)
       caozScrollTimeline.to(flyingLogoWrapper, {
         x: deltaX,
         y: deltaY,
         scale: targetScale,
-        duration: 0.42,
+        duration: 0.44,
         ease: 'power2.inOut'
-      }, 0.55);
+      }, 0.52);
 
       // Desvanece al posarse exactamente dentro del navbar
       caozScrollTimeline.to(flyingLogoWrapper, {
@@ -791,12 +801,24 @@ function initHeroScrollAnimation() {
       }, 0.92);
     }
 
-    // 5. La máscara del hero se desvanece suavemente dando paso a la web
-    caozScrollTimeline.to(maskWrapper, {
+    // 5. Transición continua y suave a la web: se disuelven la máscara y el fondo ambiental sin paneles negros
+    const heroElementsToFade = [maskWrapper];
+    if (ambientBackdrop) heroElementsToFade.push(ambientBackdrop);
+
+    caozScrollTimeline.to(heroElementsToFade, {
       opacity: 0,
-      duration: 0.35,
+      duration: 0.38,
       ease: 'power1.out'
-    }, 0.65);
+    }, 0.58);
+
+    // 6. El contenido de la web emerge suavemente en paralelo
+    if (mainSite) {
+      caozScrollTimeline.fromTo(mainSite, 
+        { opacity: 0.5, y: 25 },
+        { opacity: 1, y: 0, duration: 0.38, ease: 'power1.out' },
+        0.58
+      );
+    }
   };
 
   setupAnimation();
