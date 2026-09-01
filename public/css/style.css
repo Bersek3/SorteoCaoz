@@ -270,7 +270,7 @@ h1, h2, h3, h4, .modal-title, .draw-title {
 }
 
 /* ------------------------------------------------------------------- */
-/* TOP NAVIGATION BAR (100% TRANSPARENT, AUTO-HIDE ON SCROLL DOWN)      */
+/* TOP NAVIGATION BAR (100% TRANSPARENT, LOGO PERSISTENT IN CORNER)    */
 /* ------------------------------------------------------------------- */
 .navbar {
   position: fixed;
@@ -278,19 +278,12 @@ h1, h2, h3, h4, .modal-title, .draw-title {
   left: 0;
   width: 100%;
   z-index: 1000;
-  padding: clamp(10px, 1.8vh, 18px) 0;
+  padding: clamp(12px, 2vh, 20px) 0;
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border: none !important;
   box-shadow: none !important;
-  transform: translateY(0);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: auto;
-}
-
-.navbar.navbar-hidden {
-  transform: translateY(-130%);
   pointer-events: none;
 }
 
@@ -306,6 +299,7 @@ h1, h2, h3, h4, .modal-title, .draw-title {
   align-items: center;
   text-decoration: none;
   flex-shrink: 0;
+  pointer-events: auto;
 }
 
 .brand-logo {

@@ -752,43 +752,9 @@ function initHeroScrollAnimation() {
   }
 }
 
-function initSmartNavbar() {
-  const navbar = document.getElementById('mainNavbar');
-  if (!navbar) return;
-
-  let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
-  let ticking = false;
-
-  window.addEventListener('scroll', () => {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-
-        // Si estamos arriba del todo, siempre visible
-        if (currentScrollY <= 15) {
-          navbar.classList.remove('navbar-hidden');
-        } 
-        // Si hace scroll hacia abajo (más de 35px), ocultar suavemente
-        else if (currentScrollY > lastScrollY && currentScrollY > 35) {
-          navbar.classList.add('navbar-hidden');
-        } 
-        // Si hace scroll hacia arriba, mostrar suavemente
-        else if (currentScrollY < lastScrollY) {
-          navbar.classList.remove('navbar-hidden');
-        }
-
-        lastScrollY = Math.max(0, currentScrollY);
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }, { passive: true });
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
-  // Iniciar Animación de Zoom Out de la Máscara y Navbar Inteligente
+  // Iniciar Animación de Zoom Out de la Máscara
   initHeroScrollAnimation();
-  initSmartNavbar();
 
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
   if (typeof processKickOAuthCallback === 'function') {
