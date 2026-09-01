@@ -614,6 +614,7 @@ function hashString(str) {
 // -------------------------------------------------------------------
 let caozScrollTimeline = null;
 let lenisInstance = null;
+let videoLerpTicker = null;
 
 function initSmoothScroll() {
   if (typeof Lenis === 'undefined') return;
@@ -661,13 +662,39 @@ function initHeroScrollAnimation() {
     if (caozScrollTimeline) {
       caozScrollTimeline.kill();
     }
+    if (videoLerpTicker) {
+      gsap.ticker.remove(videoLerpTicker);
+    }
 
-    // Asegurar que los videos se reproduzcan a 60fps continuos sin tirones
-    const bgVideos = document.querySelectorAll('#heroIntroSection video');
-    bgVideos.forEach(v => {
-      v.muted = true;
-      v.play().catch(() => {});
-    });
+    const bgVideo = document.getElementById('heroBgVideo');
+    const ambientVideo = document.getElementById('heroAmbientVideo');
+
+    // Al cargar o pulsar F5, el video queda estrictamente en pausa a tiempo 0
+    if (bgVideo) {
+      bgVideo.pause();
+      bgVideo.currentTime = 0;
+    }
+    if (ambientVideo) {
+      ambientVideo.pause();
+      ambientVideo.currentTime = 0;
+    }
+
+    let targetVideoTime = 0;
+    let currentVideoTime = 0;
+
+    // Interpolación LERP para avance y retroceso frame por frame ultra-fluido
+    videoLerpTicker = () => {
+      if (bgVideo && bgVideo.duration) {
+        currentVideoTime += (targetVideoTime - currentVideoTime) * 0.2;
+        if (Math.abs(bgVideo.currentTime - currentVideoTime) > 0.005) {
+          bgVideo.currentTime = currentVideoTime;
+        }
+        if (ambientVideo && Math.abs(ambientVideo.currentTime - currentVideoTime) > 0.005) {
+          ambientVideo.currentTime = currentVideoTime;
+        }
+      }
+    };
+    gsap.ticker.add(videoLerpTicker);
 
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
@@ -709,11 +736,16 @@ function initHeroScrollAnimation() {
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=120%',
+        end: '+=150%',
         scrub: 1.0,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          // El video avanza frame a frame hacia adelante o atras con el scroll
+          const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 4.0;
+          targetVideoTime = self.progress * dur;
+        }
       }
     });
 
@@ -762,6 +794,14 @@ function initHeroScrollAnimation() {
   };
 
   setupAnimation();
+
+  // Si los metadatos del video cargan después, reajustar con la duración precisa
+  const bgVidElem = document.getElementById('heroBgVideo');
+  if (bgVidElem) {
+    bgVidElem.addEventListener('loadedmetadata', () => {
+      setupAnimation();
+    }, { once: true });
+  }
 
   // Si los metadatos del video cargan después, reajustar con la duración precisa
   const bgVidElem = document.getElementById('heroBgVideo');
