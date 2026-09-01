@@ -39,18 +39,28 @@ async function loadAdminData() {
     return;
   }
 
-  const currentUser = localStorage.getItem('kick_user');
-  const role = (typeof checkUserRole === 'function') 
-    ? checkUserRole(currentUser)
-    : { is_admin: ['bersek', 'caoz'].includes((currentUser || '').toLowerCase()) };
+    const currentUser = localStorage.getItem('kick_user');
+    const role = (typeof checkUserRole === 'function') 
+      ? checkUserRole(currentUser)
+      : { is_admin: ['bersek', 'caoz'].includes((currentUser || '').toLowerCase()) };
 
-  if (!role.is_admin) {
-    alert('Acceso no autorizado. Debes iniciar sesión con tu cuenta de Kick (@Caoz o @Bersek).');
-    window.location.href = 'index.html';
-    return;
-  }
+    if (!role.is_admin) {
+      alert('Acceso no autorizado. Debes iniciar sesión con tu cuenta de Kick (@Caoz o @Bersek).');
+      window.location.href = 'index.html';
+      return;
+    }
 
-  try {
+    // Actualizar datos del navbar de admin
+    const navUserName = document.getElementById('navUserName');
+    const navUserAvatar = document.getElementById('navUserAvatar');
+    const dropdownUserName = document.getElementById('dropdownUserName');
+    if (navUserName) navUserName.textContent = `@${currentUser || 'Admin'}`;
+    if (dropdownUserName) dropdownUserName.textContent = `@${currentUser || 'Admin'}`;
+    if (navUserAvatar && typeof getDicebearAvatar === 'function') {
+      navUserAvatar.src = getDicebearAvatar(currentUser || 'admin');
+    }
+
+    try {
     const [configRes, seatsRes, profilesRes] = await Promise.all([
       supabaseClient.from('giveaway_config').select('*').eq('id', 'current').single(),
       supabaseClient.from('seats').select('*'),
@@ -494,7 +504,83 @@ function showToast(message, isError = false) {
   }, 4000);
 }
 
+function handleLogout() {
+  localStorage.removeItem('kick_user');
+  window.location.href = 'index.html';
+}
+
+function initNavbarLogic() {
+  const navbar = document.getElementById('mainNavbar');
+  const userPill = document.getElementById('userPillBox');
+  const userDropdown = document.getElementById('userDropdownMenu');
+  const userPillContainer = document.getElementById('userPillContainer');
+  const logoutBtnElem = document.getElementById('adminLogoutBtn');
+
+  // 1. Auto-Hide Navbar al hacer scroll hacia abajo, mostrar al hacer scroll hacia arriba
+  let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+        if (!navbar) return;
+
+        if (currentScrollY <= 80) {
+          navbar.classList.remove('navbar-hidden');
+        } else if (currentScrollY > lastScrollY + 6) {
+          navbar.classList.add('navbar-hidden');
+          if (userDropdown) userDropdown.classList.remove('active');
+          if (userPillContainer) userPillContainer.classList.remove('open');
+        } else if (currentScrollY < lastScrollY - 6) {
+          navbar.classList.remove('navbar-hidden');
+        }
+
+        lastScrollY = Math.max(0, currentScrollY);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // 2. Toggle User Dropdown Menu al hacer clic en el pill de usuario
+  if (userPill && userDropdown) {
+    userPill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = userDropdown.classList.toggle('active');
+      if (userPillContainer) {
+        userPillContainer.classList.toggle('open', isActive);
+      }
+    });
+
+    const dropdownLinks = userDropdown.querySelectorAll('.dropdown-item:not(#adminLogoutBtn)');
+    dropdownLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+        if (userPillContainer) userPillContainer.classList.remove('open');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!userDropdown.contains(e.target) && !userPill.contains(e.target)) {
+        userDropdown.classList.remove('active');
+        if (userPillContainer) userPillContainer.classList.remove('open');
+      }
+    });
+  }
+
+  // 3. Botón de Salir
+  if (logoutBtnElem) {
+    logoutBtnElem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (userDropdown) userDropdown.classList.remove('active');
+      handleLogout();
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initNavbarLogic();
   loadAdminData();
   initSupabaseRealtime();
 
