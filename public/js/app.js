@@ -638,10 +638,20 @@ function initHeroScrollAnimation() {
       caozScrollTimeline.kill();
     }
 
-    const bgVideos = document.querySelectorAll('#heroIntroSection video');
-    bgVideos.forEach(v => {
-      if (v.paused) v.play().catch(() => {});
-    });
+    const bgVideo = document.getElementById('heroBgVideo');
+    const ambientVideo = document.getElementById('heroAmbientVideo');
+
+    // Pausar video para que avance únicamente con el scroll
+    if (bgVideo) {
+      bgVideo.pause();
+      bgVideo.currentTime = 0;
+    }
+    if (ambientVideo) {
+      ambientVideo.pause();
+      ambientVideo.currentTime = 0;
+    }
+
+    const videoDuration = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 4.0;
 
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
@@ -683,11 +693,26 @@ function initHeroScrollAnimation() {
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
-        end: '+=120%',
-        scrub: 1.0,
+        end: '+=150%',
+        scrub: 0.8,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          // Control frame por frame según dirección del scroll:
+          // Scroll hacia abajo: avanza frame x frame hacia adelante
+          // Scroll hacia arriba: retrocede frame x frame
+          const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : videoDuration;
+          const targetTime = self.progress * dur;
+          if (isFinite(targetTime)) {
+            if (bgVideo && Math.abs(bgVideo.currentTime - targetTime) > 0.02) {
+              bgVideo.currentTime = targetTime;
+            }
+            if (ambientVideo && Math.abs(ambientVideo.currentTime - targetTime) > 0.02) {
+              ambientVideo.currentTime = targetTime;
+            }
+          }
+        }
       }
     });
 
@@ -698,7 +723,7 @@ function initHeroScrollAnimation() {
       ease: 'power1.out'
     }, 0);
 
-    // 2. Imagen de fondo escala suavemente
+    // 2. Escala sutil del video
     caozScrollTimeline.to('.scale-out', {
       scale: 1.0,
       duration: 0.6,
@@ -736,6 +761,14 @@ function initHeroScrollAnimation() {
   };
 
   setupAnimation();
+
+  // Si los metadatos del video cargan después, reajustar con la duración precisa
+  const bgVidElem = document.getElementById('heroBgVideo');
+  if (bgVidElem) {
+    bgVidElem.addEventListener('loadedmetadata', () => {
+      setupAnimation();
+    }, { once: true });
+  }
 
   let resizeTimer;
   window.addEventListener('resize', () => {
