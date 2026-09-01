@@ -638,6 +638,11 @@ function initHeroScrollAnimation() {
       caozScrollTimeline.kill();
     }
 
+    const bgVideos = document.querySelectorAll('#heroIntroSection video');
+    bgVideos.forEach(v => {
+      if (v.paused) v.play().catch(() => {});
+    });
+
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth <= 1024 && !isMobile;
 
