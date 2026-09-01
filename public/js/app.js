@@ -289,8 +289,21 @@ function renderUI() {
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'block';
     if (seatsLockedBox) seatsLockedBox.style.display = 'none';
 
+    const dropdownUserName = document.getElementById('dropdownUserName');
+    const dropdownRoleBadge = document.getElementById('dropdownRoleBadge');
+    if (dropdownUserName) dropdownUserName.textContent = `@${user.username}`;
+    if (dropdownRoleBadge) {
+      if (isAdmin) {
+        dropdownRoleBadge.textContent = user.is_streamer ? '👑 Streamer' : '🛡️ Moderador';
+        dropdownRoleBadge.style.color = 'var(--kick-green)';
+      } else {
+        dropdownRoleBadge.textContent = '⭐ Espectador';
+        dropdownRoleBadge.style.color = '#00f2fe';
+      }
+    }
+
     // Botones de Admin
-    if (navAdminBtn) navAdminBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+    if (navAdminBtn) navAdminBtn.style.display = isAdmin ? 'flex' : 'none';
     if (navDrawBtn) navDrawBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     if (userRoleBadge) {
       if (isAdmin) {
@@ -334,6 +347,8 @@ function renderUI() {
   } else {
     if (navLoginBtn) navLoginBtn.style.display = 'inline-flex';
     if (userPillBox) userPillBox.style.display = 'none';
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+    if (userDropdownMenu) userDropdownMenu.classList.remove('active');
     if (navAdminBtn) navAdminBtn.style.display = 'none';
     if (navDrawBtn) navDrawBtn.style.display = 'none';
 
@@ -610,6 +625,102 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
+// 9. Navbar Inteligente (Auto-Hide al Scroll) y Menú de Usuario
+// -------------------------------------------------------------------
+function initNavbarLogic() {
+  const navbar = document.getElementById('mainNavbar');
+  const userPill = document.getElementById('userPillBox');
+  const userDropdown = document.getElementById('userDropdownMenu');
+  const userPillContainer = document.getElementById('userPillContainer');
+  const logoutBtnElem = document.getElementById('logoutBtn');
+
+  // 1. Auto-Hide Navbar al hacer scroll hacia abajo, mostrar al hacer scroll hacia arriba
+  let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+        if (!navbar) return;
+
+        // Si estamos cerca del tope, siempre visible
+        if (currentScrollY <= 80) {
+          navbar.classList.remove('navbar-hidden');
+        } else if (currentScrollY > lastScrollY + 6) {
+          // Scroll hacia abajo -> Ocultar navbar y cerrar dropdown
+          navbar.classList.add('navbar-hidden');
+          if (userDropdown) userDropdown.classList.remove('active');
+          if (userPillContainer) userPillContainer.classList.remove('open');
+        } else if (currentScrollY < lastScrollY - 6) {
+          // Scroll hacia arriba -> Mostrar navbar
+          navbar.classList.remove('navbar-hidden');
+        }
+
+        lastScrollY = Math.max(0, currentScrollY);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // 2. Toggle User Dropdown Menu al hacer clic en el pill de usuario
+  if (userPill && userDropdown) {
+    userPill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = userDropdown.classList.toggle('active');
+      if (userPillContainer) {
+        userPillContainer.classList.toggle('open', isActive);
+      }
+      if (typeof soundFX !== 'undefined' && soundFX.playPop) {
+        soundFX.playPop();
+      }
+    });
+
+    // Cerrar menú al hacer clic en cualquier enlace del dropdown
+    const dropdownLinks = userDropdown.querySelectorAll('.dropdown-item:not(#logoutBtn)');
+    dropdownLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+        if (userPillContainer) userPillContainer.classList.remove('open');
+      });
+    });
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!userDropdown.contains(e.target) && !userPill.contains(e.target)) {
+        userDropdown.classList.remove('active');
+        if (userPillContainer) userPillContainer.classList.remove('open');
+      }
+    });
+  }
+
+  // 3. Botón de Salir / Logout funcional en móviles y PC
+  if (logoutBtnElem) {
+    logoutBtnElem.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (userDropdown) userDropdown.classList.remove('active');
+      if (userPillContainer) userPillContainer.classList.remove('open');
+      await handleLogout();
+    });
+  }
+}
+
+async function handleLogout() {
+  try {
+    localStorage.removeItem('kick_user');
+    showToast('Has cerrado sesión correctamente.');
+    if (typeof soundFX !== 'undefined' && soundFX.playPop) {
+      soundFX.playPop();
+    }
+    await loadState();
+  } catch (err) {
+    console.error('Error en logout:', err);
+    location.reload();
+  }
+}
+
+// -------------------------------------------------------------------
 // 10. Animación de Máscara y Video al Scroll (GSAP ScrollTrigger)
 // -------------------------------------------------------------------
 let caozScrollTimeline = null;
@@ -779,6 +890,9 @@ function initHeroScrollAnimation() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Iniciar Navbar Inteligente (Auto-Hide y Menú de Usuario)
+  initNavbarLogic();
+
   // Iniciar Animación de Zoom Out de la Máscara y Video Scroll
   initHeroScrollAnimation();
 
