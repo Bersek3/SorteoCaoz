@@ -143,16 +143,16 @@
     }
   </style>
 </head>
-<body>
+<body class="admin-page">
 
-  <!-- Navigation Bar (100% Transparent, Auto-hide on scroll down, Show on scroll up) -->
+  <!-- Navigation Bar (Clean Dark Glassmorphism) -->
   <header class="navbar" id="mainNavbar">
     <div class="container nav-content">
       <a href="index.html" class="brand" aria-label="CAOZ Oficial">
         <div class="brand-logo" id="mainBrandLogo" title="CAOZ Oficial">
           <svg viewBox="0 0 224 256" width="100%" height="100%" style="overflow: visible; display: block;">
             <defs>
-              <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <linearGradient id="navLogoGradAdmin" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#ff7a00" />
                 <stop offset="50%" stop-color="#ff2a7a" />
                 <stop offset="100%" stop-color="#53fc18" />
@@ -160,12 +160,23 @@
             </defs>
             <path
               d="M 76.8 88.3 L 159.8 71.6 L 154.2 98.0 L 98.4 107.8 L 90.1 141.3 L 168.4 127.0 L 95.0 190.6 L 112.9 152.7 L 61.5 166.3 Z"
-              fill="url(#navLogoGrad)" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+              fill="url(#navLogoGradAdmin)" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
           </svg>
+        </div>
+        <div class="brand-title">
+          PANEL STREAMER
+          <span class="kick-badge">ADMIN CONTROL</span>
         </div>
       </a>
 
       <div class="nav-links">
+        <a href="index.html" class="nav-btn">
+          🎟️ Sorteo (Público)
+        </a>
+        <a href="draw.html" target="_blank" class="nav-btn streamer-btn">
+          🎰 Pantalla OBS Sorteo
+        </a>
+
         <!-- User Profile Pill con Dropdown Menu interactivo -->
         <div class="user-pill-container" id="userPillContainer">
           <div class="user-pill" id="userPillBox" role="button" tabindex="0" title="Ver opciones y menú">
@@ -185,10 +196,10 @@
             </div>
             <div class="dropdown-divider"></div>
             
-            <a href="index.html" class="dropdown-item" id="menuPublicSite">
+            <a href="index.html" class="dropdown-item">
               <span class="dropdown-icon">🎟️</span> Sorteo (Público)
             </a>
-            <a href="draw.html" target="_blank" class="dropdown-item" id="menuObsDraw">
+            <a href="draw.html" target="_blank" class="dropdown-item">
               <span class="dropdown-icon">🎰</span> Pantalla OBS Sorteo
             </a>
             <a href="index.html#rulesSection" class="dropdown-item">
@@ -206,7 +217,7 @@
     </div>
   </header>
 
-  <div class="container" style="padding-top: 85px; padding-bottom: 60px;">
+  <div class="container" style="padding-top: 90px; padding-bottom: 60px;">
     
     <!-- Top Metrics Overview -->
     <div class="admin-stats-grid">
