@@ -18,114 +18,60 @@
 </head>
 
 
-<body class="has-hero-intro">
+<body>
 
-  <!-- GTA VI JSM Hero Section: Clean Initial Background -> Logo Forms -> Smoothly Docks to Navbar -->
-  <section class="caoz-hero-section" id="heroIntroSection">
-    <div class="caoz-mask-pin-container" id="caozPinContainer">
-      <!-- Ambient atmospheric backdrop (no black cuts) -->
-      <div class="caoz-ambient-backdrop" id="caozAmbientBackdrop"></div>
+  <!-- Navigation Bar (100% Transparent, Auto-hide on scroll down, Show on scroll up) -->
+  <header class="navbar" id="mainNavbar">
+    <div class="container nav-content">
+      <a href="index.html" class="brand" aria-label="CAOZ Oficial">
+        <div class="brand-logo" id="mainBrandLogo" title="CAOZ Oficial">
+          <svg viewBox="0 0 224 256" width="100%" height="100%" style="overflow: visible; display: block;">
+            <defs>
+              <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff7a00" />
+                <stop offset="50%" stop-color="#ff2a7a" />
+                <stop offset="100%" stop-color="#53fc18" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M 76.8 88.3 L 159.8 71.6 L 154.2 98.0 L 98.4 107.8 L 90.1 141.3 L 168.4 127.0 L 95.0 190.6 L 112.9 152.7 L 61.5 166.3 Z"
+              fill="url(#navLogoGrad)" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+          </svg>
+        </div>
+      </a>
 
-      <!-- Mask Wrapper with clean full background -->
-      <div class="caoz-mask-wrapper" id="caozMaskWrapper">
-        <img src="images/bg_caoz.jpg" alt="CAOZ Background" class="caoz-hero-bg scale-out" id="heroBgImg" />
-      </div>
-
-      <!-- Flying Logo Element that forms in center then glides to navbar -->
-      <div class="caoz-flying-logo-wrapper" id="caozFlyingLogoWrapper">
-        <svg class="caoz-flying-logo-svg" viewBox="0 0 224 256" id="caozFlyingLogoSvg">
-          <defs>
-            <linearGradient id="caozLogoNeonGlowHero" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ff7a00" />
-              <stop offset="50%" stop-color="#ff2a7a" />
-              <stop offset="100%" stop-color="#53fc18" />
-            </linearGradient>
-            <filter id="neonGlowFilterHero" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path id="heroFlyingLogoPath"
-            d="M 76.8 88.3 L 159.8 71.6 L 154.2 98.0 L 98.4 107.8 L 90.1 141.3 L 168.4 127.0 L 95.0 190.6 L 112.9 152.7 L 61.5 166.3 Z"
-            fill="url(#caozLogoNeonGlowHero)" stroke="#06080d" stroke-width="2" stroke-linejoin="round"
-            stroke-linecap="round" filter="url(#neonGlowFilterHero)" />
-        </svg>
-      </div>
-
-      <!-- Minimalist Floating Scroll Arrow -->
-      <div class="scroll-indicator fade-out" id="heroScrollIndicator">
-        <span class="scroll-arrow">▼</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- The Actual Website Content (Navbar, Giveaway, Countdown, Wallet, Seats, Stream) -->
-  <div class="main-site-content" id="mainSiteContent">
-
-    <!-- Navigation Bar -->
-    <header class="navbar" id="mainNavbar">
-      <div class="container nav-content">
-        <a href="index.html" class="brand">
-          <div class="brand-logo" id="mainBrandLogo" title="CAOZ Oficial">
-            <svg viewBox="0 0 224 256" width="100%" height="100%" style="overflow: visible; display: block;">
-              <defs>
-                <linearGradient id="navLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#ff7a00" />
-                  <stop offset="50%" stop-color="#ff2a7a" />
-                  <stop offset="100%" stop-color="#53fc18" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 76.8 88.3 L 159.8 71.6 L 154.2 98.0 L 98.4 107.8 L 90.1 141.3 L 168.4 127.0 L 95.0 190.6 L 112.9 152.7 L 61.5 166.3 Z"
-                fill="url(#navLogoGrad)" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
-            </svg>
+      <div class="nav-links">
+        <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
+        <div class="kick-login-group" id="navLoginBtn" title="Iniciar Sesión Oficial con Kick">
+          <div class="kick-logo-badge">
+            <img
+              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
+              alt="Kick Logo" class="kick-standalone-logo">
           </div>
-          <div class="brand-title">
-            SORTEO <span class="kick-badge">KICK</span>
-          </div>
-        </a>
+          <button class="kick-text-btn">
+            Iniciar Sesión con Kick
+          </button>
+        </div>
 
-        <div class="nav-links">
-          <!-- Botones de Administración (Solo visibles para Streamer y Moderadores) -->
-          <a href="draw.html" target="_blank" class="nav-btn streamer-btn" id="navDrawBtn" style="display: none;">
-            🎰 OBS Live Draw
-          </a>
-          <a href="admin.html" class="nav-btn streamer-btn" id="navAdminBtn"
-            style="display: none; background: rgba(255, 215, 0, 0.15); border-color: rgba(255, 215, 0, 0.4); color: #ffd700;">
-            👑 Panel Streamer
-          </a>
-
-          <!-- Botón de Iniciar Sesión con Kick (Visible solo si NO está logueado) -->
-          <div class="kick-login-group" id="navLoginBtn" title="Iniciar Sesión Oficial con Kick">
-            <div class="kick-logo-badge">
-              <img
-                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/kick-streaming-platform-logo-icon.png"
-                alt="Kick Logo" class="kick-standalone-logo">
-            </div>
-            <button class="kick-text-btn">
-              Iniciar Sesión con Kick
-            </button>
+        <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
+        <div class="user-pill" id="userPillBox" style="display: none;">
+          <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
+          <div class="user-meta">
+            <span class="user-name" id="navUserName">@Usuario</span>
+            <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
           </div>
-
-          <!-- User Profile Pill (Visible solo si ESTÁ logueado) -->
-          <div class="user-pill" id="userPillBox" style="display: none;">
-            <img src="" alt="Avatar" class="user-avatar" id="navUserAvatar">
-            <div class="user-meta">
-              <span class="user-name" id="navUserName">@Usuario</span>
-              <span class="user-tickets-badge" id="navUserTickets">0 Tickets Libres</span>
-            </div>
-            <button id="logoutBtn" class="nav-btn"
-              style="padding: 5px 10px; font-size: 0.76rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;"
-              title="Cerrar Sesión de Kick">
-              🚪 Salir
-            </button>
-          </div>
+          <button id="logoutBtn" class="nav-btn"
+            style="padding: 5px 10px; font-size: 0.76rem; border: 1px solid rgba(255, 51, 102, 0.4); color: var(--danger-red); background: rgba(255, 51, 102, 0.08); border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;"
+            title="Cerrar Sesión de Kick">
+            🚪 Salir
+          </button>
         </div>
       </div>
-    </header>
+    </div>
+  </header>
+
+  <!-- The Actual Website Content (Giveaway, Countdown, Wallet, Seats, Stream) -->
+  <div class="main-site-content" id="mainSiteContent">
 
     <!-- Hero Section -->
     <section class="hero-section">

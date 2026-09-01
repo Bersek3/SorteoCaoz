@@ -25,178 +25,10 @@
   font-display: swap;
 }
 
-/* =================================================================== */
-/* GTA VI CAOZ HERO INTRO (ZOOM INTO REAL WEBSITE)                     */
-/* =================================================================== */
-/* GTA VI JSM HERO INTRO (FULL BG -> MASKED LOGO REVEAL ON SCROLL)     */
-/* =================================================================== */
-.caoz-hero-section {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  background: transparent;
-  pointer-events: none;
-}
-
-.caoz-mask-pin-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  background: transparent;
-  z-index: 120;
-  pointer-events: auto;
-  will-change: opacity;
-}
-
-.caoz-ambient-backdrop {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    linear-gradient(180deg, rgba(6, 8, 13, 0.45) 0%, rgba(6, 8, 13, 0.85) 100%),
-    url('../images/bg_caoz.jpg');
-  background-size: cover;
-  background-position: center 25%;
-  filter: blur(14px) brightness(0.65);
-  transform: scale(1.12);
-  opacity: 0.85;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.caoz-mask-wrapper {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  mask-image: url("../images/mask-caoz-desktop.svg");
-  -webkit-mask-image: url("../images/mask-caoz-desktop.svg");
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-  mask-position: 38.5% 50%;
-  -webkit-mask-position: 38.5% 50%;
-  mask-size: 3500% 3500%;
-  -webkit-mask-size: 3500% 3500%;
-  will-change: mask-size, -webkit-mask-size, mask-position, -webkit-mask-position, opacity;
-}
-
-@media (max-width: 768px) {
-  .caoz-mask-wrapper {
-    mask-image: url("../images/mask-caoz-mobile.svg");
-    -webkit-mask-image: url("../images/mask-caoz-mobile.svg");
-    mask-position: 35.7% 50%;
-    -webkit-mask-position: 35.7% 50%;
-    mask-size: 3100% 3100%;
-    -webkit-mask-size: 3100% 3100%;
-  }
-}
-
-.caoz-hero-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 25%;
-  transform: scale(1.15);
-  will-change: transform;
-}
-
-.caoz-flying-logo-wrapper {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 125;
-  opacity: 0;
-  transform-origin: center center;
-  will-change: transform, opacity;
-}
-
-.caoz-flying-logo-svg {
-  width: clamp(150px, 50vw, 240px);
-  height: clamp(170px, 56vw, 270px);
-  filter: drop-shadow(0 0 20px rgba(255, 42, 122, 0.85));
-}
-
-@media (min-width: 769px) {
-  .caoz-flying-logo-svg {
-    width: clamp(200px, 22vw, 280px);
-    height: clamp(220px, 25vw, 310px);
-  }
-}
-
-.has-hero-intro #mainBrandLogo {
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.has-hero-intro .navbar.navbar-solid #mainBrandLogo {
-  opacity: 1;
-}
-
-.scroll-indicator {
-  position: absolute;
-  bottom: max(22px, env(safe-area-inset-bottom, 22px));
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  pointer-events: auto;
-  cursor: pointer;
-  opacity: 0.95;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 130;
-}
-
-.scroll-indicator:hover {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-3px);
-}
-
-.scroll-indicator .scroll-text {
-  font-family: "Pricedown", "Round Bold", var(--font-main);
-  font-size: clamp(0.85rem, 2.2vw, 1.05rem);
-  letter-spacing: 2px;
-  color: #fff9cb;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.95), 0 0 10px rgba(255, 122, 0, 0.6);
-  text-transform: uppercase;
-}
-
-.scroll-indicator .scroll-arrow {
-  color: #ff2a7a;
-  font-size: 1.3rem;
-  line-height: 1;
-  filter: drop-shadow(0 0 8px rgba(255, 42, 122, 0.8));
-  animation: arrowBounce 1.5s infinite;
-}
-
-@keyframes arrowBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
-}
-
 .main-site-content {
   position: relative;
   z-index: 10;
-  transform-origin: center 20%;
-  will-change: transform;
+  padding-top: clamp(65px, 9vh, 90px);
 }
 
 /* =================================================================== */
@@ -320,71 +152,72 @@ h1, h2, h3, h4, .modal-title, .draw-title {
 }
 
 /* ------------------------------------------------------------------- */
-/* TOP NAVIGATION BAR (GTA VICE CITY CLEAN STYLE)                      */
+/* TOP NAVIGATION BAR (100% TRANSPARENT, AUTO-HIDE ON SCROLL DOWN)      */
 /* ------------------------------------------------------------------- */
 .navbar {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
-  padding: 10px 0;
-  background: rgba(8, 11, 18, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 2px solid rgba(255, 42, 122, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 42, 122, 0.1);
-  transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              -webkit-backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: clamp(10px, 1.8vh, 18px) 0;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
 }
 
-/* Transparente por defecto mientras transcurre la animación de letras CAOZ */
-.has-hero-intro .navbar {
-  background: transparent;
-  border-bottom: 2px solid transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/* Aplica el fondo sólido del navbar cuando termina el slide de la animación */
-.has-hero-intro .navbar.navbar-solid {
-  background: rgba(8, 11, 18, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 2px solid rgba(255, 42, 122, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 42, 122, 0.1);
+.navbar.navbar-hidden {
+  transform: translateY(-130%);
+  pointer-events: none;
 }
 
 .nav-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .brand-logo {
-  width: clamp(38px, 4.5vw, 46px);
-  height: clamp(38px, 4.5vw, 46px);
-  background: rgba(10, 14, 24, 0.85);
-  border: 1.5px solid rgba(255, 42, 122, 0.5);
-  border-radius: 12px;
+  width: clamp(42px, 5.5vw, 52px);
+  height: clamp(42px, 5.5vw, 52px);
+  background: rgba(10, 14, 24, 0.55);
+  border: 1.5px solid rgba(255, 42, 122, 0.6);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
-  box-shadow: 0 0 16px rgba(255, 42, 122, 0.4), inset 0 0 10px rgba(0, 0, 0, 0.5);
+  padding: 6px;
+  box-shadow: 0 0 20px rgba(255, 42, 122, 0.45), inset 0 0 10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   flex-shrink: 0;
+  opacity: 1 !important;
+  visibility: visible !important;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 28px rgba(255, 42, 122, 0.8), inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.brand-logo svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 6px rgba(255, 42, 122, 0.7));
 }
 
 .brand-logo:hover {

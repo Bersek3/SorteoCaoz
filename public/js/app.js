@@ -610,244 +610,44 @@ function hashString(str) {
 }
 
 // -------------------------------------------------------------------
-// 10. Event Listeners & Inicio OAuth 2.0 PKCE & GTA VI Preloader
+// 10. Navegación Inteligente (100% Transparente, Auto-Ocultar al Bajar, Mostrar al Subir)
 // -------------------------------------------------------------------
-let caozScrollTimeline = null;
+function initSmartNavbar() {
+  const navbar = document.getElementById('mainNavbar');
+  if (!navbar) return;
 
-function initHeroScrollAnimation() {
-  const introSection = document.getElementById('heroIntroSection');
-  const maskWrapper = document.getElementById('caozMaskWrapper');
-  const mainNavbar = document.getElementById('mainNavbar') || document.querySelector('.navbar');
+  let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+  let ticking = false;
 
-  if (!introSection || !maskWrapper) return;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
 
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-    console.warn('GSAP o ScrollTrigger no se encuentran cargados.');
-    return;
-  }
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  if (typeof ScrollTrigger.clearScrollMemory === 'function') {
-    ScrollTrigger.clearScrollMemory('manual');
-  }
-  window.scrollTo(0, 0);
-
-  const setupAnimation = () => {
-    if (caozScrollTimeline) {
-      caozScrollTimeline.kill();
-    }
-
-    if (mainNavbar) {
-      mainNavbar.classList.remove('navbar-solid');
-    }
-
-    const isMobile = window.innerWidth <= 768;
-    const isTablet = window.innerWidth <= 1024 && !isMobile;
-
-    // Seleccionar máscara según dispositivo: Móvil (Logo C Relámpago) o Escritorio (CAOZ texto)
-    const maskUrl = isMobile ? 'url("images/mask-caoz-mobile.svg")' : 'url("images/mask-caoz-desktop.svg")';
-    maskWrapper.style.webkitMaskImage = maskUrl;
-    maskWrapper.style.maskImage = maskUrl;
-
-    // Posición inicial: EXACTAMENTE DENTRO DEL TRAZO DE LA LETRA (al igual que JSM GTA VI)
-    // Móvil: dentro de la columna sólida del logo 'C' (35.7% 50.0%)
-    // Desktop: dentro de la letra 'A' de CAOZ (38.5% 50.0%)
-    const initialPosX = isMobile ? 35.7 : 38.5;
-    const initialPosY = 50.0;
-    const initialSize = isMobile ? 3100 : 3500;
-
-    // Posición final: centrado perfecto mostrando el logo completo
-    const targetPosX = 50.0;
-    const targetPosY = isMobile ? 48.0 : 50.0;
-    const targetSize = isMobile ? 52 : (isTablet ? 34 : 24);
-
-    const maskState = {
-      size: initialSize,
-      posX: initialPosX,
-      posY: initialPosY
-    };
-
-    const updateMask = () => {
-      const sizeVal = `${maskState.size}% ${maskState.size}%`;
-      const posVal = `${maskState.posX}% ${maskState.posY}%`;
-      maskWrapper.style.webkitMaskSize = sizeVal;
-      maskWrapper.style.maskSize = sizeVal;
-      maskWrapper.style.webkitMaskPosition = posVal;
-      maskWrapper.style.maskPosition = posVal;
-    };
-    updateMask();
-
-    gsap.set(maskWrapper, { opacity: 1 });
-    gsap.set('.fade-out', { opacity: 1 });
-    gsap.set('.scale-out', { scale: 1.15 });
-
-    caozScrollTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#heroIntroSection',
-        start: 'top top',
-        end: '+=130%',
-        scrub: 1.0,
-        pin: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onLeave: () => {
-          if (mainNavbar) mainNavbar.classList.add('navbar-solid');
-        },
-        onEnterBack: () => {
-          if (mainNavbar) mainNavbar.classList.remove('navbar-solid');
-        },
-        onUpdate: (self) => {
-          if (mainNavbar) {
-            if (self.progress >= 0.85) {
-              mainNavbar.classList.add('navbar-solid');
-            } else {
-              mainNavbar.classList.remove('navbar-solid');
-            }
-          }
+        // Si estamos arriba del todo, siempre visible
+        if (currentScrollY <= 15) {
+          navbar.classList.remove('navbar-hidden');
+        } 
+        // Si hace scroll hacia abajo (más de 35px), ocultar suavemente
+        else if (currentScrollY > lastScrollY && currentScrollY > 35) {
+          navbar.classList.add('navbar-hidden');
+        } 
+        // Si hace scroll hacia arriba, mostrar suavemente
+        else if (currentScrollY < lastScrollY) {
+          navbar.classList.remove('navbar-hidden');
         }
-      }
-    });
 
-    const flyingLogoWrapper = document.getElementById('caozFlyingLogoWrapper');
-    const flyingLogoSvg = document.getElementById('caozFlyingLogoSvg');
-    const brandLogo = document.getElementById('mainBrandLogo');
-    const ambientBackdrop = document.getElementById('caozAmbientBackdrop');
-    const mainSite = document.getElementById('mainSiteContent');
-
-    // Calcular desplazamiento exacto desde el centro de la pantalla hacia la esquina del navbar
-    let deltaX = -window.innerWidth * 0.42;
-    let deltaY = -window.innerHeight * 0.44;
-    let targetScale = 0.22;
-
-    if (brandLogo && flyingLogoSvg) {
-      const brandRect = brandLogo.getBoundingClientRect();
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const targetCenterX = brandRect.left + brandRect.width / 2;
-      const targetCenterY = brandRect.top + brandRect.height / 2;
-
-      deltaX = targetCenterX - centerX;
-      deltaY = targetCenterY - centerY;
-
-      const flyWidth = flyingLogoSvg.getBoundingClientRect().width || (isMobile ? 160 : 220);
-      targetScale = (brandRect.width || 42) / flyWidth;
-    }
-
-    if (flyingLogoWrapper) {
-      gsap.set(flyingLogoWrapper, {
-        x: 0,
-        y: 0,
-        scale: 1,
-        opacity: 0
+        lastScrollY = Math.max(0, currentScrollY);
+        ticking = false;
       });
+      ticking = true;
     }
-
-    if (ambientBackdrop) {
-      gsap.set(ambientBackdrop, { opacity: 0.85 });
-    }
-
-    if (mainSite) {
-      gsap.set(mainSite, { opacity: 1, y: 0 });
-    }
-
-    // 1. Flecha de scroll se desvanece al comenzar a deslizar
-    caozScrollTimeline.to('.fade-out', {
-      opacity: 0,
-      duration: 0.15,
-      ease: 'power1.out'
-    }, 0);
-
-    // 2. Imagen de fondo original (bg_caoz.jpg) escala suavemente
-    caozScrollTimeline.to('.scale-out', {
-      scale: 1.0,
-      duration: 0.6,
-      ease: 'power1.inOut'
-    }, 0);
-
-    // 3. Zoom OUT de la máscara: sale desde el interior de la letra hacia el logo completo (0.0 -> 0.52)
-    caozScrollTimeline.to(maskState, {
-      size: targetSize,
-      posX: targetPosX,
-      posY: targetPosY,
-      duration: 0.52,
-      ease: 'power1.inOut',
-      onUpdate: updateMask
-    }, 0);
-
-    // 4. El logo SVG brillante aparece en el centro y se despliega suavemente hacia la esquina del navbar
-    if (flyingLogoWrapper) {
-      // Aparece iluminado en el centro al formarse
-      caozScrollTimeline.to(flyingLogoWrapper, {
-        opacity: 1,
-        duration: 0.14,
-        ease: 'power1.out'
-      }, 0.42);
-
-      // Desplazamiento ultra suave hacia la esquina del navbar (brand-logo)
-      caozScrollTimeline.to(flyingLogoWrapper, {
-        x: deltaX,
-        y: deltaY,
-        scale: targetScale,
-        duration: 0.44,
-        ease: 'power2.inOut'
-      }, 0.52);
-
-      // Desvanece al posarse exactamente dentro del navbar
-      caozScrollTimeline.to(flyingLogoWrapper, {
-        opacity: 0,
-        duration: 0.08,
-        ease: 'power1.out'
-      }, 0.92);
-    }
-
-    // 5. Transición continua y suave a la web: se disuelven la máscara y el fondo ambiental sin paneles negros
-    const heroElementsToFade = [maskWrapper];
-    if (ambientBackdrop) heroElementsToFade.push(ambientBackdrop);
-
-    caozScrollTimeline.to(heroElementsToFade, {
-      opacity: 0,
-      duration: 0.38,
-      ease: 'power1.out'
-    }, 0.58);
-
-    // 6. El contenido de la web emerge suavemente en paralelo
-    if (mainSite) {
-      caozScrollTimeline.fromTo(mainSite, 
-        { opacity: 0.5, y: 25 },
-        { opacity: 1, y: 0, duration: 0.38, ease: 'power1.out' },
-        0.58
-      );
-    }
-  };
-
-  setupAnimation();
-
-  // Reajustar en cambio de tamaño de ventana con debounce
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      setupAnimation();
-      ScrollTrigger.refresh();
-    }, 200);
-  });
-
-  // Indicador de scroll para entrar suavemente al hacer click
-  const scrollIndicator = document.getElementById('heroScrollIndicator');
-  if (scrollIndicator) {
-    scrollIndicator.addEventListener('click', () => {
-      window.scrollTo({
-        top: window.innerHeight * 1.6,
-        behavior: 'smooth'
-      });
-    });
-  }
+  }, { passive: true });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Iniciar Animación de Letras CAOZ con ScrollTrigger
-  initHeroScrollAnimation();
+  // Iniciar Barra de Navegación Inteligente Transparente
+  initSmartNavbar();
 
   // 1. Procesar retorno de Kick OAuth si viene con ?code=...
   if (typeof processKickOAuthCallback === 'function') {
