@@ -683,6 +683,98 @@ async function handleVerifyKickUser() {
   }
 }
 
+// -------------------------------------------------------------------
+// Carga Masiva de Suscriptores Propios de Kick
+// -------------------------------------------------------------------
+const openImportSubsModalBtn = document.getElementById('openImportSubsModalBtn');
+const importSubsModal = document.getElementById('importSubsModal');
+const closeImportSubsModal = document.getElementById('closeImportSubsModal');
+const cancelImportSubsBtn = document.getElementById('cancelImportSubsBtn');
+const processImportSubsBtn = document.getElementById('processImportSubsBtn');
+const importSubsText = document.getElementById('importSubsText');
+const importSubsFile = document.getElementById('importSubsFile');
+
+async function handleProcessImportSubs() {
+  const rawText = (importSubsText.value || '').trim();
+  if (!rawText) {
+    showToast('Por favor escribe o pega al menos un nombre de usuario.', true);
+    return;
+  }
+
+  // Extraer nombres válidos (eliminar caracteres raros, arrobas, comillas, etc.)
+  const lines = rawText
+    .split(/[\r\n,;]+/)
+    .map(s => s.trim().replace(/^@/, '').replace(/"/g, ''))
+    .filter(s => s.length > 0 && !s.toLowerCase().includes('username') && !s.toLowerCase().includes('usuario'));
+  
+  const uniqueUsers = Array.from(new Set(lines));
+
+  if (uniqueUsers.length === 0) {
+    showToast('No se encontraron nombres de usuario válidos.', true);
+    return;
+  }
+
+  processImportSubsBtn.disabled = true;
+  processImportSubsBtn.innerHTML = `⏳ Procesando ${uniqueUsers.length} usuarios...`;
+
+  try {
+    let addedCount = 0;
+    for (const username of uniqueUsers) {
+      const existing = await supabaseRest('profiles', 'GET', null, `username=ilike.${encodeURIComponent(username)}`);
+      if (existing && existing.length > 0) {
+        const u = existing[0];
+        if ((u.own_subs || 0) === 0) {
+          await supabaseRest('profiles', 'PATCH', {
+            own_subs: 1,
+            updated_at: new Date().toISOString()
+          }, `id=eq.${u.id}`);
+
+          await supabaseRest('kick_events', 'POST', {
+            event_type: 'subscription.bulk_import',
+            username: username,
+            kick_user_id: u.kick_user_id || '',
+            count: 1,
+            raw_payload: { source: 'bulk_import' }
+          });
+          addedCount++;
+        }
+      } else {
+        await supabaseRest('profiles', 'POST', {
+          kick_user_id: String(Math.floor(Math.random() * 10000000)),
+          username: username,
+          display_name: username,
+          avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+          is_streamer: false,
+          own_subs: 1,
+          gifted_subs: 0,
+          bonus_tickets: 0
+        });
+
+        await supabaseRest('kick_events', 'POST', {
+          event_type: 'subscription.bulk_import',
+          username: username,
+          kick_user_id: '',
+          count: 1,
+          raw_payload: { source: 'bulk_import' }
+        });
+        addedCount++;
+      }
+    }
+
+    showToast(`✅ ¡Éxito! ${uniqueUsers.length} procesados (${addedCount} nuevos/actualizados con su Ticket).`);
+    window.soundFX?.playSuccessChime();
+    importSubsModal.style.display = 'none';
+    importSubsText.value = '';
+    await loadAdminData();
+  } catch (err) {
+    console.error('Error importando subs:', err);
+    showToast('Error procesando lista: ' + err.message, true);
+  } finally {
+    processImportSubsBtn.disabled = false;
+    processImportSubsBtn.innerHTML = '🚀 Procesar y Asignar Tickets';
+  }
+}
+
 function handleLogout() {
   localStorage.removeItem('kick_user');
   localStorage.removeItem('kick_avatar');
@@ -796,6 +888,29 @@ document.addEventListener('DOMContentLoaded', () => {
   if (verifyKickUserBtn) verifyKickUserBtn.addEventListener('click', handleVerifyKickUser);
   if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
   if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
+
+  // Modal Carga Masiva Suscriptores
+  if (openImportSubsModalBtn && importSubsModal) {
+    openImportSubsModalBtn.addEventListener('click', () => {
+      importSubsModal.style.display = 'flex';
+      if (importSubsText) importSubsText.focus();
+    });
+  }
+  if (closeImportSubsModal && importSubsModal) closeImportSubsModal.addEventListener('click', () => { importSubsModal.style.display = 'none'; });
+  if (cancelImportSubsBtn && importSubsModal) cancelImportSubsBtn.addEventListener('click', () => { importSubsModal.style.display = 'none'; });
+  if (processImportSubsBtn) processImportSubsBtn.addEventListener('click', handleProcessImportSubs);
+  if (importSubsFile && importSubsText) {
+    importSubsFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          importSubsText.value = event.target.result;
+        };
+        reader.readAsText(file);
+      }
+    });
+  }
 
   if (saveSheetUrlBtn) saveSheetUrlBtn.addEventListener('click', handleSaveSheetUrl);
   if (syncGoogleSheetsBtn) syncGoogleSheetsBtn.addEventListener('click', syncWithGoogleDrive);

@@ -379,16 +379,19 @@
         </h3>
         
         <div class="admin-header-actions" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-          <button class="btn btn-primary" id="syncKickGiftsBtn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(83, 252, 24, 0.15); border-color: var(--kick-green); color: var(--kick-green); display: inline-flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; border-radius: 10px;" title="Sincronizar subs regaladas recientes directamente desde Kick">
+          <button class="btn btn-primary" id="openImportSubsModalBtn" style="padding: 8px 14px; font-size: 0.85rem; background: rgba(83, 252, 24, 0.15); border-color: var(--kick-green); color: var(--kick-green); display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border-radius: 10px;" title="Cargar o pegar lista masiva de suscriptores propios de Kick">
+            📥 Carga Masiva Suscriptores
+          </button>
+          <button class="btn btn-secondary" id="syncKickGiftsBtn" style="padding: 8px 14px; font-size: 0.85rem; background: rgba(0, 242, 254, 0.1); border-color: #00f2fe; color: #00f2fe; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border-radius: 10px;" title="Sincronizar subs regaladas recientes directamente desde Kick Leaderboards">
             🔄 Sincronizar Regalos Kick
           </button>
-          <button class="btn btn-secondary" id="exportExcelBtn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(83, 252, 24, 0.1); border-color: var(--kick-green); color: var(--kick-green); display: inline-flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; border-radius: 10px;" title="Descargar planilla compatible con Excel y Google Sheets">
+          <button class="btn btn-secondary" id="exportExcelBtn" style="padding: 8px 14px; font-size: 0.85rem; background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.2); color: #ffffff; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; cursor: pointer; border-radius: 10px;" title="Descargar planilla compatible con Excel y Google Sheets">
             📊 Exportar (.csv)
           </button>
           <div style="display: flex; gap: 6px; align-items: center;">
             <input type="text" class="search-input" id="searchUserTable" placeholder="Escribe @usuario..." style="width: 170px;">
             <button class="btn btn-secondary" id="verifyKickUserBtn" style="padding: 8px 12px; font-size: 0.82rem; border-color: #00f2fe; color: #00f2fe; cursor: pointer; border-radius: 10px; font-weight: 700; white-space: nowrap;" title="Verifica en la API de Kick si el usuario está suscrito o resuscrito y lo agrega automáticamente">
-              🔍 Verificar Sub en Kick
+              🔍 Verificar en Kick
             </button>
           </div>
         </div>
@@ -414,6 +417,47 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal de Carga Masiva de Suscriptores de Kick -->
+  <div id="importSubsModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: var(--bg-card); border: 2px solid var(--kick-green); box-shadow: 0 0 40px rgba(83, 252, 24, 0.3), 0 20px 50px rgba(0,0,0,0.9); border-radius: 24px; padding: 28px; width: 100%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto;">
+      <button id="closeImportSubsModal" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; color: var(--text-secondary); font-size: 1.4rem; cursor: pointer;">✕</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+        <span style="font-size: 1.8rem;">📥</span>
+        <h3 style="font-size: 1.25rem; font-weight: 900; color: #ffffff;">Importar Suscriptores Propios de Kick</h3>
+      </div>
+      
+      <p style="color: var(--text-secondary); font-size: 0.84rem; line-height: 1.5; margin-bottom: 14px;">
+        Pega los nombres de tus suscriptores de Kick (puedes copiarlos de tu 
+        <a href="https://kick.com/dashboard/revenue/subscribers" target="_blank" style="color: var(--kick-green); text-decoration: underline;">Kick Creator Dashboard</a>) 
+        o sube el archivo CSV. El sistema sumará <strong>+1 Ticket de Sub Propia</strong> a cada uno de forma automática sin confundirlos con subs regaladas.
+      </p>
+
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px;">
+          Pega los nombres de usuario (separados por coma, espacio o salto de línea):
+        </label>
+        <textarea id="importSubsText" class="form-input" rows="6" placeholder="Ejemplo:&#10;Floresalexflow3&#10;Juanito123&#10;PedroKick" style="width: 100%; resize: vertical; font-family: var(--font-mono); font-size: 0.85rem; padding: 10px;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: #ffffff; display: block; margin-bottom: 6px;">
+          O sube un archivo CSV de Kick:
+        </label>
+        <input type="file" id="importSubsFile" accept=".csv, .txt" style="font-size: 0.85rem; color: var(--text-secondary);">
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button class="btn btn-secondary" id="cancelImportSubsBtn" style="padding: 10px 18px; border-radius: 10px;">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" id="processImportSubsBtn" style="padding: 10px 22px; border-radius: 10px; font-weight: 800;">
+          🚀 Procesar y Asignar Tickets
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Instrucciones Google Drive -->
