@@ -116,17 +116,28 @@ class KickLiveListener:
 
             # 1. Suscripción Regalada Múltiple (Gift Subs: 1, 5, 10, 20, 50 subs)
             if "GiftedSubscriptionsEvent" in str(event_name) or "gift" in str(event_name).lower():
-                username = event_data.get("gifter_username") or event_data.get("username")
+                username = (
+                    event_data.get("gifter_username")
+                    or event_data.get("username")
+                    or event_data.get("sender", {}).get("username")
+                    or event_data.get("user", {}).get("username")
+                )
                 subs_count = int(event_data.get("gifted_user_count") or event_data.get("count") or 1)
                 event_type = f"gift_sub_{subs_count}"
                 print(f"[🎁 KICK EN VIVO] @{username} REGALÓ {subs_count} SUBS EN KICK!")
 
-            # 2. Suscripción Individual o Renovación
-            elif "SubscriptionEvent" in str(event_name) or "subscription" in str(event_name).lower():
-                username = event_data.get("username")
+            # 2. Suscripción Individual o Renovación (Resub)
+            elif "SubscriptionEvent" in str(event_name) or "subscription" in str(event_name).lower() or "resub" in str(event_name).lower():
+                username = (
+                    event_data.get("username")
+                    or event_data.get("subscriber", {}).get("username")
+                    or event_data.get("user", {}).get("username")
+                    or event_data.get("sender", {}).get("username")
+                    or event_data.get("display_name")
+                )
                 subs_count = int(event_data.get("months", 1))
                 event_type = "sub"
-                print(f"[⭐ KICK EN VIVO] @{username} SE SUSCRIBIÓ EN KICK!")
+                print(f"[⭐ KICK EN VIVO] @{username} SE SUSCRIBIÓ / RESUSCRIBIÓ EN KICK! (Meses: {subs_count})")
 
             if username and self.on_event_callback:
                 await self.on_event_callback(username, event_type, subs_count, event_data)

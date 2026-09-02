@@ -213,9 +213,14 @@ function renderUsersTable(users) {
         </span>
       </td>
       <td>
-        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;" onclick="addTicketToUser('${user.username}', 1)">
-          +1 Ticket Bonus
-        </button>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.74rem;" onclick="addOwnSubToUser('${user.username}', 1)" title="Sumar +1 Sub Propia o Resubscripción">
+            ⭐ +1 Sub
+          </button>
+          <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.74rem;" onclick="addTicketToUser('${user.username}', 1)" title="Sumar +1 Ticket Extra">
+            🎟️ +1 Ticket
+          </button>
+        </div>
       </td>
     `;
     usersTableBody.appendChild(tr);
@@ -469,6 +474,35 @@ window.addTicketToUser = async function(username, count) {
     }
   } catch (err) {
     showToast('Error añadiendo bonus', true);
+  }
+};
+
+window.addOwnSubToUser = async function(username, count = 1) {
+  try {
+    const { data: existing } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .ilike('username', username)
+      .single();
+
+    if (existing) {
+      await supabaseClient.from('profiles').update({
+        own_subs: (existing.own_subs || 0) + count,
+        updated_at: new Date().toISOString()
+      }).eq('id', existing.id);
+
+      await supabaseClient.from('kick_events').insert({
+        event_type: 'subscription.renewal',
+        username: username,
+        kick_user_id: existing.kick_user_id || '',
+        count: count,
+        raw_payload: { manual: true, source: 'admin_panel' }
+      });
+      showToast(`⭐ +${count} Sub Propia / Resub sumada a @${username}`);
+      await loadAdminData();
+    }
+  } catch (err) {
+    showToast('Error añadiendo sub propia', true);
   }
 };
 
