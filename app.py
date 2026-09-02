@@ -550,32 +550,32 @@ async def favicon():
     return Response(status_code=204)
 
 @app.get("/")
+@app.get("/index.html")
 async def serve_index():
     return FileResponse(os.path.join(PUBLIC_DIR, "index.html"))
 
 @app.get("/admin")
-async def serve_admin(req: Request):
-    """Página de administración protegida."""
-    cookie_user = req.cookies.get("kick_user")
-    role = check_user_role(cookie_user)
-    if not role["is_admin"]:
-        # Si no es admin, redirigir al inicio
-        return RedirectResponse(url="/?error=unauthorized_admin")
+@app.get("/admin.html")
+async def serve_admin():
     return FileResponse(os.path.join(PUBLIC_DIR, "admin.html"))
 
 @app.get("/draw")
+@app.get("/draw.html")
 async def serve_draw():
     return FileResponse(os.path.join(PUBLIC_DIR, "draw.html"))
 
 @app.get("/widget/alert")
+@app.get("/widget-alert.html")
 async def serve_widget_alert():
     return FileResponse(os.path.join(PUBLIC_DIR, "widget-alert.html"))
 
 @app.get("/widget/cinema")
+@app.get("/widget-cinema.html")
 async def serve_widget_cinema():
     return FileResponse(os.path.join(PUBLIC_DIR, "widget-cinema.html"))
 
 @app.get("/widget/bar")
+@app.get("/widget-bar.html")
 async def serve_widget_bar():
     return FileResponse(os.path.join(PUBLIC_DIR, "widget-bar.html"))
 
