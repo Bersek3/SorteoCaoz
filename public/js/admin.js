@@ -597,6 +597,92 @@ async function handleSyncKickGifts() {
   }
 }
 
+const verifyKickUserBtn = document.getElementById('verifyKickUserBtn');
+
+async function handleVerifyKickUser() {
+  const username = (searchUserTable.value || '').trim().replace(/^@/, '');
+  if (!username) {
+    showToast('⚠️ Escribe el @usuario en el buscador para verificarlo en Kick.', true);
+    searchUserTable.focus();
+    return;
+  }
+
+  const origText = verifyKickUserBtn.innerHTML;
+  verifyKickUserBtn.disabled = true;
+  verifyKickUserBtn.innerHTML = '⏳ Verificando...';
+
+  try {
+    let result = null;
+
+    // 1. Intentar a través del backend en Render
+    try {
+      const backendUrl = window.location.hostname.includes('onrender.com') ? '' : 'https://sorteocaoz.onrender.com';
+      const r = await fetch(`${backendUrl}/api/check-kick-sub/${encodeURIComponent(username)}`);
+      if (r.ok) {
+        result = await r.json();
+      }
+    } catch (e) {
+      console.log('Backend verify offline, consultando Kick directamente...');
+    }
+
+    // 2. Si el backend no respondió, consultar la API pública de Kick directamente
+    if (!result || !result.success) {
+      const kickRes = await fetch(`https://kick.com/api/v2/channels/caoz/users/${encodeURIComponent(username)}`).catch(() => null);
+      if (kickRes && kickRes.ok) {
+        const data = await kickRes.json();
+        const subscribedFor = data.subscribed_for || 0;
+        const badges = data.badges || [];
+        const isSub = subscribedFor > 0 || badges.some(b => b.type === 'subscriber' && b.active);
+
+        if (isSub) {
+          // Actualizar o crear en Supabase
+          const existing = await supabaseRest('profiles', 'GET', null, `username=ilike.${encodeURIComponent(username)}`);
+          if (existing && existing.length > 0) {
+            const u = existing[0];
+            const currentOwn = u.own_subs || 0;
+            if (currentOwn === 0) {
+              await supabaseRest('profiles', 'PATCH', {
+                own_subs: 1,
+                updated_at: new Date().toISOString()
+              }, `id=eq.${u.id}`);
+            }
+          } else {
+            await supabaseRest('profiles', 'POST', {
+              kick_user_id: String(data.id || username.toLowerCase()),
+              username: username,
+              display_name: data.username || username,
+              avatar_url: data.profile_pic || `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+              is_streamer: false,
+              own_subs: 1,
+              gifted_subs: 0,
+              bonus_tickets: 0
+            });
+          }
+          result = { success: true, is_subscriber: true, subscribed_for: subscribedFor };
+        } else {
+          result = { success: true, is_subscriber: false };
+        }
+      }
+    }
+
+    if (result && result.is_subscriber) {
+      showToast(`⭐ ¡Verificado! @${username} es suscriptor activo en Kick (+1 Sub Propia).`);
+      window.soundFX?.playSuccessChime();
+      await loadAdminData();
+    } else if (result && result.is_subscriber === false) {
+      showToast(`ℹ️ @${username} no tiene suscripción activa actualmente en el canal.`, true);
+    } else {
+      showToast(result?.error || 'No se pudo verificar el usuario en Kick.', true);
+    }
+  } catch (err) {
+    console.error('Error al verificar:', err);
+    showToast('Error al verificar: ' + err.message, true);
+  } finally {
+    verifyKickUserBtn.disabled = false;
+    verifyKickUserBtn.innerHTML = origText;
+  }
+}
+
 function handleLogout() {
   localStorage.removeItem('kick_user');
   localStorage.removeItem('kick_avatar');
@@ -707,6 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
   emitEventBtn.addEventListener('click', handleEmitEvent);
   saveConfigBtn.addEventListener('click', handleSaveConfig);
   if (syncKickGiftsBtn) syncKickGiftsBtn.addEventListener('click', handleSyncKickGifts);
+  if (verifyKickUserBtn) verifyKickUserBtn.addEventListener('click', handleVerifyKickUser);
   if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
   if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
 

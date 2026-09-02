@@ -587,6 +587,50 @@ async def api_sync_kick_gifts():
     result = await sync_kick_leaderboard_gifts(channel_slug)
     return result
 
+@app.get("/api/check-kick-sub/{username}")
+@app.post("/api/check-kick-sub/{username}")
+async def check_kick_sub(username: str):
+    """
+    Verifica automáticamente si un usuario está suscrito o se resuscribió al canal en Kick
+    usando la API de Kick y actualiza su perfil en Supabase si corresponde.
+    """
+    clean_name = username.strip().lstrip("@")
+    channel_slug = os.getenv("KICK_CHANNEL_SLUG", "Caoz").strip()
+    url = f"https://kick.com/api/v2/channels/{channel_slug}/users/{clean_name}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json"
+    }
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers, timeout=8.0)
+            if resp.status_code == 200:
+                data = resp.json()
+                subscribed_for = data.get("subscribed_for", 0) or 0
+                badges = data.get("badges", []) or []
+                is_sub = subscribed_for > 0 or any(b.get("type") == "subscriber" and b.get("active") for b in badges)
+                
+                if is_sub:
+                    user = await db.get_user_by_username(clean_name)
+                    if user.get("own_subs", 0) == 0:
+                        user = await db.record_kick_event(
+                            username=clean_name,
+                            event_type="subscription.verified",
+                            count=1,
+                            raw_payload={"source": "kick_user_api", "subscribed_for": subscribed_for}
+                        )
+                        print(f"[✅ AUTO-VERIFY] @{clean_name} verificado como suscriptor en Kick (+1 Sub Propia)!")
+                    return {"success": True, "is_subscriber": True, "subscribed_for": subscribed_for, "user": user}
+                else:
+                    return {"success": True, "is_subscriber": False, "subscribed_for": 0}
+            elif resp.status_code == 404:
+                return {"success": False, "error": "Usuario no encontrado en Kick."}
+            else:
+                return {"success": False, "error": f"Kick API respondió con estado {resp.status_code}"}
+    except Exception as e:
+        print(f"[!] Error verificando suscriptor en Kick: {e}")
+        return {"success": False, "error": str(e)}
+
 # ---------------------------------------------------------------------
 # Vistas Web & Widgets OBS
 # ---------------------------------------------------------------------

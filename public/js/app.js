@@ -137,6 +137,23 @@ async function loadState() {
         }
       }
 
+      // Verificación automática de Suscripción o Resub con la API de Kick
+      if (currentUserProfile && (currentUserProfile.own_subs || 0) === 0) {
+        try {
+          const backendUrl = window.location.hostname.includes('onrender.com') ? '' : 'https://sorteocaoz.onrender.com';
+          const subCheck = await fetch(`${backendUrl}/api/check-kick-sub/${encodeURIComponent(savedUser)}`)
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null);
+
+          if (subCheck && subCheck.is_subscriber) {
+            currentUserProfile.own_subs = 1;
+            currentUserProfile.total_tickets = ((currentUserProfile.own_subs || 1) + (currentUserProfile.gifted_subs || 0) + (currentUserProfile.bonus_tickets || 0));
+          }
+        } catch (e) {
+          // Ignorar silenciosamente si no hay red
+        }
+      }
+
       userSeats = Object.values(seatsMap)
         .filter((s) => s.username && s.username.toLowerCase() === savedUser.toLowerCase())
         .map((s) => s.seat_number);
