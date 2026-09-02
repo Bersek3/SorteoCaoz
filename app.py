@@ -531,6 +531,63 @@ async def botrix_webhook_receiver(request: Request):
     return {"success": True}
 
 # ---------------------------------------------------------------------
+# Sincronización Automática con Kick Leaderboards (Retroactivo)
+# ---------------------------------------------------------------------
+async def sync_kick_leaderboard_gifts(channel_slug: str = "Caoz"):
+    """
+    Consulta la API pública de Kick Leaderboards y sincroniza
+    automáticamente los regalos de subs de la semana a Supabase.
+    Recupera subs incluso si el servidor estuvo apagado durante el stream.
+    """
+    url = f"https://kick.com/api/v2/channels/{channel_slug}/leaderboards"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json"
+    }
+    updated_users = []
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, headers=headers, timeout=10.0)
+            if resp.status_code != 200:
+                print(f"[!] Error consultando leaderboards de Kick: HTTP {resp.status_code}")
+                return {"success": False, "status": resp.status_code}
+            
+            data = resp.json()
+            gifts_week = data.get("gifts_week", []) or []
+            
+            for item in gifts_week:
+                username = item.get("username")
+                qty = int(item.get("quantity", 0))
+                user_id = str(item.get("user_id", ""))
+                if not username or qty <= 0:
+                    continue
+
+                current_user = await db.get_user_by_username(username)
+                current_gifted = current_user.get("gifted_subs", 0)
+
+                if qty > current_gifted:
+                    diff = qty - current_gifted
+                    await db.record_kick_event(
+                        username=username,
+                        event_type=f"gift_sub_{diff}",
+                        count=diff,
+                        raw_payload={"source": "kick_leaderboards_sync", "total_quantity": qty, "kick_user_id": user_id}
+                    )
+                    updated_users.append({"username": username, "added": diff, "total": qty})
+                    print(f"[🔄 SYNC KICK] @{username} sincronizado con +{diff} subs regaladas (Total: {qty})")
+
+            return {"success": True, "updated": updated_users}
+    except Exception as e:
+        print(f"[!] Error en sync_kick_leaderboard_gifts: {e}")
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/sync/kick-gifts")
+async def api_sync_kick_gifts():
+    channel_slug = os.getenv("KICK_CHANNEL_SLUG", "Caoz")
+    result = await sync_kick_leaderboard_gifts(channel_slug)
+    return result
+
+# ---------------------------------------------------------------------
 # Vistas Web & Widgets OBS
 # ---------------------------------------------------------------------
 if os.path.exists(os.path.join(PUBLIC_DIR, "css")):
@@ -604,17 +661,20 @@ async def on_kick_live_event(username: str, event_type: str, count: int, raw_dat
     })
 
 async def keep_alive_ping():
-    """Mantiene despierto el servicio en Render evitando que se duerma tras 15 min de inactividad."""
+    """Mantiene despierto el servicio en Render y sincroniza periódicamente con Kick."""
     await asyncio.sleep(45)
     render_url = os.getenv("RENDER_EXTERNAL_URL", "https://sorteocaoz.onrender.com").rstrip("/")
+    channel_slug = os.getenv("KICK_CHANNEL_SLUG", "Caoz")
     while True:
         try:
             async with httpx.AsyncClient() as client:
                 resp = await client.get(f"{render_url}/", timeout=12.0)
                 print(f"[⏱️ Keep-Alive] Ping a {render_url}: {resp.status_code}")
+            # Sincronización periódica automática con Kick
+            await sync_kick_leaderboard_gifts(channel_slug)
         except Exception as e:
-            print(f"[⏱️ Keep-Alive] Ping local: {e}")
-        await asyncio.sleep(480) # Ping cada 8 minutos
+            print(f"[⏱️ Keep-Alive] Ping/Sync: {e}")
+        await asyncio.sleep(480) # Cada 8 minutos
 
 @app.on_event("startup")
 async def startup_event():
@@ -622,7 +682,9 @@ async def startup_event():
     listener = KickLiveListener(channel_slug, on_event_callback=on_kick_live_event)
     asyncio.create_task(listener.start())
     asyncio.create_task(keep_alive_ping())
-    print(f"[*] Sistema de Sorteo PS5 Kick listo para el canal @{channel_slug} (Keep-Alive activo)")
+    # Sincronizar inmediatamente al iniciar
+    asyncio.create_task(sync_kick_leaderboard_gifts(channel_slug))
+    print(f"[*] Sistema de Sorteo PS5 Kick listo para el canal @{channel_slug} (Keep-Alive + Auto-Sync activos)")
 
 if __name__ == "__main__":
     import uvicorn

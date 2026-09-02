@@ -472,6 +472,97 @@ window.addTicketToUser = async function(username, count) {
   }
 };
 
+const syncKickGiftsBtn = document.getElementById('syncKickGiftsBtn');
+
+async function handleSyncKickGifts() {
+  if (!syncKickGiftsBtn) return;
+  const originalHtml = syncKickGiftsBtn.innerHTML;
+  syncKickGiftsBtn.disabled = true;
+  syncKickGiftsBtn.innerHTML = '⏳ Sincronizando con Kick...';
+
+  try {
+    let syncRes = null;
+
+    // 1. Intentar endpoint del backend en Render si está disponible
+    try {
+      const backendUrl = window.location.hostname.includes('onrender.com') 
+        ? '' 
+        : 'https://sorteocaoz.onrender.com';
+      const r = await fetch(`${backendUrl}/api/sync/kick-gifts`, { method: 'POST' });
+      if (r.ok) {
+        syncRes = await r.json();
+      }
+    } catch (e) {
+      console.log('Backend sync offline, usando cliente directo...');
+    }
+
+    // 2. Si el backend no respondió, consultar API pública de Kick Leaderboards directamente desde el navegador
+    if (!syncRes || !syncRes.success) {
+      const kickRes = await fetch('https://kick.com/api/v2/channels/caoz/leaderboards').catch(() => null);
+      if (kickRes && kickRes.ok) {
+        const kickData = await kickRes.json();
+        const giftsWeek = kickData.gifts_week || [];
+        let updatedCount = 0;
+
+        for (const item of giftsWeek) {
+          const username = item.username;
+          const qty = item.quantity || 0;
+          if (!username || qty <= 0) continue;
+
+          // Buscar perfil en Supabase
+          const existing = await supabaseRest('profiles', 'GET', null, `username=ilike.${encodeURIComponent(username)}`);
+          if (existing && existing.length > 0) {
+            const u = existing[0];
+            const currentGifted = u.gifted_subs || 0;
+            if (qty > currentGifted) {
+              const diff = qty - currentGifted;
+              await supabaseRest('profiles', 'PATCH', {
+                gifted_subs: qty,
+                updated_at: new Date().toISOString()
+              }, `id=eq.${u.id}`);
+
+              await supabaseRest('kick_events', 'POST', {
+                event_type: `gift_sub_${diff}`,
+                username: username,
+                kick_user_id: String(item.user_id || ''),
+                count: diff,
+                raw_payload: { source: 'admin_sync', total: qty }
+              });
+              updatedCount++;
+            }
+          } else {
+            await supabaseRest('profiles', 'POST', {
+              kick_user_id: String(item.user_id || username.toLowerCase()),
+              username: username,
+              display_name: username,
+              avatar_url: `https://api.dicebear.com/7.x/bottts/svg?seed=${username}`,
+              is_streamer: false,
+              own_subs: 0,
+              gifted_subs: qty,
+              bonus_tickets: 0
+            });
+            updatedCount++;
+          }
+        }
+        showToast(`✅ Sincronizado con Kick: ${updatedCount} actualizados (${giftsWeek.length} gifters revisados).`);
+      } else {
+        showToast('ℹ️ Kick API no respondió. Si el directo está activo, Render se encarga en segundo plano.', true);
+      }
+    } else {
+      const updatedCount = (syncRes.updated || []).length;
+      showToast(`✅ ¡Sincronizado! Se actualizaron ${updatedCount} usuarios.`);
+    }
+
+    await loadAdminData();
+  } catch (err) {
+    console.error('Error sincronizando con Kick:', err);
+    showToast('Error al sincronizar: ' + err.message, true);
+  } finally {
+    syncKickGiftsBtn.disabled = false;
+    syncKickGiftsBtn.innerHTML = originalHtml;
+  }
+}
+
 function handleLogout() {
   localStorage.removeItem('kick_user');
   localStorage.removeItem('kick_avatar');
@@ -502,11 +593,6 @@ function showToast(message, isError = false) {
     toast.style.transition = 'all 0.3s ease';
     setTimeout(() => toast.remove(), 300);
   }, 4000);
-}
-
-function handleLogout() {
-  localStorage.removeItem('kick_user');
-  window.location.href = 'index.html';
 }
 
 function initNavbarLogic() {
@@ -586,6 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   emitEventBtn.addEventListener('click', handleEmitEvent);
   saveConfigBtn.addEventListener('click', handleSaveConfig);
+  if (syncKickGiftsBtn) syncKickGiftsBtn.addEventListener('click', handleSyncKickGifts);
   if (exportExcelBtn) exportExcelBtn.addEventListener('click', exportToExcel);
   if (adminLogoutBtn) adminLogoutBtn.addEventListener('click', handleLogout);
 
