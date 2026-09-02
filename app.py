@@ -602,12 +602,26 @@ async def on_kick_live_event(username: str, event_type: str, count: int, raw_dat
         }
     })
 
+async def keep_alive_ping():
+    """Mantiene despierto el servicio en Render evitando que se duerma tras 15 min de inactividad."""
+    await asyncio.sleep(45)
+    render_url = os.getenv("RENDER_EXTERNAL_URL", "https://sorteocaoz.onrender.com").rstrip("/")
+    while True:
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(f"{render_url}/", timeout=12.0)
+                print(f"[⏱️ Keep-Alive] Ping a {render_url}: {resp.status_code}")
+        except Exception as e:
+            print(f"[⏱️ Keep-Alive] Ping local: {e}")
+        await asyncio.sleep(480) # Ping cada 8 minutos
+
 @app.on_event("startup")
 async def startup_event():
     channel_slug = os.getenv("KICK_CHANNEL_SLUG", "Caoz")
     listener = KickLiveListener(channel_slug, on_event_callback=on_kick_live_event)
     asyncio.create_task(listener.start())
-    print(f"[*] Sistema de Sorteo PS5 Kick listo para el canal @{channel_slug}")
+    asyncio.create_task(keep_alive_ping())
+    print(f"[*] Sistema de Sorteo PS5 Kick listo para el canal @{channel_slug} (Keep-Alive activo)")
 
 if __name__ == "__main__":
     import uvicorn
