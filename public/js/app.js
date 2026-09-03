@@ -726,9 +726,9 @@ async function handleLogout() {
 }
 
 // -------------------------------------------------------------------
-// 10. Animación de Máscara y Video al Scroll (GSAP ScrollTrigger)
+// 10. Animación de Máscara y Video al Scroll (GSAP matchMedia Responsive)
 // -------------------------------------------------------------------
-let caozScrollTimeline = null;
+let caozMatchMedia = null;
 
 function initHeroScrollAnimation() {
   const introSection = document.getElementById('heroIntroSection');
@@ -747,21 +747,25 @@ function initHeroScrollAnimation() {
   if (typeof ScrollTrigger.clearScrollMemory === 'function') {
     ScrollTrigger.clearScrollMemory('manual');
   }
-  window.scrollTo(0, 0);
 
-  const setupAnimation = () => {
-    if (caozScrollTimeline) {
-      caozScrollTimeline.kill();
-    }
+  // Revertir instancia previa si existía
+  if (caozMatchMedia) {
+    caozMatchMedia.revert();
+    caozMatchMedia = null;
+  }
 
+  caozMatchMedia = gsap.matchMedia();
+
+  // Función constructora limpia para cada breakpoint (desktop vs mobile)
+  const buildTimeline = (isMobile) => {
+    // 1. Resetear video
     if (bgVideo) {
       bgVideo.pause();
       bgVideo.currentTime = 0;
     }
 
-    const isMobile = window.innerWidth <= 768;
+    // 2. Parámetros exactos según resolución
     const isTablet = window.innerWidth <= 1024 && !isMobile;
-
     const maskUrl = isMobile ? 'url("images/mask-caoz-mobile.svg")' : 'url("images/mask-caoz-desktop.svg")';
     maskWrapper.style.webkitMaskImage = maskUrl;
     maskWrapper.style.maskImage = maskUrl;
@@ -797,7 +801,7 @@ function initHeroScrollAnimation() {
     let targetTime = 0;
     let isSeeking = false;
 
-    // Decodificación por hardware no bloqueante para móviles (evita saturar el decodificador de iOS y Android)
+    // Decodificación por hardware no bloqueante para móviles
     const onSeekFrame = () => {
       if (bgVideo && isFinite(targetTime) && !isSeeking) {
         const threshold = isMobile ? 0.035 : 0.015;
@@ -814,7 +818,7 @@ function initHeroScrollAnimation() {
 
     const totalDur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : 3.0;
 
-    caozScrollTimeline = gsap.timeline({
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#heroIntroSection',
         start: 'top top',
@@ -824,7 +828,6 @@ function initHeroScrollAnimation() {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          // El video avanza frame a frame en la primera parte del scroll (0% -> 60%)
           const dur = (bgVideo && bgVideo.duration > 0) ? bgVideo.duration : totalDur;
           const videoProgress = Math.min(1, self.progress / 0.60);
           targetTime = Math.min(Math.max(0, dur - 0.03), videoProgress * dur);
@@ -834,14 +837,14 @@ function initHeroScrollAnimation() {
     });
 
     // 1. Flecha de scroll se desvanece
-    caozScrollTimeline.to('.fade-out', {
+    tl.to('.fade-out', {
       opacity: 0,
       duration: 0.25,
       ease: 'power1.out'
     }, 0);
 
-    // 2. Zoom OUT de la máscara CAOZ: se despliega suavemente hacia la vista completa del logo (0.50 -> 0.85)
-    caozScrollTimeline.to(maskState, {
+    // 2. Zoom OUT de la máscara CAOZ
+    tl.to(maskState, {
       size: targetSize,
       posX: targetPosX,
       posY: targetPosY,
@@ -850,8 +853,8 @@ function initHeroScrollAnimation() {
       onUpdate: updateMask
     }, 0.50);
 
-    // 3. Transición suave a la web: disuelve la máscara hacia el contenido (0.80 -> 1.0)
-    caozScrollTimeline.to(maskWrapper, {
+    // 3. Transición suave a la web
+    tl.to(maskWrapper, {
       opacity: 0,
       duration: 0.20,
       ease: 'power1.inOut'
@@ -859,29 +862,42 @@ function initHeroScrollAnimation() {
 
     // 4. El contenido de la web emerge en paralelo
     if (mainSite) {
-      caozScrollTimeline.fromTo(mainSite, 
+      tl.fromTo(mainSite, 
         { opacity: 0.4, y: 15 },
         { opacity: 1, y: 0, duration: 0.20, ease: 'power1.inOut' },
         0.80
       );
     }
+
+    // Limpieza automática al cambiar de breakpoint (elimina pin-spacer sin dejar bugs)
+    return () => {
+      if (tl.scrollTrigger) {
+        tl.scrollTrigger.kill(true);
+      }
+      tl.kill();
+      gsap.set([maskWrapper, introSection, mainSite, '.fade-out', '.scale-out'], { clearProps: 'all' });
+      if (bgVideo) {
+        bgVideo.onseeked = null;
+      }
+    };
   };
 
-  if (bgVideo.readyState >= 1) {
-    setupAnimation();
-  } else {
-    bgVideo.addEventListener('loadedmetadata', setupAnimation, { once: true });
-    setTimeout(setupAnimation, 200);
-  }
-
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      setupAnimation();
-      ScrollTrigger.refresh();
-    }, 200);
+  // ESCRITORIO Y TABLET (> 768px)
+  caozMatchMedia.add("(min-width: 769px)", () => {
+    return buildTimeline(false);
   });
+
+  // MÓVIL (<= 768px)
+  caozMatchMedia.add("(max-width: 768px)", () => {
+    return buildTimeline(true);
+  });
+
+  // Refrescar al cargar metadata del video
+  if (bgVideo.readyState < 1) {
+    bgVideo.addEventListener('loadedmetadata', () => {
+      ScrollTrigger.refresh();
+    }, { once: true });
+  }
 
   const scrollIndicator = document.getElementById('heroScrollIndicator');
   if (scrollIndicator) {
