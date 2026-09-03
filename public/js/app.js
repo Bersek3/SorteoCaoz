@@ -55,10 +55,6 @@ const countMySeats = document.getElementById('countMySeats');
 const countTakenSeats = document.getElementById('countTakenSeats');
 const searchSeatInput = document.getElementById('searchSeatInput');
 
-const floatingBar = document.getElementById('floatingBar');
-const floatingAvailableCount = document.getElementById('floatingAvailableCount');
-const floatingAutoPickBtn = document.getElementById('floatingAutoPickBtn');
-
 const loginModal = document.getElementById('loginModal');
 const closeLoginModal = document.getElementById('closeLoginModal');
 const loginForm = document.getElementById('loginForm');
@@ -344,13 +340,6 @@ function renderUI() {
       }
     }
 
-    if (floatingBar) {
-      floatingBar.style.display = (user.available_tickets > 0) ? 'flex' : 'none';
-    }
-    if (floatingAvailableCount) {
-      floatingAvailableCount.textContent = user.available_tickets || 0;
-    }
-
     // Contadores & Grid
     if (countTotalSeats) countTotalSeats.textContent = stats.total_seats || 200;
     if (countFreeSeats) countFreeSeats.textContent = stats.available_seats || 0;
@@ -371,7 +360,6 @@ function renderUI() {
 
     if (walletLoggedOut) walletLoggedOut.style.display = 'block';
     if (walletLoggedIn) walletLoggedIn.style.display = 'none';
-    if (floatingBar) floatingBar.style.display = 'none';
 
     if (seatsSelectionArea) seatsSelectionArea.style.display = 'none';
     if (seatsLockedBox) seatsLockedBox.style.display = 'block';
