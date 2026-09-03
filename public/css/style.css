@@ -1098,6 +1098,8 @@ select option {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  width: 100%;
   gap: 6px;
   text-shadow: 0 0 12px rgba(255, 122, 0, 0.5);
 }
